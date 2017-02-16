@@ -1,0 +1,4 @@
+class Mongodb::ReportGroupGenerator
+
+end
+

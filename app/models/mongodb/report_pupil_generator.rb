@@ -1,0 +1,4 @@
+class Mongodb::ReportPupilGenerator
+
+end
+

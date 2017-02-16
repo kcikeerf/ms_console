@@ -1,0 +1,118 @@
+// 顶部导航拦
+.zy-navbar {
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+  height: $navbar-height-base;
+  margin: 0;
+  .navbar-toggle {
+    margin: (($navbar-height-base - 34px) / 2 ) $padding-lg;
+    margin-left: 0;
+  }
+  .navbar-brand {
+    padding: $padding-base $padding-lg;
+    line-height: $navbar-height-base - ( 2 * $padding-base );
+    height: auto;
+    // Logo
+    .zy-logo {
+      width: auto;
+      height: $navbar-height-base - ( 2 * $padding-base );
+      margin-right: $padding-lg;
+    }
+  }
+  .zy-navbar-brand {
+    width: $sidebar-width;
+  }
+  .zy-tenant-container {
+    float:left;
+    display: inline-block;
+    position: relative;
+    @media screen and (max-width: 767px) {
+      display: none;
+    }
+    .zy-tenant-title {
+      padding: $padding-base $padding-lg;
+      line-height: $navbar-height-base - ( 2 * $padding-base );
+      display: inline-block;
+      font-size: 24px;
+    }
+  }
+  .navbar-nav {
+    > li {
+      margin: 0 $padding-base;
+      > a {
+        padding: $padding-base $padding-lg;
+        line-height: $navbar-height-base - ( 2 * $padding-base );
+        color: $grey;
+        font-size: 16px;
+        font-weight: 400;
+
+        &:hover {
+          color: $text-color;
+          background: transparent;
+          box-shadow: inset 0 -5px 0 0 $color-main;
+        }
+      }
+      > a.btn {
+        border: none;
+        margin: $padding-lg $padding-base;
+        line-height: $navbar-height-base - (2 * $padding-lg) - (2 * $btn-padding-base-vertical);
+        padding: $btn-padding-base-vertical $btn-padding-base-horizontal;
+      }
+      > a.zy-btn-login {
+        color: #fff;
+        background-color: $color-main;
+        @media screen and (max-width: 768px) {
+          display: none;
+        }
+      }
+      > button.zy-btn-login {
+        border: none;
+        color: #fff;
+        background-color: $color-main;
+        margin: $padding-lg 0;
+        line-height: $navbar-height-base - (2 * $padding-lg) - (2 * $btn-padding-base-vertical);
+        padding: $btn-padding-base-vertical $btn-padding-base-horizontal;
+        @media screen and (max-width: 768px) {
+          display: none;
+        }
+      }
+      > button.zy-btn-user {
+        font-size: 20px;
+        color: #727272;
+        background: none;
+        background-color: transparent;
+        border: none;
+        margin: $padding-lg 0;
+        line-height: $navbar-height-base - (2 * $padding-lg) - (2 * $btn-padding-base-vertical);
+        padding: $btn-padding-base-vertical $btn-padding-base-horizontal;
+        &:focus,
+        &.focus {
+          outline: none;
+        }
+        &:active,
+        &.active {
+          &:focus,
+          &.focus {
+            outline: none;
+          }
+        }
+        &:active,
+        &.active {
+          box-shadow: none;
+        }
+      }
+    }
+  }
+  .navbar-collapse {
+    float: right;
+    @media screen and (max-width: 767px) {
+      position: absolute;
+      right: 0;
+      top: $navbar-height-base + 0.5px;
+      background-color: rgb(255, 255, 255);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      z-index: 2;
+    }
+  }
+}
+
