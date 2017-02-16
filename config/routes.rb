@@ -115,6 +115,17 @@ Rails.application.routes.draw do
     end
   end
   
+  resources :node_structures do
+    collection do 
+      get 'get_subjects'
+      get 'get_grades'
+      get 'get_versions'
+      get 'get_units'
+      get 'list'
+      get 'catalog_list'
+    end
+  end
+
   get '/ckeditors/urlimage'=> "ckeditor#urlimage"
 
   get '*path', to: 'managers/mains#index'
