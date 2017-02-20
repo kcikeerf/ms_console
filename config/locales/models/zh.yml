@@ -25,6 +25,8 @@ zh:
       project_administrator: "项目管理员"
       permission: "一般权限"
       api_permission: "API权限"
+      auth_domain_white_lists: "域名白名单"
+      oauth2_clients: "第三方客户端认证"
 
     attributes:
       default:

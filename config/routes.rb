@@ -98,6 +98,8 @@ Rails.application.routes.draw do
     resources :project_administrators, concerns: :destroy_all
     resources :area_administrators, concerns: :destroy_all
     resources :node_catalogs, concerns: :destroy_all
+    resources :auth_domain_white_lists, concerns: :destroy_all
+    resources :oauth2_clients, concerns: :destroy_all
   end
 
   mount RuCaptcha::Engine => "/rucaptcha"

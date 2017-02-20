@@ -1,12 +1,21 @@
 module Managers::MainsHelper
   def page_info_item
     case controller_name
+    when "api_permissions"
+      title = I18n.t("activerecord.models.api_permission")
+      path = "/managers/api_permissions"
     when "area_administrators"
       title = I18n.t("activerecord.models.area_administrator")
       path = "/managers/area_administrators"      
     when "analyzers"
       title = I18n.t("activerecord.models.analyzer")
       path = "/managers/analyzers"
+    when "auth_domain_white_lists"
+      title = I18n.t("activerecord.models.auth_domain_white_lists")
+      path = "/managers/auth_domain_white_lists"
+    when "oauth2_clients"
+      title = I18n.t("activerecord.models.oauth2_clients")
+      path = "/managers/oauth2_clients"
     when "permissions"
       title = I18n.t("activerecord.models.permission")
       path = "/managers/permissions"
@@ -50,5 +59,9 @@ module Managers::MainsHelper
       :path => path
     }
     result
+  end
+
+  def http_method_list
+    %W{GET POST PUT OPTIONS HEAD TRACE DELETE}
   end
 end
