@@ -23,7 +23,8 @@ zh:
       tenant: "Tenant"
       tenant_administrator: "Tenant管理员"
       project_administrator: "项目管理员"
-      permission: "权限"
+      permission: "一般权限"
+      api_permission: "API权限"
 
     attributes:
       default:
@@ -156,3 +157,9 @@ zh:
         odd: "必须为单数"
         even: "必须为双数"
         record_invalid: "校验失败: %{errors}"
+
+  nosql:
+    models:
+      auth_wl_domain_white_lists: "认证域名白名单"
+      oauth2_clients: "认证第三方客户端"
+    attributes:
