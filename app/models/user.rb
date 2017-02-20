@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 class User < ActiveRecord::Base
   attr_accessor :role_name, :login, :password_confirmation
 
@@ -9,11 +11,20 @@ class User < ActiveRecord::Base
   belongs_to :role
   has_one :image_upload
 
-  has_many :wx_user_mappings, foreign_key: "user_id"
+  has_many :wx_user_mappings, foreign_key: "user_id", dependent: :destroy
   has_many :wx_users, through: :wx_user_mappings
   has_many :task_lists, foreign_key: "user_id"
+  has_many :user_skope_links, foreign_key: "user_id", dependent: :destroy
+  has_many :skopes, through: :user_skope_links
 
-  before_create :set_role#, :check_existed?
+  #
+  belongs_to :area
+  has_many :user_tenant_links, foreign_key: "user_id", dependent: :destroy
+  has_many :tenants, through: :user_tenant_links
+  has_many :user_location_links, foreign_key: "user_id", dependent: :destroy
+  has_many :locations, through: :user_location_links
+
+  before_create :set_role, :set_authentication_token
 
   validates :role_name, presence: true, on: :create
   validates :name, presence: true, uniqueness: true, format: { with: /\A([a-zA-Z_]+|(?![^a-zA-Z_]+$)(?!\D+$)).{6,20}\z/ }
@@ -42,7 +53,9 @@ class User < ActiveRecord::Base
     def find_for_database_authentication(warden_conditions)
       conditions = warden_conditions.dup
       login = conditions.delete(:login)
-      find_user(login, conditions)
+      target_user = find_user(login, conditions)
+      target_user.create_user_auth_redis if target_user
+      target_user
       # where(conditions.to_h).where(["lower(phone) = :value OR lower(email) = :value", { :value => login.downcase }]).first
     end
 
@@ -99,7 +112,7 @@ class User < ActiveRecord::Base
       end
     end
 
-    def find_user(login, conditions)
+    def find_user(login, conditions={})
       user = 
         case judge_type(login)
         when 'mobile'
@@ -115,6 +128,17 @@ class User < ActiveRecord::Base
   end
   ########类方法定义：end#######
 
+  # 生成 是否为角色方法、角色方法
+  Common::Role::NAME_ARR.each do |name|
+    define_method("is_#{name}?") do 
+      role?(name)
+    end
+
+    define_method(name) do
+     role?(name) ? name.camelcase.constantize.find_by(user_id: id) : nil
+    end
+  end
+
   def save_user(role_name, params)
     #transaction do 
       paramsh = {
@@ -126,6 +150,34 @@ class User < ActiveRecord::Base
         :phone => params[:phone] || "",
         :email => params[:email] || ""
       }
+
+      area_rid = params[:province_rid] unless params[:province_rid].blank?
+      area_rid = params[:city_rid] unless params[:city_rid].blank?
+      area_rid = params[:district_rid] unless params[:district_rid].blank?
+      target_area = Area.where(rid: area_rid).first
+      paramsh[:area_uid] = target_area.uid if target_area
+
+      unless params[:tenant_uids].blank?
+        self.user_tenant_links.destroy_all
+        params[:tenant_uids].each{|tenant_uid|
+          UserTenantLink.new({
+            :user_id => self.id,
+            :tenant_uid => tenant_uid
+          }).save! if tenant_uid
+        }
+      end
+
+      unless params[:loc_uids].blank?
+        self.user_location_links.destroy_all
+        params[:loc_uids].each{|loc_uid|
+          UserLocationLink.new({
+            :user_id => self.id,
+            :loc_uid => loc_uid
+          }).save! if loc_uid
+        }
+      end
+
+      paramsh[:role_id] = params[:role_id] unless params[:role_id].blank?
       return self unless update_attributes(paramsh)
 
       save_role_obj(params.merge({user_id: self.id}))
@@ -147,6 +199,34 @@ class User < ActiveRecord::Base
         paramsh[:password_confirmation] = params[:password_confirmation]
         paramsh[:initial_password] = ""
       end
+
+      area_rid = params[:province_rid] unless params[:province_rid].blank?
+      area_rid = params[:city_rid] unless params[:city_rid].blank?
+      area_rid = params[:district_rid] unless params[:district_rid].blank?
+      target_area = Area.where(rid: area_rid).first
+      paramsh[:area_uid] = target_area.uid if target_area
+
+      unless params[:tenant_uids].blank?
+        self.user_tenant_links.destroy_all
+        params[:tenant_uids].each{|tenant_uid|
+          UserTenantLink.new({
+            :user_id => self.id,
+            :tenant_uid => tenant_uid
+          }).save! if tenant_uid
+        }
+      end
+
+      unless params[:loc_uids].blank?
+        self.user_location_links.destroy_all
+        params[:loc_uids].each{|loc_uid|
+          UserLocationLink.new({
+            :user_id => self.id,
+            :loc_uid => loc_uid
+          }).save! if loc_uid
+        }
+      end
+
+      paramsh[:role_id] = params[:role_id] unless params[:role_id].blank?
       return self unless update_attributes(paramsh)
 
       save_role_obj(params.merge({user_id: self.id}))
@@ -199,6 +279,7 @@ class User < ActiveRecord::Base
 
   end
 
+
   # 生成 是否为角色方法、角色方法
   Common::Role::NAME_ARR.each do |name|
     define_method("is_#{name}?") do 
@@ -232,6 +313,8 @@ class User < ActiveRecord::Base
     result = nil
     if is_pupil?
       result = role_obj.location.tenant if role_obj && role_obj.location
+    elsif is_project_administrator?
+      # do nothing
     else
       result = role_obj.tenant if role_obj
     end
@@ -267,6 +350,60 @@ class User < ActiveRecord::Base
     result
   end
 
+  def create_user_auth_redis
+    key_arr = Common::SwtkRedis::find_keys Common::SwtkRedis::Ns::Auth, "/users/#{self.id}"
+    if key_arr.blank?
+      refresh_user_auth_redis!
+    end
+  end
+
+  def refresh_user_auth_redis!
+    return false unless self.id
+    
+    base_key = "/users/#{self.id}"
+    Common::SwtkRedis::del_keys Common::SwtkRedis::Ns::Auth, base_key
+    
+    ####### 权限 #######
+    # 一般权限redis缓存
+    self.role.permissions.each{|item|
+      permission_key = base_key + "/permissions/#{item.subject_class}/#{item.operation}"
+      Common::SwtkRedis::set_key Common::SwtkRedis::Ns::Auth, permission_key, 1
+    }
+    # API权限redis缓存
+    self.role.api_permissions.each{|item|
+      api_permission_key = base_key + "/api_permissions/#{item.method}/#{item.path}"
+      Common::SwtkRedis::set_key Common::SwtkRedis::Ns::Auth, api_permission_key, 1
+    }
+
+    ####### Skope #######
+    skope_base_key = base_key + "/skope"
+    skope_rules = self.skopes.map{|item| item.skope_rules }.flatten
+    skope_rules.compact!
+    skope_rules.uniq!
+    skope_rules.sort!{|a,b| b.priority <=> a.priority}
+
+    target_area = self.area
+    pcd_h = target_area.pcd_h
+    target_tenants = self.tenants
+    target_locations = self.locations
+
+    skope_re = {
+      :province => "(#{pcd_h[:province][:uid]})",
+      :city => "(#{pcd_h[:city][:uid]})",
+      :district => "(#{pcd_h[:district][:uid]})",
+      :tenant => "(#{target_tenants.map(&:uid).join("|")})",
+      :klass => "(#{target_locations.map(&:uid).join("|")})"
+    }
+    skope_re[:pupil] = "(#{self.authentication_token})"
+
+    skope_rules.each{|item|
+      skope_key = skope_base_key + "/#{item.rkey}"
+      skope_value = (item.category == "skope")? skope_re[item.rkey.to_sym] : item.rvalue
+      Common::SwtkRedis::set_key Common::SwtkRedis::Ns::Auth, item, skope_value
+    }
+
+  end
+
   def paper_questions
     Mongodb::BankTestUserLink.where(user_id: self.id).map{|item| item.bank_test.paper_question if item.bank_test}.compact
   end
@@ -289,6 +426,16 @@ class User < ActiveRecord::Base
 
     def set_role
       self.role_id = Role.get_role_id(role_name)
+    end
+
+    def set_authentication_token
+      self.authentication_token = loop do 
+        token = Common::AuthConfig::random_codes(Common::Uzer::AuthTokenLength)
+        old_tokens = self.class.where(authentication_token: token)
+        break token if old_tokens.blank? 
+      end
+      puts "======="
+      puts self.authentication_token      
     end
 
     def check_existed?

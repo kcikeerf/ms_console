@@ -1,4 +1,3 @@
 class Mongodb::ReportGroupGenerator
 
 end
-
