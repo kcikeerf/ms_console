@@ -6,6 +6,24 @@
     </div>
 
     <div style="margin:5px 0px 5px 15px;">
+      <label>角色</label>
+      <select class="easyui-combobox" id="city_rid" name="role_id" style="width:200px;" data-options="valueField:'role_id',textField:'name_cn'">
+        <% role_list.each do |item| %>
+          <option value="<%=item.id%>"><%=item.name%></option>
+        <% end %>
+      </select>
+    </div>
+
+    <div style="margin:5px 0px 5px 15px;">
+      <label>Scope</label>
+      <select class="easyui-combobox" id="city_rid" name="city_rid" style="width:200px;" data-options="valueField:'rid',textField:'name_cn'">
+        <% skope_list.each do |item| %>
+          <option value="<%=item.id%>"><%=item.name%></option>
+        <% end %>
+      </select>
+    </div>
+
+    <div style="margin:5px 0px 5px 15px;">
         <label for="users_desc">描述</label>
         <textarea type="text" cols="35" rows="4" name="desc" id="users_desc"></textarea>
     </div>

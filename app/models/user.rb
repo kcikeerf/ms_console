@@ -133,8 +133,11 @@ class User < ActiveRecord::Base
       result.each_with_index{|item, index|
 
         h = item.attributes
+        h[:role_id] = item.role.blank?? "" : item.role.id
         h[:role_name] = item.role.blank?? "" : item.role.name
-
+        h[:role_id] = item.role.blank?? "" : item.role.id
+        h[:role_name] = item.role.blank?? "" : item.role.name
+        
         result[index] = h
       }
       return result

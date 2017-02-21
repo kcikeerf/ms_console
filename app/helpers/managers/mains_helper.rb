@@ -56,4 +56,12 @@ module Managers::MainsHelper
   def http_method_list
     %W{GET POST PUT OPTIONS HEAD TRACE DELETE}
   end
+
+  def role_list
+    Role.order(name: :asc).select(:id,:name)
+  end
+
+  def skope_list
+    Skope.order(name: :asc).select(:id,:name)
+  end
 end
