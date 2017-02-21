@@ -26,7 +26,6 @@ class Manager < ActiveRecord::Base
         :items => %W{
           permissions
           api_permissions
-          skope_rules
           skopes
           roles
           users

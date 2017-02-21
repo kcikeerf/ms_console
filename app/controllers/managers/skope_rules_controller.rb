@@ -3,11 +3,12 @@ class Managers::SkopeRulesController < ApplicationController
 
   layout 'manager_crud'
 
-  before_action :set_skope_rule, only: [:update]
+  before_action :set_skope, only: [:index]
+  before_action :set_skope_rule, only: [:create, :update]
 
   def index
-    @skope_rules = SkopeRule.page(params[:page]).per(params[:rows])
-    respond_with({rows: @skope_rules, total: @skope_rules.total_count}) 
+    skope_rules = @skope.skope_rules.page(params[:page]).per(params[:rows])
+    respond_with({rows: skope_rules, total: skope_rules.total_count}) 
   end
 
   def create
@@ -27,11 +28,15 @@ class Managers::SkopeRulesController < ApplicationController
 
   private
 
+    def set_skope
+      @skope = Skope.where(id: params[:skope_id]).first
+    end
+
     def set_skope_rule
       @skope_rule = SkopeRule.where(id: params[:id]).first
     end
 
     def skope_rule_params
-      params.permit(:id, :name, :category, :priority, :rkey, :rvalue, :desc)
+      params.permit(:id, :name, :category, :priority, :rkey, :rvalue, :desc, :skope_id)
     end
 end

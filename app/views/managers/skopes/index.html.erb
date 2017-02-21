@@ -3,6 +3,15 @@
 <th data-options="field:'name',align:'center', width:'20%'">名称</th>
 <th data-options="field:'desc',align:'center', width:'20%'">描述</th>
 <th data-options="field:'updated_at',align:'center', width:'30%'">更新时间</th>
+<th data-options="field:'operations',width:'auto',align:'center',formatter:formatOper">操作</th>
 
 <!--form in dialog-->
 <%= render partial: "form_in_dialog" %>
+
+<script type="text/javascript">
+	function formatOper(val,row,index){
+		var click_catalog_func = 'reopen(window.parent.$("#tabs"),"Scope规则", "<%= page_info_item[:path] %>\/'+row["id"]+'\/skope_rules")';
+		var link_str = "<a href='#'' onclick='" + click_catalog_func + "'>Scope规则管理</a>&nbsp;";
+		return link_str;
+	} 
+</script>

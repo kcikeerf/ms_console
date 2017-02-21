@@ -15,6 +15,10 @@ module Managers::MainsHelper
       ]
       title = "#{I18n.t('activerecord.models.bank_node_catalog')}(#{arr.join('/')})"
       path = "/managers/node_structures/#{params[:node_structure_id]}/node_catalogs"
+    when "skope_rules"
+      skope = Skope.where(id: params[:skope_id]).first
+      title = "#{I18n.t('activerecord.models.skope_rules')}(#{skope.name})"
+      path = "/managers/skopes/#{params[:skope_id]}/skope_rules"
     else
       # do nothing
     end
@@ -30,7 +34,6 @@ module Managers::MainsHelper
       project_administrators
       roles
       skopes
-      skope_rules
       teachers
       tenants
       tenant_administrators
