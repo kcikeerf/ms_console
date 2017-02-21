@@ -38,6 +38,7 @@ module Managers::MainsHelper
       tenants
       tenant_administrators
       node_structures
+      users
     }
 
     if controller_arr.include?(controller_name)

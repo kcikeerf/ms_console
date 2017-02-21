@@ -125,6 +125,20 @@ class User < ActiveRecord::Base
 
       user.where(conditions.to_h).first#.where(["lower(phone) = :value OR lower(email) = :value", { :value => login.downcase }]).first
     end
+
+    def get_list params={}
+      params[:page] = params[:page].blank?? Common::SwtkConstants::DefaultPage : params[:page]
+      params[:rows] = params[:rows].blank?? Common::SwtkConstants::DefaultRows : params[:rows]
+      result = self.order("updated_at desc").page(params[:page]).per(params[:rows])
+      result.each_with_index{|item, index|
+
+        h = item.attributes
+        h[:role_name] = item.role.blank?? "" : item.role.name
+
+        result[index] = h
+      }
+      return result
+    end    
   end
   ########类方法定义：end#######
 
