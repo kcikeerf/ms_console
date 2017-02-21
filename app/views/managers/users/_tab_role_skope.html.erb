@@ -3,7 +3,7 @@
     <label>角色</label>
     <select class="easyui-combobox" id="users_role_id" name="role_id" style="width:200px;" data-options="valueField:'id',textField:'name'">
         <% role_list.each do |item| %>
-          <option value="<%=item.id%>"><%=item.name%></option>
+          <option value="<%=item.id%>"><%=item.name_label%></option>
         <% end %>
     </select>
 </div>

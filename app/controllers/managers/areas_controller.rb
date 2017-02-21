@@ -45,7 +45,7 @@ class  Managers::AreasController < ApplicationController
       result = result.map{|item| {tenant_uids: item.uid, name_cn: item.name_cn}}
     end
 
-    result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("managers.messages.list_to_select")})
+    result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("common.list_to_select")})
     render :json => result.to_json
   end
 
@@ -67,7 +67,7 @@ class  Managers::AreasController < ApplicationController
       result.compact!
     end
 
-    result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("managers.messages.list_to_select")})
+    result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("common.list_to_select")})
     render :json => result.to_json
   end
 end

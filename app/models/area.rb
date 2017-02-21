@@ -62,7 +62,7 @@ class Area < ActiveRecord::Base
           :uid=> "", 
           :rid=> "", 
           :name=> "", 
-          :name_cn=> Common::Locale::i18n("managers.messages.list_to_select")
+          :name_cn=> Common::Locale::i18n("common.list_to_select")
         }]
     end
   end

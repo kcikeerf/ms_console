@@ -51,6 +51,6 @@ class Managers::ApiPermissionsController < ApplicationController
     end
 
     def permission_params
-      params.permit(:authenticity_token, :id, :name, :method, :path, :description, :role_id)
+      params.permit(:id, :name, :method, :path, :description, :role_id)
     end
 end

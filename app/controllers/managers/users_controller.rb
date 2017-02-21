@@ -33,6 +33,16 @@ class Managers::UsersController < ApplicationController
     end
 
     def user_params
-      params.permit(:id, :name, :desc)
+      params.permit(
+        :id, 
+        :name, 
+        :real_name, 
+        :password, 
+        :password_confirmation, 
+        :role_id, 
+        :qq, 
+        :phone, 
+        :email, 
+        :desc)
     end
 end

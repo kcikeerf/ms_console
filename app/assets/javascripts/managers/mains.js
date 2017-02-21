@@ -213,6 +213,10 @@ function editObjWithArea(url){
             areaObj.reset_tenant_list();
             setTimeout(function(){
               $('#fm').form('load',row);
+              areaObj.reset_klass_list();
+              setTimeout(function(){
+                $('#fm').form('load',row);
+              },100);            
             },100);
         },100);
     }, 100);

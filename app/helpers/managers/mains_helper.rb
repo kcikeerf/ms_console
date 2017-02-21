@@ -58,7 +58,7 @@ module Managers::MainsHelper
   end
 
   def role_list
-    Role.order(name: :asc).select(:id,:name)
+    Role.order(name: :asc).select(:id,:name, :name_label)
   end
 
   def skope_list
@@ -88,5 +88,13 @@ module Managers::MainsHelper
       {rvalue: "1", rvalue_label: "所属范围访问有效"},
       {rvalue: "99", rvalue_label: "所有有效"}
     ]
+  end
+
+  def gender_list
+    Common::Locale::GenderListArr
+  end
+
+  def all_subject_list
+    Common::Subject::ListArr.unshift({:key => "all", :label => Common::Locale::i18n("common.all")})
   end
 end

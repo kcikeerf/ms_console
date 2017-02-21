@@ -11,90 +11,94 @@ class Manager < ActiveRecord::Base
   
   validates :password, length: { in: 6..19 }, presence: true, confirmation: true, if: :password_required?
 
-  def self.find_for_database_authentication(warden_conditions)
-    conditions = warden_conditions.dup
-    login = conditions.delete(:login)
-    find_user(login, conditions)
-  end
+  ########类方法定义：begin#######
+  class << self
+    def find_for_database_authentication(warden_conditions)
+      conditions = warden_conditions.dup
+      login = conditions.delete(:login)
+      find_user(login, conditions)
+    end
 
-  def self.left_menus
-    result = []
-    menus = [
-      {
-        :name => "用户管理",
-        :icon => "icon-sys",
-        :items => %W{
-          permissions
-          api_permissions
-          skopes
-          roles
-          users
-          tenants
-          area_administrators
-          project_administrators
-          tenant_administrators
-          analyzers
-          teachers
-          pupils
+    def left_menus
+      result = []
+      menus = [
+        {
+          :name => "用户管理",
+          :icon => "icon-sys",
+          :items => %W{
+            permissions
+            api_permissions
+            skopes
+            roles
+            users
+            tenants
+            area_administrators
+            project_administrators
+            tenant_administrators
+            analyzers
+            teachers
+            pupils
+          }
+        },
+        {
+          :name => "API认证管理",
+          :icon => "icon-sys",
+          :items => %W{
+            auth_domain_white_lists
+            oauth2_clients
+          }
+        },   
+        {
+          :name => "资源管理",
+          :icon => "icon-sys",
+          :items => %W{
+            node_structures
+            subject_checkpoints
+            checkpoints
+          }
         }
-      },
-      {
-        :name => "API认证管理",
-        :icon => "icon-sys",
-        :items => %W{
-          auth_domain_white_lists
-          oauth2_clients
-        }
-      },   
-      {
-        :name => "资源管理",
-        :icon => "icon-sys",
-        :items => %W{
-          node_structures
-          subject_checkpoints
-          checkpoints
-        }
-      }
-    ]
-    menus.each_with_index{|group,index|
-      result << {
-        id: index, 
-        icon: group[:icon], 
-        name: group[:name],
-        menus: group[:items].map{|item|
-          {
-            name: Common::Locale::i18n("activerecord.models.#{item}"),
-            icon: "",
-            url: "/managers/#{item}"
+      ]
+      menus.each_with_index{|group,index|
+        result << {
+          id: index, 
+          icon: group[:icon], 
+          name: group[:name],
+          menus: group[:items].map{|item|
+            {
+              name: Common::Locale::i18n("activerecord.models.#{item}"),
+              icon: "",
+              url: "/managers/#{item}"
+            }
           }
         }
       }
-    }
 
-    result
+      result
+    end
   end
+  ########类方法定义：end#######
 
   private
 
-  def self.find_user(login, conditions)
-    user = 
-      case judge_type(login)
-      when 'mobile'
-        where("phone = ? and phone_validate = ?", login, true)
-      when 'email'
-        where("lower(email) = ?", login.downcase)
-      else
-        where("lower(name) = ?", login.downcase)
-      end
+    def self.find_user(login, conditions)
+      user = 
+        case judge_type(login)
+        # when 'mobile'
+        #   where("phone = ? and phone_validate = ?", login, true)
+        when 'email'
+          where("lower(email) = ?", login.downcase)
+        else
+          where("lower(name) = ?", login.downcase)
+        end
 
-    user.where(conditions.to_h).first#.where(["lower(phone) = :value OR lower(email) = :value", { :value => login.downcase }]).first
-  end
-
-  def self.judge_type(user_name)
-    case user_name
-      when /\A1\d{10}\z/ then 'mobile'
-      when /\A[^@\s]+@[^@\s]+\z/ then 'email'
-      else 'name'
+      user.where(conditions.to_h).first#.where(["lower(phone) = :value OR lower(email) = :value", { :value => login.downcase }]).first
     end
-  end
+
+    def self.judge_type(user_name)
+      case user_name
+        # when /\A1\d{10}\z/ then 'mobile'
+        when /\A[^@\s]+@[^@\s]+\z/ then 'email'
+        else 'name'
+      end
+    end
 end

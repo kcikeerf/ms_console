@@ -60,7 +60,7 @@ class Managers::RolesController < ApplicationController
     end
 
     def role_params
-      params.permit(:name, :desc)
+      params.permit(:name, :name_label, :desc)
     end
 
     def permission_params
