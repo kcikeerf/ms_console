@@ -88,6 +88,7 @@ Rails.application.routes.draw do
         get 'get_city'
         get 'get_district'
         get 'get_tenants'
+        get 'get_klasses'
       end
     end
 

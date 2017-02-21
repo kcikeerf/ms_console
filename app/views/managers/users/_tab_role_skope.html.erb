@@ -1,0 +1,24 @@
+<!--角色-->
+<div style="margin:5px 0px 5px 15px;">
+    <label>角色</label>
+    <select class="easyui-combobox" id="users_role_id" name="role_id" style="width:200px;" data-options="valueField:'id',textField:'name'">
+        <% role_list.each do |item| %>
+          <option value="<%=item.id%>"><%=item.name%></option>
+        <% end %>
+    </select>
+</div>
+
+<!--Scope-->
+<div style="margin:5px 0px 5px 15px;">
+    <label>Scope</label>
+    <select class="easyui-combobox" 
+        name="skope_ids[]"
+        multiple="true" 
+        multiline="true" 
+        style="width:200px;height:100px;"
+        data-options="valueField:'id',textField:'name'">
+        <% skope_list.each do |item| %>
+          <option value="<%=item.id%>"><%=item.name%></option>
+        <% end %>
+    </select>
+</div>

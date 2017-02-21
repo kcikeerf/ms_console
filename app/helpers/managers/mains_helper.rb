@@ -64,4 +64,29 @@ module Managers::MainsHelper
   def skope_list
     Skope.order(name: :asc).select(:id,:name)
   end
+
+  def priority_list
+    [*1..100]
+  end
+
+  def skope_rkey_default_list
+    [
+      {rkey: "province", rkey_label: "省"},
+      {rkey: "city", rkey_label: "市"},
+      {rkey: "district", rkey_label: "区"},
+      {rkey: "tenant", rkey_label: "租户（学校）"},
+      {rkey: "klass", rkey_label: "班级"},
+      {rkey: "pupil", rkey_label: "学生"},
+      {rkey: "subject", rkey_label: "学科"},
+      {rkey: "grade", rkey_label: "年级"}
+    ]
+  end
+  
+  def skope_rvalue_default_list
+    [
+      {rvalue: "-1", rvalue_label: "所有无效"},
+      {rvalue: "1", rvalue_label: "所属范围访问有效"},
+      {rvalue: "99", rvalue_label: "所有有效"}
+    ]
+  end
 end

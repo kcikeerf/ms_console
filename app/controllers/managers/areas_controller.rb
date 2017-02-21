@@ -45,7 +45,29 @@ class  Managers::AreasController < ApplicationController
       result = result.map{|item| {tenant_uids: item.uid, name_cn: item.name_cn}}
     end
 
-    result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("managers.messages.tenant.select")})
+    result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("managers.messages.list_to_select")})
+    render :json => result.to_json
+  end
+
+  def get_klasses
+    params.permit!
+    
+    result = []
+
+    unless params[:tenant_uids].blank?
+      tenants = Tenant.where(uid: params[:tenant_uids])
+      result = tenants.map{|tnt| 
+        tnt.locations.map{|loc| 
+          {
+            loc_uids: loc.uid, 
+            name_cn: tnt.name_cn + "_" +Common::Locale::i18n("dict.#{loc.classroom}")
+          }
+        } 
+      }.flatten
+      result.compact!
+    end
+
+    result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("managers.messages.list_to_select")})
     render :json => result.to_json
   end
 end

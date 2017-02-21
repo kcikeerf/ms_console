@@ -32,6 +32,7 @@ zh:
       node_structures: "教材"
       checkpoints: "指标"
       subject_checkpoints: "教材指标"
+      locations: "班级"
 
     attributes:
       default:

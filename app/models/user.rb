@@ -135,8 +135,8 @@ class User < ActiveRecord::Base
         h = item.attributes
         h[:role_id] = item.role.blank?? "" : item.role.id
         h[:role_name] = item.role.blank?? "" : item.role.name
-        h[:role_id] = item.role.blank?? "" : item.role.id
-        h[:role_name] = item.role.blank?? "" : item.role.name
+        h[:skope_ids] = item.skopes.blank?? "" : item.skopes.map(&:id)
+        h[:skope_names] = item.skopes.blank?? "" : item.skopes.map(&:name)
         
         result[index] = h
       }

@@ -1,14 +1,16 @@
 <!--list columns-->
 <th data-options="field:'id',align:'center', width:'5%'">ID</th>
-<th data-options="field:'name',align:'center', width:'10%'">名称</th>
+<th data-options="field:'name',align:'center', width:'10%'">用户名</th>
+<th data-options="field:'real_name',align:'center', width:'10%'">姓名</th>
 <th data-options="field:'role_name',align:'center', width:'10%'">角色</th>
+<th data-options="field:'skope_names',align:'center', width:'10%'">Scope</th>
 <th data-options="field:'phone',align:'center', width:'10%'">电话</th>
 <th data-options="field:'qq',align:'center', width:'10%'">QQ</th>
 <th data-options="field:'email',align:'center', width:'15%'">邮箱</th>
-<th data-options="field:'desc',align:'center', width:'15%'">描述</th>
 <th data-options="field:'updated_at',align:'center', width:'30%'">更新时间</th>
 
 <th data-options="field:'role_id',align:'center', width:'5%', hidden: true">role id</th>
+<th data-options="field:'skope_ids',align:'center', width:'5%', hidden: true">skope ids</th>
 
 <!--form in dialog-->
 <%= render partial: "form_in_dialog" %>

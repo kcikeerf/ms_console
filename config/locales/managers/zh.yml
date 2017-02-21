@@ -35,6 +35,7 @@ zh:
     #   ke_mu_zhi_biao_ti_xi_guan_li: "科目指标体系管理"
     messages:
       welcome: "欢迎访问三题库管理后台!"
+      list_to_select: "请选择..."
       tenant:
         select: "请选择Tenant..."
       user:

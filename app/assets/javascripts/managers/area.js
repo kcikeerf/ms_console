@@ -3,12 +3,14 @@ var areaObj = {
 	city: null,
 	district: null,
 	tenant: null,
+	klass: null,
 	
 	init: function(){
 		areaObj.province = $('#province_rid');
 		areaObj.city = $("#city_rid");
 		areaObj.district = $("#district_rid");
 		areaObj.tenant = $("#tenant_uids");
+		areaObj.klass = $("#loc_uids");
 
 		areaObj.province.combobox({
 			onChange: function(){
@@ -28,6 +30,13 @@ var areaObj = {
 		areaObj.district.combobox({
 			onChange: function(){
 				areaObj.reset_tenant_list();
+				areaObj.reset_klass_list();
+			}
+		});
+
+		areaObj.tenant.combobox({
+			onChange: function(){
+				areaObj.reset_klass_list();
 			}
 		});
     },
@@ -55,7 +64,16 @@ var areaObj = {
 		$.get('/managers/areas/get_tenants',{area_rid: area_rid},function(data){
 			areaObj.tenant.combobox("loadData", data)
 		})
+	},
+
+	reset_klass_list: function(){
+		var tenant_uids = areaObj.tenant.combobox("getValues");
+		areaObj.klass.combobox("clear");
+		$.get('/managers/areas/get_klasses',{tenant_uids: tenant_uids},function(data){
+			areaObj.klass.combobox("loadData", data)
+		})
 	}
+
 }
 
 $(document).ready(function(){
