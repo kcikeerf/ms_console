@@ -91,6 +91,10 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :skopes, concerns: :destroy_all do
+      resources :skope_rules, concerns: :destroy_all
+    end
+
     resources :analyzers, concerns: :destroy_all
     resources :teachers, concerns: :destroy_all
     resources :pupils, concerns: :destroy_all
@@ -100,6 +104,7 @@ Rails.application.routes.draw do
     resources :node_catalogs, concerns: :destroy_all
     resources :auth_domain_white_lists, concerns: :destroy_all
     resources :oauth2_clients, concerns: :destroy_all
+    resources :skope_rules, concerns: :destroy_all
   end
 
   mount RuCaptcha::Engine => "/rucaptcha"

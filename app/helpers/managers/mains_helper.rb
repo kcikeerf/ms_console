@@ -1,45 +1,10 @@
 module Managers::MainsHelper
   def page_info_item
+
+    title = I18n.t("dict.unknown")
+    path = "/managers/"
+
     case controller_name
-    when "api_permissions"
-      title = I18n.t("activerecord.models.api_permission")
-      path = "/managers/api_permissions"
-    when "area_administrators"
-      title = I18n.t("activerecord.models.area_administrator")
-      path = "/managers/area_administrators"      
-    when "analyzers"
-      title = I18n.t("activerecord.models.analyzer")
-      path = "/managers/analyzers"
-    when "auth_domain_white_lists"
-      title = I18n.t("activerecord.models.auth_domain_white_lists")
-      path = "/managers/auth_domain_white_lists"
-    when "oauth2_clients"
-      title = I18n.t("activerecord.models.oauth2_clients")
-      path = "/managers/oauth2_clients"
-    when "permissions"
-      title = I18n.t("activerecord.models.permission")
-      path = "/managers/permissions"
-    when "pupils"
-      title = I18n.t("activerecord.models.pupil")
-      path = "/managers/pupils"
-    when "project_administrators"
-      title = I18n.t("activerecord.models.project_administrator")
-      path = "/managers/project_administrators"
-    when "roles"
-      title = I18n.t("activerecord.models.role")
-      path = "/managers/roles"
-    when "teachers"
-      title = I18n.t("activerecord.models.teacher")
-      path = "/managers/teachers"
-    when "tenants"
-      title = I18n.t("activerecord.models.tenant")
-      path = "/managers/tenants"
-    when "tenant_administrators"
-      title = I18n.t("activerecord.models.tenant_administrator")
-      path = "/managers/tenant_administrators"
-    when "node_structures"
-      title = I18n.t("activerecord.models.bank_nodestructure")
-      path = "/managers/node_structures"
     when "node_catalogs"
       nd = BankNodestructure.where(uid: params[:node_structure_id]).first
       arr = [
@@ -51,9 +16,32 @@ module Managers::MainsHelper
       title = "#{I18n.t('activerecord.models.bank_node_catalog')}(#{arr.join('/')})"
       path = "/managers/node_structures/#{params[:node_structure_id]}/node_catalogs"
     else
-      title = I18n.t("dict.unknown")
-      path = "/managers/"
+      # do nothing
     end
+
+    controller_arr = %W{
+      api_permissions
+      area_administrators
+      analyzers
+      auth_domain_white_lists
+      oauth2_clients
+      permissions
+      pupils
+      project_administrators
+      roles
+      skopes
+      skope_rules
+      teachers
+      tenants
+      tenant_administrators
+      node_structures
+    }
+
+    if controller_arr.include?(controller_name)
+      title = I18n.t("activerecord.models.#{controller_name}")
+      path = "/managers/#{controller_name}"
+    end
+
     result = {
       :title => title,
       :path => path

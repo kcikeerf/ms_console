@@ -18,38 +18,61 @@ class Manager < ActiveRecord::Base
   end
 
   def self.left_menus
-    [
+    result = []
+    menus = [
       {
-        id: 1, icon: 'icon-sys', name: '用户管理',
-        menus: [
-          {id: 101, name: Common::Locale::i18n("managers.menus.jue_se_guan_li"), icon: '', url: '/managers/roles'},
-          {id: 102, name: Common::Locale::i18n("managers.menus.generic_quan_xian_guan_li"), icon: '', url: '/managers/permissions'},
-          {id: 102, name: Common::Locale::i18n("managers.menus.api_quan_xian_guan_li"), icon: '', url: '/managers/api_permissions'},
-          {id: 103, name: Common::Locale::i18n("managers.menus.area_admin_guan_li"), icon: '', url: '/managers/area_administrators'},
-          {id: 104, name: Common::Locale::i18n("managers.menus.project_admin_guan_li"), icon: '', url: '/managers/project_administrators'},
-          {id: 105, name: Common::Locale::i18n("managers.menus.tenant_guan_li"), icon: '', url: '/managers/tenants'},
-          {id: 106, name: Common::Locale::i18n("managers.menus.tenant_yong_hu_guan_li"), icon: '', url: '/managers/tenant_administrators'},
-          {id: 107, name: Common::Locale::i18n("managers.menus.fen_xi_yuan_guan_li"), icon: '', url: '/managers/analyzers'},
-          {id: 108, name: Common::Locale::i18n("managers.menus.jiao_shi_guan_li"), icon: '', url: '/managers/teachers'},
-          {id: 109, name: Common::Locale::i18n("managers.menus.xue_sheng_guan_li"), icon: '', url: '/managers/pupils'}
-        ]
+        :name => "用户管理",
+        :icon => "icon-sys",
+        :items => %W{
+          permissions
+          api_permissions
+          skope_rules
+          skopes
+          roles
+          users
+          tenants
+          area_administrators
+          project_administrators
+          tenant_administrators
+          analyzers
+          teachers
+          pupils
+        }
       },
       {
-        id: 2, icon: 'icon-sys', name: 'API认证管理',
-        menus: [
-          {id: 101, name: Common::Locale::i18n("managers.menus.yu_ming_bai_ming_dan_guan_li"), icon: '', url: '/managers/auth_domain_white_lists'},
-          {id: 102, name: Common::Locale::i18n("managers.menus.di_san_fang_ke_hu_duan_guan_li"), icon: '', url: '/managers/oauth2_clients'}
-        ]
-      },      
+        :name => "API认证管理",
+        :icon => "icon-sys",
+        :items => %W{
+          auth_domain_white_lists
+          oauth2_clients
+        }
+      },   
       {
-        id: 2, icon: 'icon-sys', name: '资源管理',
-        menus: [
-          {id: 201, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_guan_li"), icon: '', url: '/managers/node_structures'},
-          {id: 202, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/checkpoints'},
-          {id: 203, name: Common::Locale::i18n("managers.menus.ke_mu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/subject_checkpoints'}
-        ]
+        :name => "资源管理",
+        :icon => "icon-sys",
+        :items => %W{
+          node_structures
+          subject_checkpoints
+          checkpoints
+        }
       }
     ]
+    menus.each_with_index{|group,index|
+      result << {
+        id: index, 
+        icon: group[:icon], 
+        name: group[:name],
+        menus: group[:items].map{|item|
+          {
+            name: Common::Locale::i18n("activerecord.models.#{item}"),
+            icon: "",
+            url: "/managers/#{item}"
+          }
+        }
+      }
+    }
+
+    result
   end
 
   private
