@@ -12,13 +12,13 @@ class Managers::UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(user_params)
+    @user = User.save_user(user_params)
     render json: response_json_by_obj(@user.save, @user)
   end
 
   def update
-    @user.update(user_params)
-    render json: response_json_by_obj(@user.update(user_params), @user)
+    @user.save_user(user_params)
+    render json: response_json_by_obj(@user.save_user(user_params), @user)
   end
 
   def destroy_all
@@ -36,13 +36,23 @@ class Managers::UsersController < ApplicationController
       params.permit(
         :id, 
         :name, 
-        :real_name, 
         :password, 
-        :password_confirmation, 
+        :password_confirmation,         
+        :real_name,
+        :gender,
+        :my_number,
+        :subject,
+        :grade, 
         :role_id, 
         :qq, 
         :phone, 
         :email, 
-        :desc)
+        :desc,
+        :province_rid,
+        :city_rid,
+        :district_rid,
+        :tenant_uids => [],
+        :loc_uids => []
+      )
     end
 end
