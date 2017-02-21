@@ -21,6 +21,7 @@
   <input class="easyui-validatebox" id="manager_user_form_real_name" name="real_name" style="width:200px;" data-options="required:true">
 </div>
 
+<!--性别-->
 <div style="margin:5px 0px 5px 15px;">
   <label for="manager_user_form_gender"><%=LABEL("dict.sex")%></label>
   <select class="easyui-combobox" id="manager_user_form_gender" name="gender" style="width:200px;">
@@ -28,6 +29,11 @@
       <option value="<%=item[:key]%>"><%=item[:label]%></option>
     <% end %>
   </select>
+</div>
+
+<div style="margin:5px 0px 5px 15px;">
+  <label for="manager_user_form_my_number">MyNumber</label>
+  <input class="easyui-validatebox" id="manager_user_form_my_number" name="my_number" style="width:200px;" data-options="required:true">
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
@@ -46,11 +52,6 @@
       <option value="<%=k%>"><%=v%></option>
     <% end %>
   </select>
-</div>
-
-<div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_my_number">MyNumber</label>
-  <input class="easyui-validatebox" id="manager_user_form_my_number" name="my_number" style="width:200px;" data-options="required:true">
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
