@@ -7,18 +7,23 @@ class Managers::SkopeRulesController < ApplicationController
   before_action :set_skope_rule, only: [:create, :update]
 
   def index
-    skope_rules = @skope.skope_rules.page(params[:page]).per(params[:rows])
-    respond_with({rows: skope_rules, total: skope_rules.total_count}) 
+    skope_rules = @skope.skope_rules.order(priority: :desc, rkey: :asc)
+    total_count = skope_rules.count
+    data = Kaminari.paginate_array(skope_rules).page(params[:page]).per(params[:rows])
+    respond_with({rows: data, total: total_count})    
   end
 
   def create
-    @skope_rule = SkopeRule.new(skope_rule_params)
-    render json: response_json_by_obj(@skope_rule.save, @skope_rule)
+    @skope_rule = SkopeRule.new
+    result_flag = @skope_rule.save_ins(skope_rule_params)
+    status_code = result_flag ? 200 : 500
+    render status: status_code, json: response_json_by_obj(result_flag, @skope_rule)    
   end
 
   def update
-    @skope_rule.update(skope_rule_params)
-    render json: response_json_by_obj(@skope_rule.update(skope_rule_params), @skope_rule)
+    result_flag = @skope_rule.save_ins(skope_rule_params)
+    status_code = result_flag ? 200 : 500
+    render status: status_code, json: response_json_by_obj(result_flag, @skope_rule) 
   end
 
   def destroy_all

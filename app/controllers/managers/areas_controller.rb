@@ -60,14 +60,14 @@ class  Managers::AreasController < ApplicationController
         tnt.locations.map{|loc| 
           {
             loc_uids: loc.uid, 
-            name_cn: tnt.name_cn + "_" +Common::Locale::i18n("dict.#{loc.classroom}")
+            name_cn: tnt.name_cn + "_" + Common::Locale::i18n("dict.#{loc.classroom}")
           }
         } 
       }.flatten
       result.compact!
     end
 
-    result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("common.list_to_select")})
+    result.unshift({loc_uids: "", name_cn: Common::Locale::i18n("common.list_to_select")})
     render :json => result.to_json
   end
 end

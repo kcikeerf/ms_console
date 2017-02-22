@@ -35,7 +35,7 @@ var areaObj = {
 		});
 
 		areaObj.tenant.combobox({
-			onChange: function(){
+			onChange: function(e){
 				areaObj.reset_klass_list();
 			}
 		});
@@ -69,6 +69,7 @@ var areaObj = {
 	reset_klass_list: function(){
 		var tenant_uids = areaObj.tenant.combobox("getValues");
 		areaObj.klass.combobox("clear");
+		if($.inArray("all", tenant_uids) > -1){return true;}
 		$.get('/managers/areas/get_klasses',{tenant_uids: tenant_uids},function(data){
 			areaObj.klass.combobox("loadData", data)
 		})

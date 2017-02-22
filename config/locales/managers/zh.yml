@@ -1,14 +1,9 @@
 zh:
   managers:
-    users:
-      basic: "基本信息"
-      tenant: "Tenant"
     head: "三维题库管理Console"
     admin: "后台管理员"
     user:
       login_title: "欢迎登录三维题库管理Console"
-    node_structure: "教材版本"
-    checkpoint: "指标体系"
     root_node: "根节点"
     panel:
       welcome: "Welcome"
@@ -41,3 +36,13 @@ zh:
       user:
         input_username: "请输入用户名。"
         input_password: "请输入密码。"
+    users:
+      basic: "基本信息"
+      tenant: "Tenant"
+    node_structure: "教材版本"
+    checkpoint: "指标体系"
+    skope_rules:
+      all_invalid: "所有无效"
+      specified_available: "所属范围访问有效"
+      all_available: "所有有效"
+

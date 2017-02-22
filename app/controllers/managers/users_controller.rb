@@ -13,13 +13,13 @@ class Managers::UsersController < ApplicationController
 
   def create
     @user = User.new
-    result_flag = @user.save_user(user_params)
+    result_flag = @user.save_ins(user_params)
     status_code = result_flag ? 200 : 500
     render status: status_code, json: response_json_by_obj(result_flag, @user)
   end
 
   def update
-    result_flag = @user.save_user(user_params)
+    result_flag = @user.save_ins(user_params)
     status_code = result_flag ? 200 : 500
     render status: status_code, json: response_json_by_obj(result_flag, @user)
   end

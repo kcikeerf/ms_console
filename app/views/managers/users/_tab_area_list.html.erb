@@ -37,6 +37,11 @@
         data-options="valueField:'tenant_uids',textField:'name_cn'">
         <option value=""></option>
     </select>
+    <input id="manager_area_list_tenant_all" 
+        type="checkbox" 
+        value="" 
+        name="tenant_all" 
+        onclick="area_list_check_all('#manager_area_list_tenant_all','#tenant_uids')">Select All
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
@@ -50,4 +55,21 @@
         data-options="valueField:'loc_uids',textField:'name_cn'">
         <option value=""></option>
     </select>
+    <input id="manager_area_list_loc_all" 
+        type="checkbox" 
+        value="" 
+        name="loc_all" 
+        onclick="area_list_check_all('#manager_area_list_loc_all','#loc_uids')">Select All
 </div>
+<script type="text/javascript">
+    function area_list_check_all(checkbox_selector,list_selector) {
+        var checkbox_obj = $(checkbox_selector);
+        var combobox_list = $(list_selector);
+        if(checkbox_obj.is(":checked")){
+            combobox_list.combobox("clear");
+            combobox_list.combobox("disable");
+        } else {
+            combobox_list.combobox("enable");
+        }
+    };
+</script>
