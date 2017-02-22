@@ -12,13 +12,16 @@ class Managers::UsersController < ApplicationController
   end
 
   def create
-    @user = User.save_user(user_params)
-    render json: response_json_by_obj(@user.save, @user)
+    @user = User.new
+    result_flag = @user.save_user(user_params)
+    status_code = result_flag ? 200 : 500
+    render status: status_code, json: response_json_by_obj(result_flag, @user)
   end
 
   def update
-    @user.save_user(user_params)
-    render json: response_json_by_obj(@user.save_user(user_params), @user)
+    result_flag = @user.save_user(user_params)
+    status_code = result_flag ? 200 : 500
+    render status: status_code, json: response_json_by_obj(result_flag, @user)
   end
 
   def destroy_all
@@ -51,6 +54,7 @@ class Managers::UsersController < ApplicationController
         :province_rid,
         :city_rid,
         :district_rid,
+        :skope_ids => [],
         :tenant_uids => [],
         :loc_uids => []
       )

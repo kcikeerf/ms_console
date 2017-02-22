@@ -21,7 +21,7 @@ class Managers::TeachersController < ApplicationController
     data = {:status => 403 }
 
     begin
-      new_user.save_user(Common::Role::Teacher, user_params)
+      new_user.old_save_user(Common::Role::Teacher, user_params)
       status = 200
       data = {:status => 200 }
     rescue Exception => ex

@@ -21,7 +21,7 @@ class Managers::TenantAdministratorsController < ApplicationController
     data = {:status => 403 }
 
     begin
-      new_user.save_user(Common::Role::TenantAdministrator, user_params)
+      new_user.old_save_user(Common::Role::TenantAdministrator, user_params)
 #      result_flag = new_user.id.nil?? false : (new_user.analyzer.nil?? false : true)
       status = 200
       data = {:status => 200 }

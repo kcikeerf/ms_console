@@ -50,6 +50,8 @@
 		</thead>
 	</table>
 	<%= yield(:content) %>
+
+	<!--通用dialog， begin-->
 	<div id="dlg" 
 		class="easyui-dialog" 
 		style="width:600px;height:400px;" 
@@ -67,11 +69,17 @@
 			class="easyui-linkbutton" 
 			iconCls="icon-ok" 
 			onclick="saveObj()">
-			<%= LABEL("common.save")%></a>
+			<%= LABEL("common.save")%>
+		</a>
 		<a  href="#" 
 			class="easyui-linkbutton" 
 			iconCls="icon-cancel" 
 			onclick="javascript:$('#dlg').dialog('close')">
-			<%= LABEL("common.cancel")%></a>
+			<%= LABEL("common.cancel")%>
+		</a>
 	</div>
+	<!--通用dialog， end-->
+
+
+
 <% end %>

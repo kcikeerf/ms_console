@@ -21,7 +21,7 @@ class Managers::AreaAdministratorsController < ApplicationController
     data = {:status => 403 }
 
     begin
-      new_user.save_user(Common::Role::AreaAdministrator, user_params)
+      new_user.old_save_user(Common::Role::AreaAdministrator, user_params)
       if new_user.errors && new_user.errors.messages.blank?
         status = 200
         data = {:status => 200, :message => "200" }

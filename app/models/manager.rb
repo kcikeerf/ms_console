@@ -40,6 +40,10 @@ class Manager < ActiveRecord::Base
             pupils
           }
         },
+        #
+        # Role.all.map{|role|
+        # 将area_administrators等动态加载}
+        #
         {
           :name => "API认证管理",
           :icon => "icon-sys",
@@ -47,7 +51,7 @@ class Manager < ActiveRecord::Base
             auth_domain_white_lists
             oauth2_clients
           }
-        },   
+        },
         {
           :name => "资源管理",
           :icon => "icon-sys",

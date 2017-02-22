@@ -1,70 +1,70 @@
 <!--用户名-->
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_name"><%=LABEL("activerecord.attributes.user.name")%></label>
-  <input class="easyui-validatebox" id="manager_user_name" name="name" style="width:200px;" data-options="required:true">
+    <label for="manager_user_name"><%=LABEL("activerecord.attributes.user.name")%></label>
+    <input class="easyui-validatebox" id="manager_user_name" name="name" style="width:200px;" data-options="required:true">
 </div>
 
 <!--密码-->
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_password"><%=LABEL("activerecord.attributes.user.password")%></label>
-  <input class="easyui-validatebox" id="manager_user_form_password" name="password" type="password" style="width:200px;" data-options="required:true">
+    <label for="manager_user_form_password"><%=LABEL("activerecord.attributes.user.password")%></label>
+    <input class="easyui-validatebox" id="manager_user_form_password" name="password" type="password" style="width:200px;" data-options="required:false">
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_password_confirmation"><%=LABEL("activerecord.attributes.user.password_confirmation")%></label>
-  <input class="easyui-validatebox" id="manager_user_form_password_confirmation" name="password_confirmation" type="password" style="width:200px;" data-options="required:true">
+    <label for="manager_user_form_password_confirmation"><%=LABEL("activerecord.attributes.user.password_confirmation")%></label>
+    <input class="easyui-validatebox" id="manager_user_form_password_confirmation" name="password_confirmation" type="password" style="width:200px;" data-options="required:false">
 </div>
 
 <!--姓名-->
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_real_name"><%=LABEL("activerecord.attributes.user.real_name")%></label>
-  <input class="easyui-validatebox" id="manager_user_form_real_name" name="real_name" style="width:200px;" data-options="required:true">
+    <label for="manager_user_form_real_name"><%=LABEL("activerecord.attributes.user.real_name")%></label>
+    <input class="easyui-validatebox" id="manager_user_form_real_name" name="real_name" style="width:200px;" data-options="required:false">
 </div>
 
 <!--性别-->
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_gender"><%=LABEL("dict.sex")%></label>
-  <select class="easyui-combobox" id="manager_user_form_gender" name="gender" style="width:200px;">
-    <% gender_list.each do |item| %>
-      <option value="<%=item[:key]%>"><%=item[:label]%></option>
-    <% end %>
-  </select>
+    <label for="manager_user_form_gender"><%=LABEL("dict.sex")%></label>
+    <select class="easyui-combobox" id="manager_user_form_gender" name="gender" style="width:200px;">
+        <% gender_list.each do |item| %>
+          <option value="<%=item[:key]%>"><%=item[:label]%></option>
+        <% end %>
+    </select>
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_my_number">MyNumber</label>
-  <input class="easyui-validatebox" id="manager_user_form_my_number" name="my_number" style="width:200px;" data-options="required:true">
+    <label for="manager_user_form_my_number">MyNumber</label>
+    <input class="easyui-validatebox" id="manager_user_form_my_number" name="my_number" style="width:200px;" data-options="required:false">
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
-  <label><%=LABEL("activerecord.attributes.teacher.subject")%></label>
-  <select class="easyui-combobox" id="manager_user_form_subject" name="subject" style="width:200px;">
-    <% all_subject_list.each do |item| %>
-      <option value="<%=item[:key]%>"><%=item[:label]%></option>
-    <% end %>
-  </select>
+    <label><%=LABEL("activerecord.attributes.teacher.subject")%></label>
+    <select class="easyui-combobox" id="manager_user_form_subject" name="subject" style="width:200px;">
+        <% all_subject_list.each do |item| %>
+          <option value="<%=item[:key]%>"><%=item[:label]%></option>
+        <% end %>
+    </select>
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_grade"><%=LABEL("activerecord.attributes.pupil.grade")%></label>
-  <select class="easyui-combobox" id="manager_user_form_grade" name="grade" style="width:200px;">
-    <% grade_list.each do |k,v| %>
-      <option value="<%=k%>"><%=v%></option>
-    <% end %>
-  </select>
+    <label for="manager_user_form_grade"><%=LABEL("activerecord.attributes.pupil.grade")%></label>
+    <select class="easyui-combobox" id="manager_user_form_grade" name="grade" style="width:200px;">
+        <% grade_list.each do |k,v| %>
+          <option value="<%=k%>"><%=v%></option>
+        <% end %>
+    </select>
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_qq"><%=LABEL("activerecord.attributes.user.qq")%></label>
-  <input class="easyui-validatebox" id="manager_user_form_qq" name="qq" style="width:200px;" data-options="required:false">
+    <label for="manager_user_form_qq"><%=LABEL("activerecord.attributes.user.qq")%></label>
+    <input class="easyui-validatebox" id="manager_user_form_qq" name="qq" style="width:200px;" data-options="required:false">
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_phone"><%=LABEL("activerecord.attributes.user.phone")%></label>
-  <input class="easyui-validatebox" id="manager_user_form_phone" name="phone" style="width:200px;" data-options="required:false">
+    <label for="manager_user_form_phone"><%=LABEL("activerecord.attributes.user.phone")%></label>
+    <input class="easyui-validatebox" id="manager_user_form_phone" name="phone" style="width:200px;" data-options="required:false">
 </div>
 
 <div style="margin:5px 0px 5px 15px;">
-  <label for="manager_user_form_email"><%=LABEL("activerecord.attributes.user.email")%></label>
-  <input class="easyui-validatebox" id="manager_user_form_email" name="email" style="width:200px;" data-options="required:false">
+    <label for="manager_user_form_email"><%=LABEL("activerecord.attributes.user.email")%></label>
+    <input class="easyui-validatebox" id="manager_user_form_email" name="email" style="width:200px;" data-options="required:false">
 </div>
