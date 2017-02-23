@@ -65,6 +65,10 @@ module Managers::MainsHelper
     Skope.order(name: :asc).select(:id,:name)
   end
 
+  def skope_rule_category_list
+    Common::SkopeRule::DefaultCategoryListArr
+  end
+
   def priority_list
     [*1..100]
   end

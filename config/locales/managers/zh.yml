@@ -36,13 +36,5 @@ zh:
       user:
         input_username: "请输入用户名。"
         input_password: "请输入密码。"
-    users:
-      basic: "基本信息"
-      tenant: "Tenant"
-    node_structure: "教材版本"
-    checkpoint: "指标体系"
-    skope_rules:
-      all_invalid: "所有无效"
-      specified_available: "所属范围访问有效"
-      all_available: "所有有效"
+
 

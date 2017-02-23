@@ -4,6 +4,16 @@ module SkopeModule
   end
 
   module SkopeRule
+    DefaultCategoryListArr = %W{
+      resource
+      module
+    }
+
+    DefaultCategoryList = {
+      "resource" => Common::Locale::i18n("skope_rules.category.resource"),
+      "module" => Common::Locale::i18n("skope_rules.category.module")
+    }
+
     DefaultKeyListArr = [
       {rkey: "province", rkey_label: Common::Locale::i18n("dict.province")},
       {rkey: "city", rkey_label: Common::Locale::i18n("dict.city")},
@@ -27,15 +37,15 @@ module SkopeModule
     }
 
     DefaultValueListArr = [
-      {rvalue: "-1", rvalue_label: Common::Locale::i18n("managers.skope_rules.all_invalid")},
-      {rvalue: "1", rvalue_label: Common::Locale::i18n("managers.skope_rules.specified_available")},
-      {rvalue: "99", rvalue_label: Common::Locale::i18n("managers.skope_rules.all_available")}      
+      {rvalue: "-1", rvalue_label: Common::Locale::i18n("skope_rules.all_invalid")},
+      {rvalue: "1", rvalue_label: Common::Locale::i18n("skope_rules.specified_available")},
+      {rvalue: "99", rvalue_label: Common::Locale::i18n("skope_rules.all_available")}      
     ]
 
     DefaultValueList = {
-      "-1" => Common::Locale::i18n("managers.skope_rules.all_invalid"),
-      "1" => Common::Locale::i18n("managers.skope_rules.specified_available"),
-      "99" => Common::Locale::i18n("managers.skope_rules.all_available")     
+      "-1" => Common::Locale::i18n("skope_rules.all_invalid"),
+      "1" => Common::Locale::i18n("skope_rules.specified_available"),
+      "99" => Common::Locale::i18n("skope_rules.all_available")     
     }
   end
 end

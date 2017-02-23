@@ -5,36 +5,40 @@
         <input class="easyui-validatebox" id="skope_rules_name" name="name" style="width:200px;" data-options="required:true">
     </div>
 
-<!--     <div style="margin:5px 0px 5px 15px;">
+    <div style="margin:5px 0px 5px 15px;">
         <label for="skope_rules_category">类别</label>
-        <input class="easyui-validatebox" id="skope_rules_category" name="category" style="width:200px;" data-options="required:true">
-    </div> -->
+        <select class="easyui-combobox" id="skope_rules_category" name="category" style="width:200px;" data-options="required:false, editable: false,valueField:'id',textField:'id'">
+            <% skope_rule_category_list.each do |item| %>
+                <option value="#{item}"><%=item%></option>
+            <% end %>
+        </select>        
+    </div>
 
     <div style="margin:5px 0px 5px 15px;">
-      <label for="skope_rules_priority">优先度</label>
-      <select class="easyui-combobox" id="skope_rules_priority" name="priority" style="width:200px;" data-options="required:true, editable: false,valueField:'id',textField:'id'">
-        <% priority_list.each do |item| %>
-          <option value="#{item}"><%=item%></option>
-        <% end %>
-      </select>
+        <label for="skope_rules_priority">优先度</label>
+        <select class="easyui-combobox" id="skope_rules_priority" name="priority" style="width:200px;" data-options="required:true, editable: false,valueField:'id',textField:'id'">
+            <% priority_list.each do |item| %>
+                <option value="#{item}"><%=item%></option>
+            <% end %>
+        </select>
     </div>    
 
     <div style="margin:5px 0px 5px 15px;">
-      <label for="skope_rules_rkey">键</label>
-      <select class="easyui-combobox" id="skope_rules_rkey" name="rkey" style="width:200px;" data-options="required:true,editable: false">
+        <label for="skope_rules_rkey">键</label>
+        <select class="easyui-combobox" id="skope_rules_rkey" name="rkey" style="width:200px;" data-options="required:true,editable: false">
         <% skope_rkey_default_list.each do |item| %>
-          <option value="<%=item[:rkey]%>"><%=item[:rkey_label]%></option>
+            <option value="<%=item[:rkey]%>"><%=item[:rkey_label]%></option>
         <% end %>
-      </select>
+        </select>
     </div>      
 
     <div style="margin:5px 0px 5px 15px;">
-      <label for="skope_rules_rvalue">值</label>
-      <select class="easyui-combobox" id="skope_rules_rvalue" name="rvalue" style="width:200px;" data-options="required:true,editable: false">
-        <% skope_rvalue_default_list.each do |item| %>
-          <option value="<%=item[:rvalue]%>"><%=item[:rvalue_label]%></option>
-        <% end %>
-      </select>
+        <label for="skope_rules_rvalue">值</label>
+        <select class="easyui-combobox" id="skope_rules_rvalue" name="rvalue" style="width:200px;" data-options="required:true,editable: false">
+            <% skope_rvalue_default_list.each do |item| %>
+                <option value="<%=item[:rvalue]%>"><%=item[:rvalue_label]%></option>
+            <% end %>
+        </select>
     </div>  
 
     <div style="margin:5px 0px 5px 15px;">

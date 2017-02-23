@@ -7,7 +7,7 @@ class Managers::SkopeRulesController < ApplicationController
   before_action :set_skope_rule, only: [:create, :update]
 
   def index
-    skope_rules = @skope.skope_rules.order(priority: :desc, rkey: :asc)
+    skope_rules = @skope.skope_rules.order(category: :asc, priority: :desc, rkey: :asc)
     total_count = skope_rules.count
     data = Kaminari.paginate_array(skope_rules).page(params[:page]).per(params[:rows])
     respond_with({rows: data, total: total_count})    
