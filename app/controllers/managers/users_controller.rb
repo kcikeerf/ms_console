@@ -54,6 +54,8 @@ class Managers::UsersController < ApplicationController
         :province_rid,
         :city_rid,
         :district_rid,
+        :tenant_all,
+        :loc_all,
         :skope_ids => [],
         :tenant_uids => [],
         :loc_uids => []
