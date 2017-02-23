@@ -14,6 +14,7 @@ zh:
     save: "保存"
     cancel: "取消"
     all: "全部"
+    others: "其它"
     list_to_select: "请选择..."
   #
   checkpoints:

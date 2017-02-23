@@ -22,7 +22,8 @@ module SkopeModule
       {rkey: "klass", rkey_label: Common::Locale::i18n("dict.classroom")},
       {rkey: "pupil", rkey_label: Common::Locale::i18n("dict.pupil")},
       {rkey: "subject", rkey_label: Common::Locale::i18n("dict.subject")},
-      {rkey: "grade", rkey_label: Common::Locale::i18n("dict.grade")}
+      {rkey: "grade", rkey_label: Common::Locale::i18n("dict.grade")},
+      {rkey: "others", rkey_label: Common::Locale::i18n("common.others")},
     ]
 
     DefaultKeyList = {
@@ -33,7 +34,8 @@ module SkopeModule
       "klass" => Common::Locale::i18n("dict.classroom"),
       "pupil" => Common::Locale::i18n("dict.pupil"),
       "subject" => Common::Locale::i18n("dict.subject"),
-      "grade" => Common::Locale::i18n("dict.grade")
+      "grade" => Common::Locale::i18n("dict.grade"),
+      "others" => Common::Locale::i18n("common.others")
     }
 
     DefaultValueListArr = [
