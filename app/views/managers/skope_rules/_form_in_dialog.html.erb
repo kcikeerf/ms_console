@@ -25,7 +25,7 @@
 
     <div style="margin:5px 0px 5px 15px;">
         <label for="skope_rules_rkey">键</label>
-        <select class="easyui-combobox" id="skope_rules_rkey" name="rkey" style="width:200px;" data-options="required:true,editable: false">
+        <select class="easyui-combobox" id="skope_rules_rkey" name="rkey" style="width:200px;" data-options="required:true,editable: true">
         <% skope_rkey_default_list.each do |item| %>
             <option value="<%=item[:rkey]%>"><%=item[:rkey_label]%></option>
         <% end %>
