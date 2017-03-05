@@ -1,7 +1,7 @@
 module LocaleModule
   module Locale
     module_function
-    
+
     def i18n label_str,options={}
       if !label_str.blank?
         arr = label_str.scan(/(.*)(\.)$/).first
