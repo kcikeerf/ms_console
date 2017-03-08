@@ -244,6 +244,11 @@ zh:
         no_belong: "无所属"
       error:
 
+  #
+  users:
+    basic: "基本信息"
+    location_scope: "地区学校班级"
+
   # 页面用label
   page:
     site_name: '三维题库系统'

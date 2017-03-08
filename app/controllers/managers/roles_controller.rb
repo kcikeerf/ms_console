@@ -37,11 +37,11 @@ class Managers::RolesController < ApplicationController
   end
 
   def combine_permissions
-    p permission_params[:permission_ids]
+    puts @role
     if @role && @role.combine_permissions(permission_params[:permission_ids])
       render status: 200, json: { :message => "success!" }.to_json 
     else
-      render status: 500, json: { :message => "failed!" }.to_json
+      render status: 500, json: { :message => @role.errors }.to_json
     end
   end
 
@@ -49,7 +49,7 @@ class Managers::RolesController < ApplicationController
     if @role && @role.combine_api_permissions(permission_params[:permission_ids])
       render status: 200, json: { :message => "success!" }.to_json 
     else
-      render status: 500, json: { :message => "failed!" }.to_json
+      render status: 500, json: { :message => @role.errors }.to_json
     end
   end
 

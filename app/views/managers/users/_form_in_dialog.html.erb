@@ -1,7 +1,7 @@
 <% content_for :form do %>
 <div class="easyui-tabs" style="width:100%; height:300px;">
   <!--基本信息-->
-  <div title="<%= LABEL("managers.users.basic")%>" style="padding: 15px; overflow:scroll;">
+  <div title="<%= LABEL("users.basic")%>" style="padding: 15px; overflow:scroll;">
     <%= render partial: "tab_basic_info" %>
   </div>
 
@@ -11,7 +11,7 @@
   </div>
 
   <!--地区设置-->
-  <div title="地区学校班级设置" style="padding: 15px; overflow:scroll;">
+  <div title="<%= LABEL("users.location_scope")%>" style="padding: 15px; overflow:scroll;">
     <%= render partial: "tab_area_list" %>
   </div>
 </div>

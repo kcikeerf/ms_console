@@ -41,10 +41,20 @@ Rails.application.routes.draw do
     end
 
     resources :roles, concerns: :destroy_all do
-      resources :api_permissions, concerns: :destroy_all
-      resources :permissions, concerns: :destroy_all
+      resources :api_permissions, concerns: :destroy_all do
+        collection do 
+          get 'list'
+        end        
+      end
+      resources :permissions, concerns: :destroy_all do
+        collection do 
+          get 'list'
+        end
+      end
       member do 
         get 'permission_management'
+        post 'combine_api_permissions'
+        post 'combine_permissions'
       end
     end
 
