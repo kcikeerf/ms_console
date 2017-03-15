@@ -121,6 +121,14 @@ var setting = {
 		treeNode.sort ? $('#sort').val(treeNode.sort) : $('#sort').val('');
 		treeNode.uid ? $('.ckp_uid').val(treeNode.uid) : $('.ckp_uid').val('');
 		treeNode.uid ? $('.ckp_rid').val(treeNode.rid) : $('.ckp_rid').val('');
+		if(treeNode.dimesion == "knowledge"){
+			$(".high_level_div").html("");
+		}else
+		{
+			$(".high_level_div").html('<label>高阶：</label><input type="checkbox" name="high_level" class="high_level"/>');
+			//console.log(treeNode.high_level);
+			treeNode.high_level ? $(".high_level").prop("checked","checked") : $(".high_level").prop("checked", false);
+		}
 	  	$.get("/managers/subject_checkpoints/"+treeNode.uid+"/edit",{},function(data){
 			var len = data.data.length;
 			var arr=[];
@@ -139,12 +147,24 @@ var setting = {
 	        }
 	        //更新更改后的建议
 	        treeNode.advice = CKEDITOR.instances.advice.getData();
+	       
+	        if($(".high_level").is(':checked')){
+	        	data = $('#fm').serialize();	        	
+	        }else
+	        {
+	        	data = $('#fm').serialize() + "&high_level=off"
+	        }
+	        console.log(data);
 			$.ajax({
 				type:"put",
 				url:"/managers/subject_checkpoints/"+treeNode.uid,
-				data:$('#fm').serialize(),
+				data: data,
 				success:function(data){
 					treeNode.checkpoint = nodeName;
+					treeNode.high_level = data.data.high_level;
+					treeNode.desc = data.data.desc;
+					treeNode.advice = data.data.advice;
+					treeNode.weights = data.data.weights;
 					$("#"+treeNode.tId+"_span").text(nodeName);
 					_this.off('click');
 				},
