@@ -14,6 +14,11 @@ class Managers::SubjectCheckpointsController < ApplicationController
   end
 
   def create
+    # if params[:high_level] == "on"
+    #   params[:high_level] = true
+    # else
+    #   params[:high_level] = false
+    # end 
     checkpoint =  BankSubjectCheckpointCkp.save_ckp(checkpoint_params)
     
     render json: response_json(200, checkpoint)
@@ -31,6 +36,11 @@ class Managers::SubjectCheckpointsController < ApplicationController
   end
 
   def update
+    # if params[:high_level] == "on"
+    #   params[:high_level] = true
+    # else
+    #   params[:high_level] = false
+    # end 
     checkpoint =  @checkpoint.update_ckp(checkpoint_params)
     render json: response_json(200, checkpoint)
   end
@@ -112,6 +122,7 @@ class Managers::SubjectCheckpointsController < ApplicationController
   end
 
   def checkpoint_params
+    params[:high_level] = (params[:high_level]=="on") ? true : false
     params.permit(
       :id, 
       :subject, 
@@ -123,7 +134,8 @@ class Managers::SubjectCheckpointsController < ApplicationController
       :desc, 
       :advice, 
       :str_uid, 
-      :is_entity, 
+      :is_entity,
+      :high_level, 
       :category)
   end
 
