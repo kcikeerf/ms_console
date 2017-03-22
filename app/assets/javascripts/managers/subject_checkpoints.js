@@ -213,8 +213,6 @@ var setting = {
 	function zTreeBeforeDrop(treeId, treeNodes, targetNode, moveType){
 		var isOk = false;
 		DragParentUid = targetNode.uid;
-		console.log(targetNode);
-		console.log(moveType);
 		$.ajax({
 			type:"POST",
 			dataType:"JSON",
