@@ -52,26 +52,41 @@ var setting = {
 				$('.desc').val('');
 				$('#advice').val('');
 				$('#sort').val('');
-				// $('#select-box').val('');
+				//$('#select-box').val('');
 			    $('#dlg').dialog('open');
+			    //replace_advice_ckeditor();
+			    //clear_form_value();
 			    $('.dimesion').val(treeNode.dimesion);
 			    $('.str_pid').val(treeNode.rid);
+	    		$('.subject').val($("#subject").val());
+	    		$('.dimesion').val(treeNode.dimesion);
+
+			    //CKEDITOR.instances.advice.setData('')
+	    		if(treeNode.dimesion == "knowledge"){
+					$(".high_level_div").html("");
+				}else
+				{
+					$(".high_level_div").html('<label>高阶：</label><input type="checkbox" name="high_level" class="high_level"/>');
+				}
 	            $('#fm')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
 			   	$("#save").on('click',function(){
 			   			$.post('/managers/subject_checkpoints', $("#fm").serialize(), function(data){
 				   		 	if(data.status == 200){
 				   		 		var tree = $.fn.zTree.getZTreeObj(treeNode.dimesion + "_tree");
 				   		 		tree.addNodes(treeNode, data.data);
+				   		 	}else{
+				   		 		alert(data.data.message);
 				   		 	}
 
 				   		});
 			   		
-			   	$('.checkpoint').val('');
+			   		$('.checkpoint').val('');
 					$('.desc').val('');
 					// $('#select-box').val('');
 					$('#save').off('click');
+					//clear_form_value();
 					$('#dlg').dialog('close');
-			   	})
+			   	});
 			    return false;
 		    });
 	    }
@@ -114,11 +129,11 @@ var setting = {
 		$('#dlg').dialog('open');
 		replace_advice_ckeditor();
 		$('.checkpoint').val(treeNode.checkpoint);
-		treeNode.desc?$('.desc').val(treeNode.desc):$('.desc').val('');
+		treeNode.desc ? $('.desc').val(treeNode.desc):$('.desc').val('');
 		treeNode.weights ? $('.weights').val(treeNode.weights):$('.weights').val('');
 		//更新既有的建议
 		treeNode.advice ? CKEDITOR.instances.advice.setData(treeNode.advice) : CKEDITOR.instances.advice.setData('');
-		treeNode.sort ? $('#sort').val(treeNode.sort) : $('#sort').val('');
+		//treeNode.sort ? $('#sort').val(treeNode.sort) : $('#sort').val('');
 		treeNode.uid ? $('.ckp_uid').val(treeNode.uid) : $('.ckp_uid').val('');
 		treeNode.uid ? $('.ckp_rid').val(treeNode.rid) : $('.ckp_rid').val('');
 		if(treeNode.dimesion == "knowledge"){
@@ -135,8 +150,9 @@ var setting = {
 			for(var i=0;i<len;i++){
 				arr.push(data.data[i].cat_uid);
 			}
+			//console.log(arr);
 			// $('#select-box').val(arr);
-		})
+		});
 		$('#save').unbind('click');
 		$('#save').on('click',function(){
 			var nodeName = $('.checkpoint').val();
@@ -154,7 +170,6 @@ var setting = {
 	        {
 	        	data = $('#fm').serialize() + "&high_level=off"
 	        }
-	        console.log(data);
 			$.ajax({
 				type:"put",
 				url:"/managers/subject_checkpoints/"+treeNode.uid,
@@ -171,9 +186,20 @@ var setting = {
 				error:function(data){
 					_this.off('click');
 				}
-			})
+			});
+			//clear_form_value();
 			$('#dlg').dialog('close');
 		});
+		$(".panel-tool-close, #cancel").on('click', function(){
+			//clear_form_value();
+			$('#dlg').dialog('close');
+		});
+		// $('#dlg').dialog({  
+  //   		onClose:function(){
+  //   		alert('dlg closed');  
+  //       	//clear_form_value();  
+  //   		}
+  //   	});
 	  	return false;
 	}
 	var DragUid;
@@ -187,16 +213,21 @@ var setting = {
 	function zTreeBeforeDrop(treeId, treeNodes, targetNode, moveType){
 		var isOk = false;
 		DragParentUid = targetNode.uid;
+		console.log(targetNode);
+		console.log(moveType);
 		$.ajax({
 			type:"POST",
 			dataType:"JSON",
 			async:false,
-			data:{str_pid:DragParentUid},
+			data:{str_pid:DragParentUid, move_type: moveType, authenticity_token: $('meta[name="csrf-token"]')[0].content},
 			url:"/managers/subject_checkpoints/"+DragUid+"/move_node",
 			success:function(data){
 				if(data.status == 200){
 					alert('拖拽成功')
 					isOk = true;
+					var subject = $('#subject');
+					var xue_duan = $('#xue_duan');
+					get_tree_data(subject.val(), xue_duan.val());
 				}else{
 					alert(data.data.message);
 				}
@@ -258,8 +289,26 @@ var setting = {
 		    //图片转码的固定地址
             //config.replaceImgcrc = "/ckeditors/urlimage?src=";
 		};
-		(CKEDITOR.instances.advice)? "":CKEDITOR.replace("advice");
+		(CKEDITOR.instances.advice) ? "" : (CKEDITOR.replace("advice"));
 	}
+
+	// function clear_form_value()
+	// {
+	// 	$('.checkpoint').val('');
+	// 	$('.desc').val('');
+	// 	$('.weights').val('');
+	// 			//更新既有的建议
+	// 	$('.advice').val('');
+	// 	CKEDITOR.instances.advice.setData('');
+	// 	//$('#sort').val('');
+	// 	$('.ckp_uid').val('');
+	// 	$('.ckp_rid').val('');
+	// 	//$('.dimesion').val('');
+	// 	//$('.subject').val('');
+	// 	$('.str_pid').val('');
+	// 	//$('.category').val('');
+	// 	$(".high_level").prop("checked", false);
+	// }
 
 	$(document).ready(function(){
 		var subject = $('#subject');

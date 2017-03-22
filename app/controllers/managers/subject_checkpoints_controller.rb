@@ -20,8 +20,8 @@ class Managers::SubjectCheckpointsController < ApplicationController
     #   params[:high_level] = false
     # end 
     checkpoint =  BankSubjectCheckpointCkp.save_ckp(checkpoint_params)
-    
-    render json: response_json(200, checkpoint)
+    status, message = checkpoint.present? ? 200 : 500, checkpoint ? '' : {message: I18n.t("activerecord.errors.messages.can_not_create_node_pleace_checkout")}
+    render json: response_json(checkpoint.present? ? 200 : 500, checkpoint.present? ? checkpoint : message)
   end
 
   def list
@@ -32,7 +32,7 @@ class Managers::SubjectCheckpointsController < ApplicationController
 
   def edit    
     # cats = @checkpoint.bank_ckp_cats
-    render json: response_json(200)
+    render json: response_json(200, @checkpoint)
   end
 
   def update
@@ -71,8 +71,8 @@ class Managers::SubjectCheckpointsController < ApplicationController
   end
 
   def move_node
-    checkpoint = @checkpoint.move_node(params[:str_pid])
-    status, message = checkpoint ? 200 : 500, checkpoint ? '' : {message: '不能把本节点拖拽到此节点'}
+    checkpoint = @checkpoint.move_node(params[:move_type],params[:str_pid])
+    status, message = checkpoint ? 200 : 500, checkpoint ? '' : {message: I18n.t("activerecord.errors.messages.can_not_drag_node_to_this") }
     render json: response_json(checkpoint ? 200 : 500, message)
   end
 
