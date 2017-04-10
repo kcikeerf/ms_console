@@ -66,7 +66,7 @@ var setting = {
 					$(".high_level_div").html("");
 				}else
 				{
-					$(".high_level_div").html('<label>高阶：</label><input type="checkbox" name="high_level" class="high_level"/>');
+					$(".high_level_div").html('<label>高低阶：</label><input type="radio" name="high_level" value="true" id="high"/>&nbsp;高阶&nbsp;<input type="radio"  name="high_level" value="false" id="low"/>&nbsp;低阶');
 				}
 	            $('#fm')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
 			   	$("#save").on('click',function(){
@@ -140,9 +140,11 @@ var setting = {
 			$(".high_level_div").html("");
 		}else
 		{
-			$(".high_level_div").html('<label>高阶：</label><input type="checkbox" name="high_level" class="high_level"/>');
-			//console.log(treeNode.high_level);
-			treeNode.high_level ? $(".high_level").prop("checked","checked") : $(".high_level").prop("checked", false);
+			$(".high_level_div").html('<label>高低阶：</label><input type="radio" name="high_level" value="true" id="high"/>&nbsp;高阶&nbsp;<input type="radio"  name="high_level" value="false" id="low"/>&nbsp;低阶');
+			$(".high_level").removeAttr("checked");
+			if( treeNode.high_level == true || treeNode.high_level == false ){					
+				treeNode.high_level ? $("#high").prop("checked","checked") : $("#low").prop("checked", "checked");
+			}
 		}
 	  	$.get("/managers/subject_checkpoints/"+treeNode.uid+"/edit",{},function(data){
 			var len = data.data.length;
@@ -163,13 +165,13 @@ var setting = {
 	        }
 	        //更新更改后的建议
 	        treeNode.advice = CKEDITOR.instances.advice.getData();
-	       
-	        if($(".high_level").is(':checked')){
-	        	data = $('#fm').serialize();	        	
-	        }else
-	        {
-	        	data = $('#fm').serialize() + "&high_level=off"
-	        }
+	        // if($(".high_level").is(':checked')){
+	        // 	data = $('#fm').serialize();	        	
+	        // }else
+	        // {
+	        // 	data = $('#fm').serialize() + "&high_level=off"
+	        // }
+	        data = $('#fm').serialize();
 			$.ajax({
 				type:"put",
 				url:"/managers/subject_checkpoints/"+treeNode.uid,

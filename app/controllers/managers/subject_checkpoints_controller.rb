@@ -122,7 +122,9 @@ class Managers::SubjectCheckpointsController < ApplicationController
   end
 
   def checkpoint_params
-    params[:high_level] = (params[:high_level]=="on") ? true : false
+    if params[:high_level]
+      params[:high_level] = (params[:high_level]  == "true") ? true : false 
+    end
     params.permit(
       :id, 
       :subject, 
