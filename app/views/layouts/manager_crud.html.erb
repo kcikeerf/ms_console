@@ -2,7 +2,7 @@
 	<h2><%= page_info_item[:title] %></h2>
 	<div style="margin:20px 0;"></div>
 	<div id="tb">
-<% unless ["permissions", "pupils"].include? controller_name %>
+<% unless ["permissions", "pupils", "papers"].include? controller_name %>
 		<a  href="#" 
 			class="easyui-linkbutton" 
 			iconCls="icon-add" plain="true" 
@@ -11,17 +11,20 @@
 		</a> 
 <% end %>
 <% unless ["roles","permissions"].include? controller_name %>
+	<% unless ["papers"].include? controller_name %>
 		<a  href="#" 
 			class="easyui-linkbutton" 
 			iconCls="icon-edit" 
 			plain="true" 
 			onclick="
-<% if ["tenants", "analyzers", "teachers", "pupils", "tenant_administrators", "project_administrators", "area_administrators"].include? controller_name %>
-        editObjWithArea('<%= page_info_item[:path] %>/')
-<% else %>
-		editObj('<%= page_info_item[:path] %>/')
-<% end %>
-		"><%= LABEL("common.edit")%></a>  
+			<% if ["tenants", "analyzers", "teachers", "pupils", "tenant_administrators", "project_administrators", "area_administrators"].include? controller_name %>
+			        editObjWithArea('<%= page_info_item[:path] %>/')
+			<% else %>
+					editObj('<%= page_info_item[:path] %>/')
+			<% end %>
+		">
+		<%= LABEL("common.edit")%></a>  
+	<%end%>
 		<a  href="#" 
 			class="easyui-linkbutton" 
 			iconCls="icon-remove" 
@@ -39,6 +42,7 @@
 			data-options="		
 				pagination:true,
 				nowrap: false,
+				rownumbers: true,
 				url:'<%= page_info_item[:path] %>.json',
 				method:'get', 
 				toolbar: '#tb'">

@@ -41,6 +41,9 @@ module Managers::MainsHelper
       ]
       title = "#{I18n.t('activerecord.models.bank_node_catalog')}(#{arr.join('/')})"
       path = "/managers/node_structures/#{params[:node_structure_id]}/node_catalogs"
+    when "papers"
+      title = "#{I18n.t('activerecord.models.bank_paper_pap')}"
+      path = "/managers/papers"
     else
       title = I18n.t("dict.unknown")
       path = "/managers/"

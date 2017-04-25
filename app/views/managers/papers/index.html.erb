@@ -1,0 +1,13 @@
+<% content_for :head do %>
+	<%= javascript_include_tag 'managers/papers','data-turbolinks-track' => true %>
+<% end %>
+<th data-options="field:'uid',align:'center', width:'20%'">ID</th>
+<th data-options="field:'heading',align:'center', width:'22%'">试卷名</th>
+<th data-options="field:'school',align:'center', width:'15%'">学校</th>
+<th data-options="field:'status_label',align:'center', width:'10%'">状态</th>
+<th data-options="field:'subject_label',align:'center', width:'5%'">科目</th>
+<th data-options="field:'grade_label',align:'center', width:'5%'">年级</th>
+<th data-options="field:'term_label',align:'center', width:'10%'">学期</th>
+<th data-options="field:'       ',width:'15%',align:'center',formatter:formatOper">操作</th>
+
+<%= render partial: "form_in_dialog" %>

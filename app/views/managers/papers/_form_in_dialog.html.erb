@@ -1,0 +1,38 @@
+<% content_for :form do %>
+	<br />
+	<div class="fuid">
+		<label>试卷标号:</label>
+		<%= text_field_tag :uid, '',"readonly" => "readonly" %>
+	</div>
+	<br />
+	<div class="fname">
+		<label>名称:</label>
+		<%= text_field_tag :heading, '', "readonly" => "readonly"%>
+	</div>
+	<br />
+	<div class="fstatus">
+		<label>名称:</label>
+		<%= text_field_tag :status_label, '', "readonly" => "readonly" %>
+	</div>
+	<br />
+	<div class="fback">
+		<label>回退到:</label>
+		<%= select_tag "back_to",options_for_select(Common::Paper::RollbackStatus.invert),{class: 'back_to'} %>
+	</div>
+	<br />
+	<div class="fckp" style="display:none;">
+		<label>保留解析:</label>
+		<%= radio_button_tag 'save_ckp', "true", id: "save_ckp_true"  %>&nbsp;是&nbsp;
+		<%= radio_button_tag 'save_ckp', "false", id: "save_ckp_false" %>&nbsp;否&nbsp;
+	</div>
+<% end %>
+<script type="text/javascript">
+	function formatOper(val,row,index){
+		options = "";
+      if (row["paper_status"] == "editted" || row["paper_status"] == "analyzing" || row["paper_status"] == "analyzed"|| row["paper_status"] == "score_importing" || row["paper_status"] == "score_imported" || row["paper_status"] == "report_generating" || row["paper_status"] == "report_completed" ){   
+  	options = options + "<a  href='#' onclick=\"rollbackObj(" + "\'<%= page_info_item[:path] %>/\'," + index  + ")\">回退</a>&nbsp; ";
+		}
+		options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/down_file">下载</a>';  
+	  return options;
+	} 
+</script>	

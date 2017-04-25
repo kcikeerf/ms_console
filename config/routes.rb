@@ -77,6 +77,13 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :papers, concerns: :destroy_all do
+      member do
+        post 'rollback'
+        get 'down_file'
+      end
+    end
+
     resources :analyzers, concerns: :destroy_all
     resources :teachers, concerns: :destroy_all
     resources :pupils, concerns: :destroy_all
