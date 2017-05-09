@@ -84,6 +84,11 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :checkpoint_systems, concerns: :destroy_all do
+      resources :subject_ckps do
+      end
+    end
+
     resources :analyzers, concerns: :destroy_all
     resources :teachers, concerns: :destroy_all
     resources :pupils, concerns: :destroy_all
@@ -107,6 +112,7 @@ Rails.application.routes.draw do
       get 'dimesion_tree'
       get 'get_ckp_data'
       get 'get_tree_data_by_subject'
+      get 'get_tree_date_include_checkpoint_system'
     end
   end
 

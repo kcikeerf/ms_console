@@ -1,7 +1,6 @@
   //回退
   function rollbackObj(url, rowIndex) {
     rows  = $('#dg').datagrid('getRows');
-    console.log(rows);
     row = rows[rowIndex]
     if (row){       
       if (row["paper_status"] == "editted" || row["paper_status"] == "analyzing" || row["paper_status"] == "analyzed"|| row["paper_status"] == "score_importing" || row["paper_status"] == "score_imported" || row["paper_status"] == "report_generating" || row["paper_status"] == "report_completed" ){   

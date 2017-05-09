@@ -44,6 +44,9 @@ module Managers::MainsHelper
     when "papers"
       title = "#{I18n.t('activerecord.models.bank_paper_pap')}"
       path = "/managers/papers"
+    when "checkpoint_systems"
+      title = "#{I18n.t('activerecord.models.checkpoint_system')}"
+      path = "/managers/checkpoint_systems"
     else
       title = I18n.t("dict.unknown")
       path = "/managers/"

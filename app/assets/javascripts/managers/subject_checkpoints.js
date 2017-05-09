@@ -49,6 +49,8 @@ var setting = {
 			addBtn.unbind("click");
 			addBtn.on("click", function(){
 				$('.checkpoint').val('');
+				$('.ckp_uid').val("");
+				$('.ckp_rid').val("");
 				$('.desc').val('');
 				$('#advice').val('');
 				$('#sort').val('');
@@ -58,8 +60,8 @@ var setting = {
 			    //clear_form_value();
 			    $('.dimesion').val(treeNode.dimesion);
 			    $('.str_pid').val(treeNode.rid);
-	    		$('.subject').val($("#subject").val());
-	    		$('.dimesion').val(treeNode.dimesion);
+	    		$('.subject').val($(".subject_select").val());
+	    		$('.category').val($(".xue_duan_select").val());
 
 			    //CKEDITOR.instances.advice.setData('')
 	    		if(treeNode.dimesion == "knowledge"){
@@ -73,7 +75,11 @@ var setting = {
 			   			$.post('/managers/subject_checkpoints', $("#fm").serialize(), function(data){
 				   		 	if(data.status == 200){
 				   		 		var tree = $.fn.zTree.getZTreeObj(treeNode.dimesion + "_tree");
-				   		 		tree.addNodes(treeNode, data.data);
+				   		 		tree.addNodes(treeNode, data.data[0]);
+				   		 		if (data.data[1] && data.data[1].is_entity == false){
+					   		 		treeNode.nocheck = true;
+					   		 		tree.updateNode(treeNode);
+				   		 		}
 				   		 	}else{
 				   		 		alert(data.data.message);
 				   		 	}
@@ -93,7 +99,8 @@ var setting = {
 	};
 	/*删除事件*/
 	function zTreeBeforeRemove(treeId, treeNode) {
-		
+
+		var node = treeNode.getParentNode();
 		var isOk;
 		if(confirm("你确定要删除么？")){	
 		
@@ -105,6 +112,11 @@ var setting = {
                 dataType: 'json',
 				success:function(data){
 					if(data.status == 200){
+		   		 		if (data.data.uid){
+			   		 		var tree = $.fn.zTree.getZTreeObj(treeNode.dimesion + "_tree");
+			   		 		node.nocheck = data.data.nocheck;
+			   		 		tree.updateNode(node);
+		   		 		};
 						isOk = true;
 					}else{
 						isOk = false;
@@ -195,6 +207,8 @@ var setting = {
 		$(".panel-tool-close, #cancel").on('click', function(){
 			//clear_form_value();
 			$('#dlg').dialog('close');
+			$('#save').off('click');
+
 		});
 		// $('#dlg').dialog({  
   //   		onClose:function(){
@@ -225,9 +239,14 @@ var setting = {
 				if(data.status == 200){
 					alert('拖拽成功')
 					isOk = true;
-					var subject = $('#subject');
-					var xue_duan = $('#xue_duan');
-					get_tree_data(subject.val(), xue_duan.val());
+					var subject = $('.subject_select').val();
+					var xue_duan = $('.xue_duan_select').val();
+
+					if(subject == "all"){
+						get_no_dimesion_data_tree(subject, xue_duan)
+					}else{					
+						get_tree_data(subject, xue_duan);
+					}
 				}else{
 					alert(data.data.message);
 				}
@@ -241,18 +260,16 @@ var setting = {
 
 	//读取指标
     function get_tree_data(subject, xue_duan){
+        var sys_type_id = $('#ckp_system').val();
 		if(subject == ''){
 			init_tree(null, null, null);
 			$('#file_upload').hide();
 		}else{
-			$.get('/checkpoints/get_tree_data_by_subject',{subject: subject, xue_duan: xue_duan},function(data){
+			$.get('/checkpoints/get_tree_date_include_checkpoint_system',{subject: subject, xue_duan: xue_duan, ckp_system_id: sys_type_id},function(data){
 				var zNodes_knowledge = data.knowledge.nodes;
 				var zNodes_skill = data.skill.nodes;
 				var zNodes_ability = data.ability.nodes;
 				
-
-				$('.subject').val(subject);
-                $('.category').val(xue_duan);
 				if(zNodes_knowledge.length <= 1){
 					init_tree(null, null, null);
 					$('#file_upload').show();
@@ -264,10 +281,28 @@ var setting = {
 		}
 	}
 
+	function get_no_dimesion_data_tree(subject, xue_duan){
+		var sys_type_id = $(".ckp_system").attr("value");
+		$.get('/checkpoints/get_tree_date_include_checkpoint_system',{subject: subject, xue_duan: xue_duan, ckp_system_id: sys_type_id},function(data){
+				var zNodes_other = data.nodes;
+				if(zNodes_other.length <= 1){
+					init_other_tree(null);
+				}else{			
+					init_other_tree(zNodes_other);
+				}
+			})
+
+	}
+
 	function init_tree(knowledge, skill, ability){
 		$.fn.zTree.init($("#skill_tree"), setting, skill);
 		$.fn.zTree.init($("#ability_tree"), setting, ability);
 		$.fn.zTree.init($("#knowledge_tree"), setting, knowledge);
+	}
+
+	function init_other_tree(other){
+		$.fn.zTree.init($("#other_tree"), setting, other);
+
 	}
 
 	function replace_advice_ckeditor(){
@@ -313,12 +348,14 @@ var setting = {
 	$(document).ready(function(){
 		var subject = $('#subject');
 		var xue_duan = $('#xue_duan');	
-		
 		subject.on('change',function(){
+			$('.subject_select').val(subject.val());
 			get_tree_data(subject.val(), xue_duan.val());
 		});
 
 		xue_duan.on('change',function(){
+			$('.xue_duan_select').val(xue_duan.val());
+
 			get_tree_data(subject.val(), xue_duan.val());
 		});
 

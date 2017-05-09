@@ -1,0 +1,54 @@
+
+<th data-options="field:'name',align:'center', width:'20%'">指标分类</th>
+<th data-options="field:'rid',align:'center', width:'20%'">RID</th>
+<th data-options="field:'is_group',align:'center', width:'5%'">是否分组</th>
+<th data-options="field:'sys_type',align:'center', width:'15%'">英文分类</th>
+<th data-options="field:'version',align:'center', width:'5%'">版本</th>
+
+<th data-options="field:'operations',width:'auto', width:'37%', align:'center',formatter:formatOper">操作</th>
+
+<%# content_for :content do %>
+<!-- 	<div id="checkpoint_dialog"></div>
+ --><%# end %>
+		
+<% content_for :form do %>
+
+<!--   <div id='system_rid' style="margin:5px 0px 5px 15px;">
+    <label for="textbook_rid">RID</label>
+    <input class="easyui-validatebox" id="textbook_rid" name="rid" style="width:200px; height: 22px;" data-options="required:true">
+  </div> -->
+
+  <div style="margin:5px 0px 5px 15px;">
+    <label for="textbook_name">分类</label>
+    <input class="easyui-validatebox" id="textbook_name" name="name" style="width:200px; height: 22px;" data-options="required:true">
+  </div>
+
+  <div style="margin:5px 0px 5px 15px;">
+    <label for="textbook_sys_type">英文</label>
+    <input class="easyui-validatebox" id="textbook_sys_type" name="sys_type" style="width:200px; height: 22px;" data-options="required:true">
+  </div>
+
+  <div style="margin:5px 0px 5px 15px;">
+    <label for="textbook_version">版本</label>
+    <input class="easyui-validatebox" id="textbook_version" name="version" style="width:200px; height: 22px;" data-options="required:true">
+  </div>
+
+  <div style="margin:5px 0px 5px 15px;">
+    <label for="textbook_term">分组</label>
+        <input type="radio" name="is_group" value="true" checked="checked"> 是 &nbsp;&nbsp;
+        <input type="radio" name="is_group" value="false"> 否
+  </div>
+
+  <div style="margin:5px 0px 5px 15px;">
+    <label for="textbook_term">描述</label>
+      <textarea rows="5" cols="40" name="desc">
+      </textarea>
+  </div>
+<% end %>
+<script type="text/javascript">
+	function formatOper(val,row,index){
+		var click_checkpoint_func = 'reopen(window.parent.$("#tabs"),"'+row["name"]+ '指标管理", "<%= page_info_item[:path] %>\/'+row["id"]+'\/subject_ckps")';
+		var link_str = "<a href='#'' onclick='" + click_checkpoint_func + "'>指标分类管理</a>&nbsp;";
+		return link_str;
+	} 
+</script>

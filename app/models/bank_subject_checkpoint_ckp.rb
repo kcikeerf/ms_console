@@ -5,6 +5,8 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   include TimePatch
   include InitUid
 
+  belongs_to :checkpoint_system, foreign_key: "checkpoint_system_id"
+  
   has_many :bank_nodestructure_subject_ckps, foreign_key: 'subject_ckp_uid', dependent: :destroy
   has_many :bank_nodestructures, through: :bank_nodestructure_subject_ckps
   has_many :bank_nodestructure_subject_ckps, foreign_key: 'subject_ckp_uid', dependent: :destroy
@@ -19,10 +21,15 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
 
     #前端获取指标
     def get_web_ckps(params)
-      Common::CheckpointCkp.ckp_types_loop {|dimesion| get_ckps_by_dimesion(params, dimesion) }
+      checkpoint_system_id = params[:checkpoint_system_id] || 1
+      if checkpoint_system_id == 1
+        Common::CheckpointCkp.ckp_types_loop {|dimesion| get_ckps_by_dimesion(params, dimesion,checkpoint_system_id) }
+      else
+        get_ckps_by_dimesion(params, "other", checkpoint_system_id)
+      end
     end
 
-    def get_ckps_by_dimesion(params, dimesion)
+    def get_ckps_by_dimesion(params, dimesion, checkpoint_system_id)
       level_config = Common::CheckpointCkp::LevelArr.clone
       nodes = root_node(dimesion)
       nodes[:children] = []
@@ -30,7 +37,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       # node_structure = BankNodestructure.find(node_uid)
       #all_nodes = node_structure.bank_subject_checkpoint_ckps.where(dimesion: dimesion)
       target_subject, target_category = BankCheckpointCkp.get_subject_ckp_params params
-      dim_all_nodes = self.where(:subject => target_subject, :category => target_category, :dimesion => dimesion)
+      dim_all_nodes = self.where(:subject => target_subject, :category => target_category, :dimesion => dimesion,  :checkpoint_system_id => checkpoint_system_id)
 
       node_level_first = level_config.first
       first_level_nodes = get_nodes_by_rid_length(dim_all_nodes, node_level_first)
@@ -99,6 +106,30 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       return result
     end
 
+    def get_all_ckps_plus(subject,xue_duan,system_id=1, str_pid='')
+      if system_id == 1
+        Common::CheckpointCkp.ckp_types_loop {|dimesion| get_all_ckps_by_dimesion_plus(subject, xue_duan, system_id, dimesion, str_pid) }
+      else
+        get_all_ckps_by_dimesion_plus(subject, xue_duan, system_id, "other", str_pid)
+      end
+    end
+
+    def get_all_ckps_by_dimesion_plus(subject, xue_duan, system_id, dimesion, str_pid='', options={})
+      result = {pid: str_pid, nodes: []}
+      return result if (subject.blank? || dimesion.blank?)
+
+      ckps = where(subject: subject,category: xue_duan, checkpoint_system_id: system_id, dimesion: dimesion).order({rid: :asc})
+      unless str_pid.blank?
+        ckp = ckps.find_by(uid: str_pid)
+        ckps = ckp ? ckp.children : []
+      end
+      # ckps = BankRid.get_all_child target_objs, pid
+      result[:nodes] = constructure_ckps(ckps, options)
+      result[:nodes].unshift(root_node(dimesion, options))
+      return result      
+    end
+
+
     #
     # str_pid: parent rid
     # node_uid: node structure uid
@@ -107,9 +138,10 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       subject = params[:subject]
       category = params[:category]
       dimesion = params[:dimesion]
+      checkpoint_system_id = params[:checkpoint_system_id] || 1
       return nil if subject.blank? || params[:category].blank? || dimesion.blank?
       
-      target_objs = where(subject: subject, category: category, dimesion: dimesion)
+      target_objs = where(subject: subject, category: category, dimesion: dimesion, checkpoint_system_id: checkpoint_system_id)
       new_rid = BankRid.get_new_bank_rid target_objs, params[:str_pid]
 
       if new_rid.present?
@@ -123,6 +155,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
                            weights: params[:weights],
                            sort: new_rid,
                            high_level: params[:high_level],
+                           checkpoint_system_id: checkpoint_system_id,
                            is_entity: true)
 
         rid_len = new_rid.size
@@ -133,7 +166,11 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
           new_ckp.save!
           ckp_parent_node.update(is_entity: false) if ckp_parent_node
         end
-        return new_ckp.organization_hash
+        if ckp_parent_node 
+          return [new_ckp.organization_hash, ckp_parent_node.organization_hash]
+        else
+          return [new_ckp.organization_hash,{}]
+        end
       else
         return nil
       end
@@ -154,14 +191,14 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
     end
 
     # 循坏生成指标
-    def generate_ckp(subject, dimesion, ckp_arr, parent_rid = nil)
+    def generate_ckp(subject, dimesion, ckp_arr, system_id=1, parent_rid = nil)
       ckp_arr.each do |ckp|
         ckp.symbolize_keys!
         name = ckp[:text]
-        new_ckp = save_ckp(subject: subject, checkpoint: name, dimesion: dimesion, str_pid: parent_rid)
+        new_ckp = save_ckp(subject: subject, checkpoint: name, dimesion: dimesion, checkpoint_system_id: system_id, str_pid: parent_rid)
         ckp_children = ckp[:items]
         unless ckp_children.blank?
-          generate_ckp(subject, dimesion, ckp_children, new_ckp[:rid])
+          generate_ckp(subject, dimesion, ckp_children, system_id, new_ckp[:rid])
         end
       end
     end
@@ -177,7 +214,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       # ckps.map(&:organization_hash)
     end
 
-    # 获取影响范围
+    #获取影响范围
     # [参数]
     # 开始节点，不包含的节点
     # [返回值]
@@ -187,7 +224,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       if begin_node.parent.present?
         nodes = begin_node.parent.children
       else
-        nodes = where(subject: begin_node.subject, category: begin_node.category, dimesion: begin_node.dimesion)
+        nodes = where(subject: begin_node.subject, category: begin_node.category, dimesion: begin_node.dimesion, checkpoint_system_id: begin_node.checkpoint_system_id)
       end
       if not_include_node.present?
         cond_str += "AND SUBSTRING(rid, 1, ?) <> ?" 
@@ -231,7 +268,6 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
         return 1
       end
     end
-
   end
 
   #
@@ -262,6 +298,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
     return child_parent_rid, self_old_bank_id, children_bank_id   
   end
 
+  #
   # str_uid: current check point uid
   # str_pid: parent rid
   # node_uid: node structure uid
@@ -279,11 +316,11 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   # move_type: "inner", "prev", "next"
   # target_node_uid: 目标节点
   # [返回值]
-  # true/false
+  # true ： false
   # [功能]
   # 将原节点移动到目标节点的指定类型里面，同时更新目标节点(可能包含目标节点）之后的节点, （替换目标节点，并更改子节点）
   def move_node(move_type, target_node_uid)
-    nodes = self.class.where(subject: subject, category: category, dimesion: dimesion)
+    nodes = self.class.where(subject: subject, category: category, dimesion: dimesion, checkpoint_system_id: checkpoint_system_id)
     target_node = nodes.find(target_node_uid) if target_node_uid.present?
     children_nodes = children.map(&:uid)
     old_rid = rid.clone
@@ -386,7 +423,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   end
 
   def children
-    get_nodes(rid.size, rid, subject, dimesion, category).not_equal_rid(rid)
+    get_nodes(rid.size, rid, subject, dimesion, category, checkpoint_system_id).not_equal_rid(rid)
   end
 
   # def parents
@@ -394,13 +431,13 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   # end
 
   def parent
-    get_nodes(parent_node_rid.size, parent_node_rid, subject, dimesion, category).find_by(rid: parent_node_rid)
+    get_nodes(parent_node_rid.size, parent_node_rid, subject, dimesion, category, checkpoint_system_id).find_by(rid: parent_node_rid)
   end
 
   def parent_node_rid
     rid.slice(0, rid.size - Common::SwtkConstants::CkpStep)
   end
-
+  
   #自己的bank_id
   def bank_node_rid
     rid.slice(rid.size - Common::SwtkConstants::CkpStep, Common::SwtkConstants::CkpStep)
@@ -411,7 +448,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
     if parent
       nodes = parent.children
     else
-      nodes = self.class.where(subject: subject, category: category, dimesion: dimesion)
+      nodes = self.class.where(subject: subject, category: category, dimesion: dimesion, checkpoint_system_id: checkpoint_system_id)
     end
     nodes.where('LENGTH(rid) = ? and SUBSTRING(rid, ?) > ?', rid.size, 0 - Common::SwtkConstants::CkpStep, bank_node_rid).order("rid ASC").first
   end
@@ -435,6 +472,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       ckp_source: Common::CheckpointCkp::CkpSource::SubjectCkp,
       nocheck: nocheck_flag,
       high_level: high_level,
+      checkpoint_system_id: checkpoint_system_id,
       chkDisabled: false
     }
   end
@@ -442,13 +480,13 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   # 获取所属指标体系全部指标包括自己
   #
   def families
-    ( subject.nil? || category.nil? )? [] : self.class.where(subject: subject, category: category)
+    ( subject.nil? || category.nil? || checkpoint_system_id.nil?)? [] : self.class.where(subject: subject, category: category, checkpoint_system_id: checkpoint_system_id)
   end
 
   private
 
-  def get_nodes(length, rid, subject, dimesion, category)
-    self.class.where('subject = ? and dimesion = ? and category = ? and left(rid, ?) = ?', subject, dimesion, category, length, rid)
+  def get_nodes(length, rid, subject, dimesion, category, system_id=1)
+    self.class.where('subject = ? and dimesion = ? and category = ? and checkpoint_system_id = ? and left(rid, ?) = ?', subject, dimesion, category, system_id, length, rid)
   end 
 
   def delete_children

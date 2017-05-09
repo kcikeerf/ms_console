@@ -218,13 +218,13 @@ namespace :swtk do
 
   #针对默认类型指标
   desc "import subject checkpoints, temporary use"
-  task :read_subject_checkpoint,[:file_path,:subject,:xue_duan,:dimesion]=> :environment do |t, args|
-    if args[:file_path].nil? ||  args[:subject].nil? || args[:xue_duan].nil? || args[:dimesion].nil?
+  task :read_subject_checkpoint,[:file_path,:subject,:xue_duan,:dimesion,:checkpoint_system_id]=> :environment do |t, args|
+    if args[:file_path].nil? ||  args[:subject].nil? || args[:xue_duan].nil? || args[:dimesion].nil? || args[:checkpoint_system_id].nil?
       puts "Command format not correct."
       exit 
     end
 
-    if BankSubjectCheckpointCkp.where(subject: args[:subject], dimesion:args[:dimesion], category: args[:xue_duan]).count > 0
+    if BankSubjectCheckpointCkp.where(subject: args[:subject], dimesion: args[:dimesion], category: args[:xue_duan], checkpoint_system_id: args[:checkpoint_system_id]).count > 0
       puts "#{args[:subject]}, #{args[:xue_duan]} not empty"
       exit
     end
@@ -259,14 +259,15 @@ namespace :swtk do
           :advice => "建议",
           :weights => weights,
           :sort => rid,
-          :is_entity => false
+          :is_entity => false,
+          :checkpoint_system_id => args[:checkpoint_system_id]
         })
 
         ckp.save
       end
     end
 
-    ckps = BankSubjectCheckpointCkp.where(subject: args[:subject], category: args[:xue_duan], dimesion: args[:dimesion])
+    ckps = BankSubjectCheckpointCkp.where(subject: args[:subject], category: args[:xue_duan], dimesion: args[:dimesion], checkpoint_system_id: args[:checkpoint_system_id])
     ckps.each_with_index{|ckp,index|
         next unless ckp
         p index

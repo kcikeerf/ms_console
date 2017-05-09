@@ -195,7 +195,6 @@ function editObj(url){
 
 function editObjWithArea(url){
   var row = $('#dg').datagrid('getSelected');
-  console.log(row);
   if (row){
     $('#dlg').dialog('open').dialog('setTitle','编辑');
     $('#fm').form('clear').attr('action', url);

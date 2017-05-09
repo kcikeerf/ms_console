@@ -18,7 +18,7 @@ class Managers::SubjectCheckpointsController < ApplicationController
     #   params[:high_level] = true
     # else
     #   params[:high_level] = false
-    # end 
+    # end       
     checkpoint =  BankSubjectCheckpointCkp.save_ckp(checkpoint_params)
     status, message = checkpoint.present? ? 200 : 500, checkpoint ? '' : {message: I18n.t("activerecord.errors.messages.can_not_create_node_pleace_checkout")}
     render json: response_json(checkpoint.present? ? 200 : 500, checkpoint.present? ? checkpoint : message)
@@ -58,10 +58,20 @@ class Managers::SubjectCheckpointsController < ApplicationController
     data = {:status => 403 }
 
     begin
-      target_ckps = BankSubjectCheckpointCkp.where(:uid=> params[:uid])
-      target_ckps.destroy_all
+      target_ckp = BankSubjectCheckpointCkp.where(:uid=> params[:uid]).first
+      parent_hash = {}
+      if target_ckp.present?
+        target_parent = target_ckp.parent
+        target_ckps = target_ckp.children if target_ckp.children
+        target_ckps.destroy_all
+        target_ckp.destroy
+        if target_parent.present? && target_parent.children.blank? 
+          target_parent.update(is_entity: true)
+          parent_hash = target_ckp.parent.organization_hash
+        end
+      end
       status = 200
-      data = {:status => "200"}
+      data = {:status => "200", data: parent_hash}
     rescue Exception => ex
       status = 500
       data = {:status => 500, :message => ex.message}
@@ -106,11 +116,13 @@ class Managers::SubjectCheckpointsController < ApplicationController
   # 指标文件导入
   def import_ckp_file
     file, @subject, dimesion = params[:file], params[:subject], params[:dimesion]
+    ckp_system = CheckpointSystem.where(sys_type: params[:sys_type]).first
+    ckp_system_id = ckp_system.blank? ? 1 : ckp_system.id
     file_content = IO.readlines(file.path).join('').gsub(/\n|\s+/, '')
     ckp_hash = JSON.parse(file_content) rescue nil
     @is_ok = ckp_hash && ckp_hash["data"]
     if @is_ok
-      BankSubjectCheckpointCkp.generate_ckp(@subject, dimesion, ckp_hash["data"])
+      BankSubjectCheckpointCkp.generate_ckp(@subject, dimesion, ckp_hash["data"], ckp_system_id)
     end
     File.delete(file.path)
   end
@@ -138,7 +150,8 @@ class Managers::SubjectCheckpointsController < ApplicationController
       :str_uid, 
       :is_entity,
       :high_level, 
-      :category)
+      :category,
+      :checkpoint_system_id)
   end
 
   def select_checked(ckps, uids)

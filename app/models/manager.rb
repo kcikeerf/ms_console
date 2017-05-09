@@ -39,7 +39,8 @@ class Manager < ActiveRecord::Base
           {id: 201, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_guan_li"), icon: '', url: '/managers/node_structures'},
           {id: 202, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/checkpoints'},
           {id: 203, name: Common::Locale::i18n("managers.menus.ke_mu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/subject_checkpoints'},
-          {id: 204, name: Common::Locale::i18n("managers.menus.shi_juan_guan_li"), icon: '', url: '/managers/papers'}
+          {id: 204, name: Common::Locale::i18n("managers.menus.shi_juan_guan_li"), icon: '', url: '/managers/papers'},
+          {id: 205, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'}
         ]
       }
     ]
