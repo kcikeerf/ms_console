@@ -5,7 +5,7 @@ class Mongodb::BankTest
   include Mongodb::MongodbPatch
   
   before_create :set_create_time_stamp
-  before_save :set_update_time_stamp
+  before_save :set_update_time_stamp, :generate_ext_data_path
 
   belongs_to :bank_paper_pap, class_name: "Mongodb::BankPaperPap"
   belongs_to :paper_question, class_name: "Mongodb::PaperQuestion"
@@ -24,16 +24,30 @@ class Mongodb::BankTest
   field :quiz_date, type: DateTime
   field :user_id, type: String
   field :report_version, type: String
+  field :ext_data_path, type: String
   field :report_top_group, type: String
+  field :checkpoint_system_rid, type: String
+  field :is_public, type: Boolean
 
   field :dt_add, type: DateTime
   field :dt_update, type: DateTime
 
   index({_id: 1}, {background: true})
   index({bank_paper_pap_id: 1}, {background: true})
-  
+
+  def area_uids
+    bank_test_area_links.map(&:area_uid)
+  end
+
+  def areas
+    Area.where(uid: area_uids)
+  end
+
+  def tenant_uids
+    bank_test_tenant_links.map(&:tenant_uid)
+  end
+
   def tenants
-    tenant_uids = bank_test_tenant_links.map(&:tenant_uid)
     Tenant.where(uid: tenant_uids)
   end
 
@@ -48,6 +62,14 @@ class Mongodb::BankTest
         :job_progress => job.nil?? 0 : (job.process*100).to_i
       } 
     }
+  end
+
+  def loc_uids
+    bank_test_location_links.map(&:loc_uid)
+  end
+
+  def locations
+    Location.where(uid: loc_uids)
   end
 
   def tasks
@@ -99,4 +121,20 @@ class Mongodb::BankTest
       logger.debug ex.backtrace
     end
   end
+
+  def checkpoint_system
+    CheckpointSytem.where(id: self.checkpoint_system_id).first
+  end
+
+  ###私有方法###
+  private
+
+    # 随机生成6位外挂码，默认生成码以"___"（三个下划线）开头
+    # 
+    def generate_ext_data_path
+      unless self.ext_data_path
+        self.ext_data_path = Common::Test::ExtDataPathDefaultPrefix
+        Common::Test::ExtDataPathLength.times{ self.ext_data_path << Common::Test::ExtDataCodeArr.sample}
+      end
+    end
 end

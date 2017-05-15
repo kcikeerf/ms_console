@@ -85,4 +85,12 @@ class CheckpointsController < ApplicationController
     render json: ckp_data.to_json
   end
 
+  def get_tree_date_include_checkpoint_system
+    params.permit!
+    ckp_system = CheckpointSystem.where(rid: params[:ckp_system_rid]).first
+    ckp_system_rid = ckp_system.blank? ? "000" : ckp_system.rid
+    ckp_data = BankSubjectCheckpointCkp.get_all_ckps_plus(params[:subject], params[:xue_duan], ckp_system_rid)
+    render json: ckp_data.to_json      
+  end 
+
 end

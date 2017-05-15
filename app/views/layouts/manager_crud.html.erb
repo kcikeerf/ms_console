@@ -29,12 +29,17 @@
 			class="easyui-linkbutton" 
 			iconCls="icon-remove" 
 			plain="true" 
-			onclick="destroy('<%= page_info_item[:path] %>/')">
+			<% if ["checkpoint_systems"].include? controller_name %>
+				onclick="destroy_check('<%= page_info_item[:path] %>/')"
+			<%else%>
+				onclick="destroy('<%= page_info_item[:path] %>/')"
+			<% end %>
+			>
 			<%= LABEL("common.delete")%>
 		</a>
 <% end %>
 	</div>  
-	<!-- singleSelect:true, 当行选择-->
+	<!-- singleSelect:true, 单行选择-->
 	<table  id='dg' 
 			class="easyui-datagrid" 
 			title="<%= LABEL("common.list")%>" 
@@ -42,7 +47,7 @@
 			data-options="		
 				pagination:true,
 				nowrap: false,
-				rownumbers: true,
+				singleSelect:true,
 				url:'<%= page_info_item[:path] %>.json',
 				method:'get', 
 				toolbar: '#tb'">
@@ -79,4 +84,21 @@
 			onclick="javascript:$('#dlg').dialog('close')">
 			<%= LABEL("common.cancel")%></a>
 	</div>
+
+	<div id="dd" 
+	  class="easyui-dialog confirm-dlg" 
+	  style="width:300px;height:150px;" 
+	  closed="true"
+	  buttons="#dlg-buttons">
+	  <%= form_tag '', id: 'fcb' do  %>
+	    <input type="hidden" name="_method" id='cb_manager_method' value="post" />
+			<div id='other'>
+				<%= yield(:form_fcb) %>
+			</div>
+	  <% end %>
+	</div>
+	<div id="dlg-buttons">
+	  <a  href="#"  class="easyui-linkbutton" iconCls="icon-ok" onclick="deleteConfirm()">保存</a>
+	  <a href="#" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dd').dialog('close')">取消</a>
+</div>
 <% end %>

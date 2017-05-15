@@ -159,6 +159,7 @@ function newObj(title, url){
   $('#dlg').dialog('open').dialog('setTitle',title);
   $('#fm')[0].reset();
   $('#fm').attr('action', url);
+  $('#fm .fm_hiddened_div').hide();
   $('#fm')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
   $.parser.parse($("#fm"));
   $('#manager_method').val('post');
@@ -185,23 +186,23 @@ function editObj(url){
     //   $("#other").html($html);
     //   $.parser.parse($("#fm"));
     // }//没懂啥用先保留
+    $('#fm .fm_hiddened_div').show();
     $('#dlg').dialog('open').dialog('setTitle','编辑');
     $('#fm').form('clear').attr('action', url);
     $('#fm')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
-    $('#fm').form('load',row).attr('action', url + (row.id == undefined ? row.uid : row.id));
+    $('#fm').form('load',row).attr('action', url + (row.id == undefined ? (row.uid == undefined ? row.rid : row.uid) : row.id));
     $('#manager_method').val('put');
   }
 }
 
 function editObjWithArea(url){
   var row = $('#dg').datagrid('getSelected');
-  console.log(row);
   if (row){
     $('#dlg').dialog('open').dialog('setTitle','编辑');
     $('#fm').form('clear').attr('action', url);
     $('#fm')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
 
-    $('#fm').form('load',row).attr('action', url + (row.id == undefined ? row.uid : row.id));
+    $('#fm').form('load',row).attr('action', url + (row.id == undefined ? (row.uid == undefined ? row.rid : row.uid) : row.id));
     $('#fm').form('load',row);
     areaObj.reset_city_list();
     setTimeout(function(){
@@ -252,12 +253,12 @@ function destroy(url){
   var rows = $('#dg').datagrid('getSelections');
   var ids_arr = [];
   $.each(rows, function(i, row){
-    ids_arr.push(row.id == undefined ? row.uid : row.id)
-  });
+    ids_arr.push(row.id == undefined ? (row.uid == undefined ? row.rid : row.uid) : row.id)
+  });Confirm
   var authenticity_token = $('meta[name="csrf-token"]')[0].content;
   if (ids_arr.length > 0){
     var url = url + 'destroy_all';
-    $.messager.confirm('Confirm','你确定要删除么',function(r){
+    $.messager.confirm('','你确定要删除么',function(r){
       if (r){
         $.ajax({
           type: 'delete',
@@ -284,6 +285,39 @@ function destroy(url){
   }
 }
 
+function destroy_check(url){
+  var row = $('#dg').datagrid("getSelected");
+  if (row){
+  $('#dd').dialog('open').dialog('setTitle','删除确认');
+  $('#fcb').form('clear').attr('action', url);
+  $('#fcb')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
+  $('#fcb').form('load',row).attr('action', url + (row.id == undefined ? (row.uid == undefined ? row.rid : row.uid) : row.id) + '/delete_checked');
+  $('#cb_manager_method').val('post');
+
+  }
+}
+
+
+function deleteConfirm(){
+  $('#fcb').form('submit',{
+
+    onSubmit: function(){
+      return $(this).form('validate');
+    },
+    success: function(result){
+      result = JSON.parse(result);
+      if (result.status == 200){
+        $('#dd').dialog('close');      // close the dialog
+        $('#dg').datagrid('reload');    // reload the user data
+      } else{
+        $.messager.alert({
+          title: 'Error',
+          msg: result.message
+        });
+      }
+    }
+  });
+}
 //指标体系
 function set_ckp_dialog(url_params){
   $('#checkpoint_dialog').dialog({

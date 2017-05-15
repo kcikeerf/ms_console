@@ -6,16 +6,16 @@
 	</style>
 <% end %>
 <div class="shaixuan">
-    <%=LABEL('dict.subject')%>
+	<% if @checkpoint_system.sys_type == "xy_default" %>
+  	<%=LABEL('dict.subject')%>
 	<%= select_tag :subject, options_for_select(@subject_list), include_blank: true %>
 	<%=LABEL('dict.xue_duan')%>:
 	<%= select_tag :xue_duan, options_for_select(@xue_duan_list), include_blank: true %>
-
 	<%= render 'import_form', path: import_ckp_file_managers_subject_checkpoints_path %>
-	<input type="hidden" name="xue_duan" class="xue_duan_select" value="all"/>
-	<input type="hidden" name="subject" class="subject_select" value="all"/>
-	<input type="hidden" name="ckp_system_id" class="ckp_system" value="1"/>
-
+	<%end%>
+	<input type="hidden" name="xue_duan_select" class="xue_duan_select" value="all"/>
+	<input type="hidden" name="subject_select" class="subject_select" value="all"/>
+	<input type="hidden" name="ckp_system_id" class="ckp_system" value="<%= @checkpoint_system.rid %>"/>
 </div>
 <!--div id="wrap">
 	<span id="knowledge_tree" class="ztree" style="display: block ; width: 30%; float: left;height: 650px; margin: 5px;"></span>
@@ -24,15 +24,24 @@
 </div-->
 
 <div id="wrap" class="easyui-tabs" style="width:99%;height:550px;margin: 5px;">
-	<div title="<%=LABEL('dict.knowledge')%>" style="padding:10px">
-		<span id="knowledge_tree" class="ztree" style="margin: 5px;"></span>
-	</div>
-	<div title="<%=LABEL('dict.skill')%>" style="padding:10px">
-		<span id="skill_tree" class="ztree" style="margin: 5px;"></span>
-	</div>
-	<div title="<%=LABEL('dict.ability')%>" style="padding:10px">
-		<span id="ability_tree" class="ztree" style="margin: 5px;"></span>
-	</div>
+	<% if @checkpoint_system.sys_type == "xy_default" %>
+		<div title="<%=LABEL('dict.knowledge')%>" style="padding:10px">
+			<span id="knowledge_tree" class="ztree" style="margin: 5px;"></span>
+		</div>
+		<div title="<%=LABEL('dict.skill')%>" style="padding:10px">
+			<span id="skill_tree" class="ztree" style="margin: 5px;"></span>
+		</div>
+		<div title="<%=LABEL('dict.ability')%>" style="padding:10px">
+			<span id="ability_tree" class="ztree" style="margin: 5px;"></span>
+		</div>
+	<%else%>
+		<div title="<%=LABEL('dict.other')%>" style="padding:10px">
+			<span id="other_tree" class="ztree" style="margin: 5px;"></span>
+		</div>
+		<script type="text/javascript">
+			get_no_dimesion_data_tree("all","all");
+		</script>
+	<%end%>
 </div>
 
 <div id="dlg" class="easyui-dialog" title="录入表单"  style="width:600px;height:550px;padding:10px 10px" 
@@ -73,12 +82,11 @@
 <!-- 		<input type="hidden" name="id" class="ckp_uid"/>
 		<input type="hidden" name="rid" class="ckp_rid"/> -->
 		<input type="hidden" name="dimesion" class="dimesion"/>
-		<input type="hidden" name="subject" class="subject"/>
-		<input type="hidden" name="str_pid" class="str_pid"/>
-		<input type="hidden" name="category" class="category"/>
+		<input type="hidden" name="subject" class="subject" value="all"/>
+		<input type="hidden" name="str_pid" class="str_pid" />
+		<input type="hidden" name="category" class="category" value="all"/>
+		<input type="hidden" name="checkpoint_system_rid" class="checkpoint_system_rid" value="<%= @checkpoint_system.rid %>"/>
 		<input type="hidden" name="authenticity_token" class="authenticity_token">
-		<input type="hidden" name="checkpoint_system_rid" class="checkpoint_system_rid" value="000"/>
-
 	</form>
 </div>
 <div id="dlg-buttons">

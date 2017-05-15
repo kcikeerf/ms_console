@@ -15,7 +15,6 @@ class Mongodb::BankQizpointQzp
   belongs_to :paper_outline, class_name: "Mongodb::PaperOutline"
   belongs_to :bank_quiz_qiz, class_name: "Mongodb::BankQuizQiz"
   has_and_belongs_to_many :bank_paper_paps, class_name: "Mongodb::BankPaperPap"
-  has_many :bank_qizpoint_qzp_histories, class_name: "Mongodb::BankQizpointQzpHistory"
 
   field :quz_uid, type: String
   field :pap_uid, type: String
@@ -26,8 +25,12 @@ class Mongodb::BankQizpointQzp
   field :ckps_json, type: String
   field :paper_outline_json, type: String
   field :score, type: Float
-  field :order, type: String
-  field :custom_order, type: String
+  field :order, type: String #系统顺序
+  field :asc_order, type: Integer #递增顺序
+  field :custom_order, type: String #自定义顺序
+  #是否为空
+  field :is_empty, type: Boolean, default: false
+
   field :dt_add, type: DateTime
   field :dt_update, type: DateTime
 
@@ -93,7 +96,7 @@ class Mongodb::BankQizpointQzp
 
   def format_paper_outline_json
     return {} if paper_outline.blank?
-    outline_arr = [ paper_outline.ancestors, paper_outline ].flatten
+    outline_arr = [ paper_outline.ancestors, paper_outline ].flatten.compact!
     outline_ids = "/#{outline_arr.map{|item| item.id.to_s}.join('/')}"
     outline_rid = "/#{outline_arr.map{|item| item.rid.to_s}.join('/')}"
     update_attributes(paper_outline_json: {

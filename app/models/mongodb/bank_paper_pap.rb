@@ -12,12 +12,10 @@ class Mongodb::BankPaperPap
   before_create :set_create_time_stamp
   before_save :set_update_time_stamp
 
-  has_many :bank_paperlogs, class_name: "Mongodb::BankPaperlog"
-  has_many :bank_pap_ptgs, class_name: "Mongodb::BankPapPtg"
+  # has_many :bank_paperlogs, class_name: "Mongodb::BankPaperlog"
+  # has_many :bank_pap_ptgs, class_name: "Mongodb::BankPapPtg"
   has_and_belongs_to_many :bank_quiz_qizs, class_name: "Mongodb::BankQuizQiz", dependent: :delete 
-  has_many :bank_quiz_qiz_histories, class_name: "Mongodb::BankQuizQizHistory"
   has_and_belongs_to_many :bank_qizpoint_qzps, class_name: "Mongodb::BankQizpointQzp"
-  has_many :bank_qizpoint_qzp_histories, class_name: "Mongodb::BankQizpointQzpHistory"
   has_many :bank_pap_cats, class_name: "Mongodb::BankPapCat", dependent: :delete 
   has_many :bank_paper_pap_pointers, class_name: "Mongodb::BankPaperPapPointer", dependent: :delete
   has_many :bank_tests, class_name: "Mongodb::BankTest", dependent: :delete
@@ -64,6 +62,7 @@ class Mongodb::BankPaperPap
   field :levelword, type: String
   field :levelword2, type: String
   field :score, type: Float
+  field :checkpoint_system_rid, type: String
   
 #  field :orig_paper, type: String
 #  field :orig_answer, type: String
@@ -87,6 +86,9 @@ class Mongodb::BankPaperPap
   #是否可用于测试／在线测试
   field :can_test, type: Boolean, default: false
   field :can_online_test, type: Boolean, default: false
+
+  #是否为空
+  field :is_empty, type: Boolean, default: false
 
   field :dt_add, type: DateTime
   field :dt_update, type: DateTime
@@ -444,6 +446,7 @@ class Mongodb::BankPaperPap
       :district => params[:information][:district] || "",
       :school => params[:information][:school] || "",
       :subject => params[:information][:subject].blank? ? "": params[:information][:subject][:name],
+      :checkpoint_system_rid => params[:information][:checkpoint_system].blank? ? "": params[:information][:checkpoint_system][:name],
       :grade => params[:information][:grade].blank? ? "": params[:information][:grade][:name],
       :term => params[:information][:term].blank? ? "": params[:information][:term][:name],
       :quiz_type => params[:information][:quiz_type] || "",
@@ -1508,6 +1511,7 @@ class Mongodb::BankPaperPap
         :district => params["information"]["district"] || "",
         :school => params["information"]["school"] || "",
         :subject => params["information"]["subject"].blank? ? "": params["information"]["subject"]["name"],
+        :checkpoint_system_rid => params["information"]["checkpoint_system"].blank? ? "": params['information']['checkpoint_system']['name'],
         :grade => params["information"]["grade"].blank? ? "": params["information"]["grade"]["name"],
         :term => params["information"]["term"].blank? ? "": params["information"]["term"]["name"],
         :quiz_type => params["information"]["quiz_type"] || "",

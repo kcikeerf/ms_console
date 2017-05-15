@@ -25,6 +25,7 @@ zh:
       project_administrator: "项目管理员"
       permission: "权限"
       bank_paper_pap: "试卷"
+      checkpoint_system: "指标体系"
 
     attributes:
       default:

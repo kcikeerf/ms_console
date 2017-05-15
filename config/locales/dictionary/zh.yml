@@ -16,6 +16,7 @@ zh:
     subject_teacher: "学科教师"
     head_teacher: "班主任"
     teacher: "老师"
+    teacher_number: "编号"
     analyzer: "分析员"
     pupil: "学生"
     tenant_administrator: "Tenant管理员"
@@ -26,6 +27,7 @@ zh:
     knowledge: "知识"
     skill: "技能"
     ability: "能力"
+    other: "其他"
     subject: "学科"
     text_version: "教材版本"
     volume: "课本分册"
@@ -244,6 +246,12 @@ zh:
     nian_ji_bao_gao: "年级报告"
     xiang_mu_bao_gao: "项目报告"
     qu_yu_bao_gao: "区域报告"
+    #综合报告
+    hen_qiang: "很强"
+    shang_ke: "尚可"
+    yi_ban: "一般"
+    ruo: "弱"
+    hen_ruo: "很弱" 
     #年份
     nian: "年"
     yue: "月"
