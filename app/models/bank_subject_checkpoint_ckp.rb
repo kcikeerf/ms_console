@@ -39,7 +39,6 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       #all_nodes = node_structure.bank_subject_checkpoint_ckps.where(dimesion: dimesion)
       target_subject, target_category = BankCheckpointCkp.get_subject_ckp_params params
       dim_all_nodes = self.where(:subject => target_subject, :category => target_category, :dimesion => dimesion,  :checkpoint_system_rid => checkpoint_system_rid)
-
       node_level_first = level_config.first
       first_level_nodes = get_nodes_by_rid_length(dim_all_nodes, node_level_first)
 
@@ -433,7 +432,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   # end
 
   def parent
-    get_nodes(parent_node_rid.size, parent_node_rid, subject, dimesion, category, checkpoint_system_rid).find_by(rid: parent_node_rid)
+    get_nodes(parent_node_rid.size, parent_node_rid, subject, dimesion, category, checkpoint_system_id).find_by(rid: parent_node_rid)
   end
 
   def parent_node_rid
@@ -451,6 +450,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       nodes = parent.children
     else
       nodes = self.class.where(subject: subject, category: category, dimesion: dimesion, checkpoint_system_rid: checkpoint_system_rid)
+      nodes = self.class.where(subject: subject, category: category, dimesion: dimesion, checkpoint_system_id: checkpoint_system_id)
     end
     nodes.where('LENGTH(rid) = ? and SUBSTRING(rid, ?) > ?', rid.size, 0 - Common::SwtkConstants::CkpStep, bank_node_rid).order("rid ASC").first
   end
