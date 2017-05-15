@@ -254,7 +254,7 @@ function destroy(url){
   var ids_arr = [];
   $.each(rows, function(i, row){
     ids_arr.push(row.id == undefined ? (row.uid == undefined ? row.rid : row.uid) : row.id)
-  });Confirm
+  });
   var authenticity_token = $('meta[name="csrf-token"]')[0].content;
   if (ids_arr.length > 0){
     var url = url + 'destroy_all';
