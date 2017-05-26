@@ -1,0 +1,17 @@
+<div class="fname">
+	<label>指标种类:</label>
+	<span><%= @checkpoint_system.try(:name) %></span>
+</div>
+<div class="ftype">
+	<label>指标分类:</label>
+	<span><%= @checkpoint_system.try(:sys_type) %></span>
+</div>
+<div class="frid">
+	<label>RID:</label>
+	<span><%= @checkpoint_system.try(:rid) %></span>
+</div>
+<div class="fversion">
+	<label>Version:</label>
+	<span><%= @checkpoint_system.try(:version) %></span>
+</div>
+<input type="hidden" name="checkpoint_system_rid" id="bank_test_checkpoint_system_rid" value="<%= @checkpoint_system.try(:rid) %>">

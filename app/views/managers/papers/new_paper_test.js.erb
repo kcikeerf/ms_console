@@ -1,0 +1,7 @@
+$(".paper_info").html("<%= j render 'managers/bank_tests/paper_info' %>");
+$(".ckp_system").html("<%= j render 'managers/bank_tests/ckp_system' %>");
+$('#dd').dialog("open").dialog('setTitle','新增试卷测试');
+$('#fcb')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
+$('#fcb').attr('action', "<%= create_paper_test_managers_paper_path(@paper) %>" );
+$('#cb_manager_method').val('post');
+

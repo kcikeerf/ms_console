@@ -2,6 +2,7 @@
 // require jquery_ujs
 //= require jquery-min
 //= require easyui/jquery.easyui.min.js
+//= require easyui/easyui-lang-zh_CN.js
 //= require managers/area
 
 $(function(){
@@ -228,7 +229,6 @@ function editObjWithArea(url){
 //保存
 function saveObj(){
   $('#fm').form('submit',{
-
     onSubmit: function(){
       return $(this).form('validate');
     },
@@ -298,7 +298,7 @@ function destroy_check(url){
 }
 
 
-function deleteConfirm(){
+function fcbSaveObj(){
   $('#fcb').form('submit',{
 
     onSubmit: function(){

@@ -1,0 +1,20 @@
+$(".paper_info").html("<%= j render 'paper_info' %>");
+$(".ckp_system").html("<%= j render 'ckp_system' %>");
+$('#dlg').dialog("open").dialog('setTitle','编辑试卷测试');
+$('#fm')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
+var row = <%=  sanitize @bank_test.add_value_to_item.to_json %>;
+$('#fm').form('load',row);
+areaObj.reset_city_list();
+setTimeout(function(){
+    $('#fm').form('load',row);
+    areaObj.reset_district_list();
+    setTimeout(function(){
+        $('#fm').form('load',row);
+        areaObj.reset_tenant_list();
+        setTimeout(function(){
+          $('#fm').form('load',row);
+        },100);
+    },100);
+}, 100);
+$('#fm').attr('action', "<%= managers_bank_test_path(@bank_test) %>" );
+$('#manager_method').val('put');

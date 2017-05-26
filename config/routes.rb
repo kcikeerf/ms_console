@@ -81,6 +81,8 @@ Rails.application.routes.draw do
       member do
         post 'rollback'
         get 'down_file'
+        get 'new_paper_test'
+        post 'create_paper_test'
       end
     end
 
@@ -91,6 +93,9 @@ Rails.application.routes.draw do
 
       resources :subject_ckps do
       end
+    end
+
+    resources :bank_tests, concerns: :destroy_all do
     end
 
     resources :analyzers, concerns: :destroy_all

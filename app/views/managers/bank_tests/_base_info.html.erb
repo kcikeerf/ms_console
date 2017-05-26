@@ -1,0 +1,29 @@
+<div class="fname">
+	<label>测试名:</label>
+	<input type="text" name="name" id="name" value="" class="easyui-validatebox textbox validatebox-text" data-options="required:true">
+</div>
+<div class="fname">
+	<label>测试类型:</label>
+    <select class="easyui-combobox" id="manager_user_form_subject" name="quiz_type" style="width:200px;">
+      <% bank_test_quiz_type_list.each do |k,v| %>
+        <option value="<%=k%>"><%=v%></option>
+      <% end %>
+    </select>
+</div>
+<div class="fstart_date">
+	<label>开始时间:</label>
+	<input id="bank_test_start_date" name="start_date" class="easyui-datetimebox" required style="width:200px" >
+</div>
+<div class="fquiz_date">
+	<label>结束时间:</label>
+	<input id="bank_test_quiz_date" name="quiz_date" class="easyui-datetimebox" required style="width:200px">
+</div>
+<div class="fext_data_path">
+	<label>外挂码:</label>
+	<input type="text" id="bank_test_ext_data_path" name="ext_data_path" >
+</div>
+<div class="fis_public">
+	<label>公开测试:</label>
+	<input type="radio" id="" name="is_public" value="true" checked> 是 &nbsp;
+	<input type="radio" id="" name="is_public" value="false"> 否
+</div>

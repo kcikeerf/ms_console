@@ -1,0 +1,23 @@
+<% content_for :head do %>
+	<%= javascript_include_tag 'managers/papers','data-turbolinks-track' => true %>
+<% end %>
+<th data-options="field:'uid',align:'center', width:'20%'">ID</th>
+<th data-options="field:'name',align:'center', width:'20%'">测试名</th>
+<th data-options="field:'paper_name',align:'center', width:'20%'">试卷名</th>
+<th data-options="field:'start_date',align:'center', width:'10%'">开始时间</th>
+<th data-options="field:'quiz_date',align:'center', width:'10%'">结束时间</th>
+<th data-options="field:'is_public',align:'center', width:'7%'">公开测试</th>
+<th data-options="field:'       ',width:'15%',align:'center',formatter:formatOper">操作</th>
+
+
+<script type="text/javascript">
+	function formatOper(val,row,index){
+		options = "";
+		options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/edit" data-remote="true" >编辑</a>';  
+	  return options;
+	} 
+</script>
+
+<% content_for :form do %>
+	<%= render partial: "managers/bank_tests/form" %>
+<%end%>

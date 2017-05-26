@@ -2,7 +2,7 @@
 	<h2><%= page_info_item[:title] %></h2>
 	<div style="margin:20px 0;"></div>
 	<div id="tb">
-<% unless ["permissions", "pupils", "papers"].include? controller_name %>
+<% unless ["permissions", "pupils", "papers","bank_tests"].include? controller_name %>
 		<a  href="#" 
 			class="easyui-linkbutton" 
 			iconCls="icon-add" plain="true" 
@@ -11,7 +11,7 @@
 		</a> 
 <% end %>
 <% unless ["roles","permissions"].include? controller_name %>
-	<% unless ["papers"].include? controller_name %>
+	<% unless ["papers","bank_tests"].include? controller_name %>
 		<a  href="#" 
 			class="easyui-linkbutton" 
 			iconCls="icon-edit" 
@@ -87,7 +87,7 @@
 
 	<div id="dd" 
 	  class="easyui-dialog confirm-dlg" 
-	  style="width:300px;height:150px;" 
+	  style="min-width:300px;min-height:150px;" 
 	  closed="true"
 	  buttons="#dlg-buttons">
 	  <%= form_tag '', id: 'fcb' do  %>
@@ -98,7 +98,7 @@
 	  <% end %>
 	</div>
 	<div id="dlg-buttons">
-	  <a  href="#"  class="easyui-linkbutton" iconCls="icon-ok" onclick="deleteConfirm()">保存</a>
+	  <a  href="#"  class="easyui-linkbutton" iconCls="icon-ok" onclick="fcbSaveObj()">保存</a>
 	  <a href="#" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dd').dialog('close')">取消</a>
 </div>
 <% end %>

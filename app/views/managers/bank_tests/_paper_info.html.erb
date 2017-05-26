@@ -1,0 +1,25 @@
+
+<div class="fuid">
+	<label>ID:</label>
+	<span><%= @paper._id %></span>
+</div>
+<div class="fname">
+	<label>名称:</label>
+	<span><%= @paper.heading %></span>
+</div>
+<div class="fsubject">
+	<label>学科:</label>
+	<span><%= @paper.subject ? t("dict.#{@paper.subject}") : nil %></span>
+</div>
+<div class="fstatus">
+	<label>年级:</label>
+	<span><%= @paper.grade ? t("dict.#{@paper.grade}") : nil%></span>
+</div>
+<div class="fstatus">
+	<label>学期:</label>
+	<span><%= @paper.term ? t("dict.#{@paper.term}") : nil %></span>
+</div>
+<div class="fstatus">
+	<label>状态:</label>
+	<span><%= @paper.paper_status ? t("papers.status.#{@paper.paper_status}") : nil %></span>
+</div>

@@ -47,6 +47,9 @@ module Managers::MainsHelper
     when "checkpoint_systems"
       title = "#{I18n.t('activerecord.models.checkpoint_system')}"
       path = "/managers/checkpoint_systems"
+    when "bank_tests"
+      title = "#{I18n.t('managers.menus.bank_test')}"
+      path = "/managers/bank_tests"
     else
       title = I18n.t("dict.unknown")
       path = "/managers/"
@@ -56,5 +59,9 @@ module Managers::MainsHelper
       :path => path
     }
     result
+  end
+
+  def manager_multiple_tenant_select?
+    (current_manager && ["project_administrators", "papers", "bank_tests"].include?(controller_name))
   end
 end

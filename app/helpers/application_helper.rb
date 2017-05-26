@@ -50,6 +50,10 @@ module ApplicationHelper
     Common::Paper::Type
   end
 
+  def bank_test_quiz_type_list
+    Common::Test::Type
+  end
+
   #地区列表
   def area_list
     country_rid = Common::Area::CountryRids["zhong_guo"]
@@ -74,5 +78,9 @@ module ApplicationHelper
     end
     result += "/"
     return result
+  end
+
+  def manager_multiple_tenant_select?
+    (current_manager && ["project_administrators", "papers", "bank_tests"].include?(controller_name))
   end
 end

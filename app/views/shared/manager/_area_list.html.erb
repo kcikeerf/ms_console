@@ -30,7 +30,7 @@
   <label><%=LABEL("activerecord.models.tenant")%></label>
   <select class="easyui-combobox" 
   	id="tenant_uids" 
-<% if controller_name == "project_administrators" %>
+<% if manager_multiple_tenant_select? %>
   	name="tenant_uids[]"
   	multiple="true" 
   	multiline="true" 
