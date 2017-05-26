@@ -80,7 +80,5 @@ module ApplicationHelper
     return result
   end
 
-  def manager_multiple_tenant_select?
-    (current_manager && ["project_administrators", "papers", "bank_tests"].include?(controller_name))
-  end
+
 end
