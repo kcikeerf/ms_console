@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170212130213) do
+ActiveRecord::Schema.define(version: 20170524032840) do
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -198,18 +198,22 @@ ActiveRecord::Schema.define(version: 20170212130213) do
   end
 
   create_table "bank_subject_checkpoint_ckps", primary_key: "uid", force: :cascade do |t|
-    t.string   "dimesion",   limit: 50
-    t.string   "rid",        limit: 36,                   null: false
-    t.string   "checkpoint", limit: 200
-    t.string   "subject",    limit: 36,                   null: false
-    t.boolean  "is_entity",  limit: 1,     default: true
-    t.text     "advice",     limit: 65535
-    t.text     "desc",       limit: 65535
-    t.float    "weights",    limit: 24
+    t.string   "dimesion",              limit: 50
+    t.string   "rid",                   limit: 255,                   null: false
+    t.string   "checkpoint",            limit: 200
+    t.string   "subject",               limit: 36,                    null: false
+    t.boolean  "is_entity",             limit: 1,     default: true
+    t.text     "advice",                limit: 65535
+    t.text     "desc",                  limit: 65535
+    t.float    "weights",               limit: 24
     t.datetime "dt_add"
     t.datetime "dt_update"
-    t.string   "sort",       limit: 255
-    t.string   "category",   limit: 255
+    t.string   "sort",                  limit: 255
+    t.string   "category",              limit: 255
+    t.boolean  "high_level",            limit: 1,     default: false
+    t.string   "checkpoint_sytem_id",   limit: 255
+    t.integer  "checkpoint_system_id",  limit: 4
+    t.string   "checkpoint_system_rid", limit: 255
   end
 
   add_index "bank_subject_checkpoint_ckps", ["subject"], name: "ckp_subject", using: :btree
@@ -226,6 +230,16 @@ ActiveRecord::Schema.define(version: 20170212130213) do
     t.string   "ckp_uid3",  limit: 36
     t.datetime "dt_add"
     t.datetime "dt_update"
+  end
+
+  create_table "checkpoint_systems", primary_key: "rid", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.boolean  "is_group",   limit: 1
+    t.string   "sys_type",   limit: 255
+    t.string   "version",    limit: 255
+    t.text     "desc",       limit: 65535
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   create_table "class_teacher_mappings", primary_key: "uid", force: :cascade do |t|
@@ -318,6 +332,52 @@ ActiveRecord::Schema.define(version: 20170212130213) do
     t.datetime "updated_at"
   end
 
+  create_table "oauth_access_grants", force: :cascade do |t|
+    t.integer  "resource_owner_id", limit: 4,     null: false
+    t.integer  "application_id",    limit: 4,     null: false
+    t.string   "token",             limit: 255,   null: false
+    t.integer  "expires_in",        limit: 4,     null: false
+    t.text     "redirect_uri",      limit: 65535, null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "revoked_at"
+    t.string   "scopes",            limit: 255
+  end
+
+  add_index "oauth_access_grants", ["application_id"], name: "fk_rails_29fb071715", using: :btree
+  add_index "oauth_access_grants", ["resource_owner_id"], name: "fk_rails_c47f6fac4d", using: :btree
+  add_index "oauth_access_grants", ["token"], name: "index_oauth_access_grants_on_token", unique: true, using: :btree
+
+  create_table "oauth_access_tokens", force: :cascade do |t|
+    t.integer  "resource_owner_id",      limit: 4
+    t.integer  "application_id",         limit: 4
+    t.string   "token",                  limit: 255,              null: false
+    t.string   "refresh_token",          limit: 255
+    t.integer  "expires_in",             limit: 4
+    t.datetime "revoked_at"
+    t.datetime "created_at",                                      null: false
+    t.string   "scopes",                 limit: 255
+    t.string   "previous_refresh_token", limit: 255, default: "", null: false
+  end
+
+  add_index "oauth_access_tokens", ["application_id"], name: "fk_rails_10e2115c23", using: :btree
+  add_index "oauth_access_tokens", ["refresh_token"], name: "index_oauth_access_tokens_on_refresh_token", unique: true, using: :btree
+  add_index "oauth_access_tokens", ["resource_owner_id"], name: "index_oauth_access_tokens_on_resource_owner_id", using: :btree
+  add_index "oauth_access_tokens", ["token"], name: "index_oauth_access_tokens_on_token", unique: true, using: :btree
+
+  create_table "oauth_applications", force: :cascade do |t|
+    t.integer  "resource_owner_id", limit: 4
+    t.string   "name",              limit: 255,                null: false
+    t.string   "uid",               limit: 255,                null: false
+    t.string   "secret",            limit: 255,                null: false
+    t.text     "redirect_uri",      limit: 65535,              null: false
+    t.string   "scopes",            limit: 255,   default: "", null: false
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
+  end
+
+  add_index "oauth_applications", ["resource_owner_id"], name: "fk_rails_1cbb216c51", using: :btree
+  add_index "oauth_applications", ["uid"], name: "index_oauth_applications_on_uid", unique: true, using: :btree
+
   create_table "permissions", force: :cascade do |t|
     t.string   "name",          limit: 255
     t.string   "subject_class", limit: 255
@@ -391,6 +451,21 @@ ActiveRecord::Schema.define(version: 20170212130213) do
     t.integer  "permission_id", limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "scheduled_jobs", primary_key: "uid", force: :cascade do |t|
+    t.string   "name",                 limit: 255
+    t.string   "cron",                 limit: 255
+    t.string   "klass",                limit: 255
+    t.string   "queue",                limit: 255
+    t.text     "args",                 limit: 65535
+    t.boolean  "active_job",           limit: 1
+    t.string   "queue_name_prefix",    limit: 255
+    t.string   "queue_name_delimiter", limit: 255
+    t.datetime "start_date"
+    t.datetime "end_date"
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
   end
 
   create_table "score_uploads", force: :cascade do |t|
@@ -500,6 +575,7 @@ ActiveRecord::Schema.define(version: 20170212130213) do
     t.string   "initial_password",       limit: 255
     t.boolean  "locked",                 limit: 1,   default: true
     t.datetime "expired_at"
+    t.string   "tk_token",               limit: 255
   end
 
   add_index "users", ["name"], name: "index_users_on_name", unique: true, using: :btree
@@ -517,14 +593,27 @@ ActiveRecord::Schema.define(version: 20170212130213) do
   add_index "wx_user_mappings", ["wx_uid"], name: "index_wx_user_mappings_on_wx_uid", using: :btree
 
   create_table "wx_users", primary_key: "uid", force: :cascade do |t|
-    t.string   "name",      limit: 255
-    t.string   "wx_openid", limit: 255
-    t.string   "wx_token",  limit: 255
-    t.string   "comment",   limit: 255
+    t.string   "name",       limit: 255
+    t.string   "wx_openid",  limit: 255
+    t.string   "wx_token",   limit: 255
+    t.string   "comment",    limit: 255
     t.datetime "dt_add"
     t.datetime "dt_update"
+    t.string   "wx_unionid", limit: 255
+    t.string   "nickname",   limit: 255
+    t.string   "sex",        limit: 255
+    t.string   "headimgurl", limit: 255
+    t.string   "country",    limit: 255
+    t.string   "province",   limit: 255
+    t.string   "city",       limit: 255
+    t.string   "area_uid",   limit: 255
   end
 
   add_index "wx_users", ["wx_openid"], name: "index_wx_users_on_wx_openid", using: :btree
 
+  add_foreign_key "oauth_access_grants", "oauth_applications", column: "application_id"
+  add_foreign_key "oauth_access_grants", "users", column: "resource_owner_id"
+  add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
+  add_foreign_key "oauth_access_tokens", "users", column: "resource_owner_id"
+  add_foreign_key "oauth_applications", "users", column: "resource_owner_id"
 end

@@ -1,14 +1,14 @@
 class Managers::CheckpointSystemsController < ApplicationController
-	layout 'manager_crud', only: [:index]
+  layout 'manager_crud', only: [:index]
 
   respond_to :json, :html
   before_action :get_checkpoint_system, only: [:edit, :update]
 
-	
-	def index
+  
+  def index
     @checkpoint_systems = CheckpointSystem.page(params[:page]).per(params[:rows])
     respond_with({rows: @checkpoint_systems, total: @checkpoint_systems.total_count})
-	end
+  end
 
   def create
 
@@ -29,8 +29,8 @@ class Managers::CheckpointSystemsController < ApplicationController
   end
 
 
-	def update
-		status = 403
+  def update
+    status = 403
     data = {:status => 403 }
 
     begin
@@ -45,9 +45,9 @@ class Managers::CheckpointSystemsController < ApplicationController
     end
 
     render common_json_response(status, data)
-	end
+  end
 
-	# 删除ckp_system
+  # 删除ckp_system
   def destroy_all
     params.permit(:id)
 
@@ -64,7 +64,7 @@ class Managers::CheckpointSystemsController < ApplicationController
       data = {:status => 500, :message => ex.message}
     end
 
-  	render common_json_response(status, data)
+    render common_json_response(status, data)
   end
 
   def delete_checked
@@ -92,23 +92,25 @@ class Managers::CheckpointSystemsController < ApplicationController
     render common_json_response(status, data)    
   end
 
-	private
+  private
 
-	def get_checkpoint_system
-		@checkpoint_system = CheckpointSystem.where(rid: params[:id]).first
-	end
+  def get_checkpoint_system
+    @checkpoint_system = CheckpointSystem.where(rid: params[:id]).first
+  end
 
-	def checkpoint_system_params
+  def checkpoint_system_params
     if params[:is_group]
-	    params[:is_group] = (params[:is_group]  == "true") ? true : false 
-	  end
-		params.permit(
-			:name,
-			:rid,
-			:is_group,
-			:sys_type,
-			:version,
-			:desc
-		)
-	end
+      params[:is_group] = (params[:is_group]  == "true") ? true : false 
+    end
+    params.permit(
+      :name,
+      :authenticity_token,
+      :id,  
+      :rid,
+      :is_group,
+      :sys_type,  
+      :version,
+      :desc
+    )
+  end
 end
