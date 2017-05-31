@@ -12,6 +12,8 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   has_many :bank_nodestructure_subject_ckps, foreign_key: 'subject_ckp_uid', dependent: :destroy
   has_many :bank_node_catalogs, through: :bank_nodestructure_subject_ckps
 
+  before_save :set_subject, :set_xue_duan, :set_dimesion
+  
   scope :not_equal_rid, ->(rid) { where.not(rid: rid) }
   scope :by_subject, ->(subject) { where(subject: subject) }
   scope :by_dimesion, ->(dimesion) { where(dimesion: dimesion) }
@@ -487,17 +489,28 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
 
   private
 
-  def get_nodes(length, rid, subject, dimesion, category, system_id="000")
-    self.class.where('subject = ? and dimesion = ? and category = ? and checkpoint_system_rid = ? and left(rid, ?) = ?', subject, dimesion, category, system_id, length, rid)
-  end 
+    def get_nodes(length, rid, subject, dimesion, category, system_id="000")
+      self.class.where('subject = ? and dimesion = ? and category = ? and checkpoint_system_rid = ? and left(rid, ?) = ?', subject, dimesion, category, system_id, length, rid)
+    end 
 
-  def delete_children
-    children_nodes = children
-    parent_node = parent
-    parent_node.update(is_entity: true) if parent_node && parent_node.children.blank?
+    def delete_children
+      children_nodes = children
+      parent_node = parent
+      parent_node.update(is_entity: true) if parent_node && parent_node.children.blank?
 
-    return false if children_nodes.blank?
-    children.destroy_all
-  end
+      return false if children_nodes.blank?
+      children.destroy_all
+    end
 
+    def set_subject
+      self.subject = self.subject || "all"
+    end
+
+    def set_xue_duan
+      self.category = self.category || "all"
+    end
+
+    def set_dimesion
+      self.dimesion = self.dimesion || "other"
+    end
 end
