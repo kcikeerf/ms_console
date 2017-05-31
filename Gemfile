@@ -1,4 +1,5 @@
-source 'https://ruby.taobao.org'
+#source 'https://ruby.taobao.org'
+source 'https://gems.ruby-china.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
