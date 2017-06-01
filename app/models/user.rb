@@ -13,10 +13,10 @@ class User < ActiveRecord::Base
   has_many :wx_user_mappings, foreign_key: "user_id"
   has_many :wx_users, through: :wx_user_mappings
   has_many :task_lists, foreign_key: "user_id"
-  has_many :oauth_access_tokens, foreign_key: "resource_owner_id", dependent: :destroy
-  has_many :oauth_access_grants, foreign_key: "resource_owner_id", dependent: :destroy
-  has_many :oauth_applications, foreign_key: "resource_owner_id", dependent: :destroy
 
+  has_many :oauth_access_tokens, foreign_key: "resource_owner_id", class_name: "Doorkeeper::AccessToken", dependent: :destroy
+  has_many :oauth_access_grants, foreign_key: "resource_owner_id", class_name: "Doorkeeper::AccessGrant", dependent: :destroy
+  has_many :oauth_applications, foreign_key: "resource_owner_id", class_name: "Doorkeeper::Application", dependent: :destroy
 
   before_create :set_role,:generate_token #, :check_existed?
 
@@ -31,7 +31,7 @@ class User < ActiveRecord::Base
 
   validate do
 #    self.errors.add(:base, '不能为空') if (!email.present? || !phone.present?)
-#  	 self.errors.add(:base, '用户已存在') if self.class.find_user(email.presence || phone, {})
+#    self.errors.add(:base, '用户已存在') if self.class.find_user(email.presence || phone, {})
     self.errors.add(:email, '已存在') if email.presence && self.class.where.not(id: id).find_by(email: email)
     self.errors.add(:phone, '已存在') if phone.presence && self.class.where.not(id: id).find_by(phone: phone)    
   end
@@ -61,16 +61,15 @@ class User < ActiveRecord::Base
             #学生只能属于一个班级，若有更新，将更改Location
             user.pupil.update(:loc_uid => options[:loc_uid]) if user.is_pupil? && !options[:loc_uid].blank?
             ClassTeacherMapping.find_or_save_info(user.teacher, options) if user.is_teacher?
-            return [user.name, user.initial_password] unless user.initial_password.blank?
-            return []
+            return [user.name, user.initial_password], true  unless user.initial_password.blank?
+            return [],true
           end
           user = new(name: name, password: password, password_confirmation: password, role_name: role_name, initial_password: password)
           user.save!
-
           #确定地区
 
           user.save_after(options.merge({user_id: user.id}))
-          return [user.name, password]
+          return [user.name, password],false
         end
       rescue Exception => ex
         logger.debug ex.message
