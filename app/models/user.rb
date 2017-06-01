@@ -4,7 +4,8 @@ class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
-    :recoverable, :rememberable, :trackable, :validatable#, :lockable
+    :recoverable, :rememberable, :trackable, :validatable, # :lockable
+    password_length: 6..128
 
   belongs_to :role
   has_one :image_upload
@@ -12,14 +13,18 @@ class User < ActiveRecord::Base
   has_many :wx_user_mappings, foreign_key: "user_id"
   has_many :wx_users, through: :wx_user_mappings
   has_many :task_lists, foreign_key: "user_id"
+  has_many :oauth_access_tokens, foreign_key: "resource_owner_id", dependent: :destroy
+  has_many :oauth_access_grants, foreign_key: "resource_owner_id", dependent: :destroy
+  has_many :oauth_applications, foreign_key: "resource_owner_id", dependent: :destroy
 
-  before_create :set_role#, :check_existed?
+
+  before_create :set_role,:generate_token #, :check_existed?
 
   validates :role_name, presence: true, on: :create
-  validates :name, presence: true, uniqueness: true, format: { with: /\A([a-zA-Z_]+|(?![^a-zA-Z_]+$)(?!\D+$)).{6,50}\z/ }
+  validates :name, presence: true, uniqueness: true, format: { with: /\A[a-zA-Z]{1,1}[a-zA-Z0-9_]{5,127}\z/ }
   
   validates_confirmation_of :password
-  validates :password, length: { in: 6..19 }, presence: true, confirmation: true, if: :password_required?
+  validates :password, length: { in: 6..128 }, presence: true, confirmation: true, if: :password_required?
 
   validates :email, format: { with: /\A[^@\s]+@[^@\s]+\z/ }, allow_blank: true
   validates :phone, format: { with: /\A1\d{10}\z/ }, allow_blank: true
@@ -33,10 +38,8 @@ class User < ActiveRecord::Base
 
   ########类方法定义：begin#######
   class << self
-    def generate_rand_password
-      result = "" 
-      Common::Uzer::PasswdRandLength.times{ result << Common::Uzer::PasswdRandArr.sample }
-      result
+    def generate_rand_password len=6
+      len.times.map{ Common::Uzer::PasswdRandArr.sample }.join("")
     end
 
     def find_for_database_authentication(warden_conditions)
@@ -51,7 +54,7 @@ class User < ActiveRecord::Base
     #teacher: User.add_user('xxx', 'teacher', {loc_uid: '1111111', name: 'xx', subject: 'english', head_teacher: true})
     def add_user(name, role_name, options={})
       begin
-        password = generate_rand_password
+        password = generate_rand_password(Common::Uzer::PasswdRandLength)
         transaction do 
           user = find_by(name: name)
           if user
@@ -99,7 +102,7 @@ class User < ActiveRecord::Base
       end
     end
 
-    def find_user(login, conditions)
+    def find_user(login, conditions={})
       user = 
         case judge_type(login)
         when 'mobile'
@@ -112,6 +115,25 @@ class User < ActiveRecord::Base
 
       user.where(conditions.to_h).first#.where(["lower(phone) = :value OR lower(email) = :value", { :value => login.downcase }]).first
     end
+
+    # 给doorkeeper验证用户
+    def authenticate(login, option_h)
+      user = find_user(login)
+      # 通常密码认证
+      if !option_h[:password].blank?
+        user.try(:valid_password?, option_h[:password]) ? user : nil
+      # 微信openid认证
+      elsif !option_h[:wx_openid].blank?
+        wx_openids = user.wx_users.map(&:wx_openid)
+        wx_openids.include?(option_h[:wx_openid]) ? user : nil
+      # 微信的unionid认证
+      elsif !option_h[:wx_unionid].blank?
+        wx_unionids = user.wx_users.map(&:wx_unionid)
+        wx_unionids.include?(option_h[:wx_unionid]) ? user : nil   
+      else
+        nil
+      end
+    end    
   end
   ########类方法定义：end#######
 
@@ -238,6 +260,7 @@ class User < ActiveRecord::Base
     result
   end
 
+  # 可访问Tenant
   def accessable_tenants
     result = []
     if self.is_area_administrator?
@@ -247,9 +270,10 @@ class User < ActiveRecord::Base
     else
       result = [self.tenant]
     end
-    result
+    result.sort{|a,b| b.name <=> a.name }
   end
 
+  # 可访问班级（分组）
   def accessable_locations
     result = []
     target_tenants = self.accessable_tenants
@@ -267,12 +291,55 @@ class User < ActiveRecord::Base
     result
   end
 
-  def paper_questions
-    Mongodb::BankTestUserLink.where(user_id: self.id).map{|item| item.bank_test.paper_question if item.bank_test}.compact
+  # 可访问测试
+  def accessable_tests
+    result = []
+    if self.is_area_administrator?
+      result = self.role_obj.area.bank_tests
+    elsif self.is_tenant_administrator?
+      result = self.accessable_tenants.map{|t| t.bank_tests}.flatten     
+    elsif self.is_teacher?
+      result = self.accessable_locations.map{|l| l.bank_tests}.flatten
+    elsif self.is_pupil?
+      result = self.bank_tests
+    else
+      result = []
+    end
+    result.compact!
+    result.uniq!
+    result.sort{|a,b| b.dt_update <=> a.dt_update}
+  end
+
+  # 用户当前所属分组
+  def report_top_group_kv is_public=true
+    if is_public
+      rpt_type = Common::Report2::Group::Individual
+      rpt_id = self.tk_token
+    else
+      rpt_type = nil
+      rpt_id = nil
+      if self.is_area_administrator? || self.is_project_administrator?
+        #
+      elsif self.is_tenant_administrator? || self.is_teacher?
+        rpt_type = Common::Report::Group::Grade
+        rpt_id = self.accessable_tenants.blank?? nil : self.accessable_tenants.first.uid
+      elsif self.is_pupil?
+        rpt_type = Common::Report::Group::Pupil
+        rpt_id = self.role_obj.uid
+      else
+        #
+      end
+    end
+    return rpt_type,rpt_id
   end
 
   def bank_tests
-    Mongodb::BankTestUserLink.where(user_id: self.id).map{|item| item.bank_test}.compact
+    Mongodb::BankTestUserLink.by_user(self.id).map{|item| item.bank_test}.compact
+  end
+
+  # 是否已绑定微信
+  def wx_binded?
+    !wx_users.blank?
   end
 
   ########私有方法: begin#######
@@ -303,6 +370,6 @@ class User < ActiveRecord::Base
         random_token = SecureRandom.urlsafe_base64(nil, false)
         break random_token unless self.class.exists?(tk_token: random_token)
       end
-    end    
+    end
   ########私有方法: end#######
 end

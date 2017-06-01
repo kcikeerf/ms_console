@@ -17,7 +17,6 @@ class Mongodb::BankPaperPap
   has_and_belongs_to_many :bank_quiz_qizs, class_name: "Mongodb::BankQuizQiz", dependent: :delete 
   has_and_belongs_to_many :bank_qizpoint_qzps, class_name: "Mongodb::BankQizpointQzp"
   has_many :bank_pap_cats, class_name: "Mongodb::BankPapCat", dependent: :delete 
-  has_many :bank_paper_pap_pointers, class_name: "Mongodb::BankPaperPapPointer", dependent: :delete
   has_many :bank_tests, class_name: "Mongodb::BankTest", dependent: :delete
   has_many :online_tests, class_name: "Mongodb::OnlineTest", dependent: :delete
   has_many :paper_outlines, class_name: "Mongodb::PaperOutline",dependent: :delete
@@ -1196,7 +1195,7 @@ class Mongodb::BankPaperPap
   # => ###############################################################
   # =>  save_pap_plus 知识点拆分
   # => ###############################################################
-  def save_pap_plus params      
+  def save_pap_plus params
     result = false
     phase_arr = %w{phase1 phase2 phase3 phase4 phase5}
     error_index = 0
@@ -1209,7 +1208,6 @@ class Mongodb::BankPaperPap
       else
         self.lock!(TkLockModule::TkLock::ReadOnly, current_user_id)
       end
-
       params[:pap_uid] = id.to_s
       ##############################
       #地理位置信息
@@ -1435,7 +1433,7 @@ class Mongodb::BankPaperPap
     end
     params = JSON.parse(self.paper_json)
     if params["information"]["tasks"].blank?
-      self.bank_tests[0].destroy_all if self.bank_tests
+      self.bank_tests[0].destroy_all if self.bank_tests[0]
     end
 
     self.unlock!

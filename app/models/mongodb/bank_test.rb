@@ -18,11 +18,12 @@ class Mongodb::BankTest
 
   scope :by_user, ->(id) { where(user_id: id) }
   scope :by_type, ->(str) { where(quiz_type: str) }
+  scope :by_public, ->(flag) { where(is_public: flag) }
 
   field :name, type: String
   field :quiz_type, type: String
   field :start_date, type: DateTime
-  field :quiz_date, type: DateTime
+  field :quiz_date, type: DateTime #默认为截止日期
   field :user_id, type: String
   field :report_version, type: String
   field :ext_data_path, type: String
@@ -93,8 +94,7 @@ class Mongodb::BankTest
       :quiz_type => params[:quiz_type],
       :is_public => params[:is_public],
       :checkpoint_system_rid => params[:checkpoint_system_rid],
-      :area_rid => area_rid#,
-      #:tenant_ids => params[:tenant_uids]
+      :area_rid => area_rid
     }
     update_attributes(paramsh)
     bank_test_tenant_links.destroy_all

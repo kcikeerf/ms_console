@@ -1,5 +1,6 @@
 module TestModule
   module Test
+
     Type = {}
     %W{
       xy_default
@@ -11,12 +12,11 @@ module TestModule
       zh_jksh
       zh_zrdd
       zh_sjcx
-    }.each{|item| Type[item.to_sym] = Common::Locale::i18n("dict.#{item}")}  
-
-
+    }.each{|item| Type[item.to_sym] = Common::Locale::i18n("dict.#{item}")}    
+        
     module Status
       None = "none"
-      New = "new"     
+      New = "new"    	
       NotStarted = "not_started"
       NoScore = "no_score"
       Editting = "editting"
