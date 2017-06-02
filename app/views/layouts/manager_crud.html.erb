@@ -38,6 +38,10 @@
 			<%= LABEL("common.delete")%>
 		</a>
 <% end %>
+		<form id="tb_search" action='<%= page_info_item[:path] %>'>
+			<%= yield(:tb_search) %>
+		</form>  
+
 	</div>  
 	<!-- singleSelect:true, 单行选择-->
 	<table  id='dg' 
@@ -100,5 +104,5 @@
 	<div id="dlg-buttons">
 	  <a  href="#"  class="easyui-linkbutton" iconCls="icon-ok" onclick="fcbSaveObj()">保存</a>
 	  <a href="#" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dd').dialog('close')">取消</a>
-</div>
+	</div>
 <% end %>

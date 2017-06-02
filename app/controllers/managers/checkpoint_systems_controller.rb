@@ -6,7 +6,7 @@ class Managers::CheckpointSystemsController < ApplicationController
 
   
   def index
-    @checkpoint_systems = CheckpointSystem.page(params[:page]).per(params[:rows])
+    @checkpoint_systems = CheckpointSystem.get_list(params)
     respond_with({rows: @checkpoint_systems, total: @checkpoint_systems.total_count})
   end
 

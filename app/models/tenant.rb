@@ -22,7 +22,11 @@ class Tenant < ActiveRecord::Base
     def get_list params
       params[:page] = params[:page].blank?? Common::SwtkConstants::DefaultPage : params[:page]
       params[:rows] = params[:rows].blank?? Common::SwtkConstants::DefaultRows : params[:rows]
-      result = self.order("dt_update desc").page(params[:page]).per(params[:rows])
+      conditions = []
+      [:name_cn, :tenant_type].each{
+        |attr| conditions << self.send(:sanitize_sql, ["#{attr} LIKE ?", "%#{params[attr]}%"]) unless params[attr].blank? } 
+      conditions = conditions.any? ? conditions.collect { |c| "(#{c})" }.join(' AND ') : nil
+      result = self.where(conditions).order("dt_update desc").page(params[:page]).per(params[:rows])
       result.each_with_index{|item, index|
         h = item.area_pcd
         h.merge!(item.attributes)

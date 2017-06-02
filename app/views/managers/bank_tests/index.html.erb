@@ -9,6 +9,24 @@
 <th data-options="field:'is_public',align:'center', width:'7%'">公开测试</th>
 <th data-options="field:'       ',width:'15%',align:'center',formatter:formatOper">操作</th>
 
+<% content_for :tb_search do %>
+	<span>测试名:</span>
+	<input name="name" style="line-height:18px;border:1px solid #ccc;width:100px">
+	<span>测试类型:</span>
+	<select name="quiz_type" panelHeight="auto" style="width:80px">
+		<option value="">&nbsp;</option>
+		<% bank_test_quiz_type_list.each do |key, value| %>
+			<option value="<%= key %>"><%= value %></option>
+		<% end %>
+	</select>
+	<span>开始时间:</span>
+	<input  name="start_date" class="easyui-datetimebox"  style="width:100px" >
+	<span>结束时间:</span>
+	<input  name="quiz_date" class="easyui-datetimebox"  style="width:100px" >
+	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+<%end%>
+
+
 
 <script type="text/javascript">
 	function formatOper(val,row,index){
