@@ -54,6 +54,14 @@ module ApplicationHelper
     Common::Test::Type
   end
 
+  def paper_status_list
+    Common::Paper::PaperStatusList   
+  end
+
+  def tenant_type_list
+    Common::Tenant::TypeList
+  end
+
   #地区列表
   def area_list
     country_rid = Common::Area::CountryRids["zhong_guo"]

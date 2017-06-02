@@ -11,3 +11,38 @@
 <th data-options="field:'       ',width:'15%',align:'center',formatter:formatOper">操作</th>
 
 <%= render partial: "form_in_dialog" %>
+
+<!-- search tool -->
+<% content_for :tb_search do %>
+	<span>试卷名:</span>
+	<input name="heading" style="line-height:16px;border:1px solid #ccc;width:100px">
+	<span>状态:</span>
+	<select name="paper_status" panelHeight="auto" style="width:80px">
+		<option value="">&nbsp;</option>
+		<% paper_status_list.each do |key, value| %>
+			<option value="<%= key %>"><%= value %></option>
+		<% end %>
+	</select>
+	<span>学科:</span>
+	<select name="subject" panelHeight="auto" style="width:80px">
+		<option value="">&nbsp;</option>
+		<% subject_list.each do |key, value| %>
+			<option value="<%= key %>"><%= value %></option>
+		<% end %>
+	</select>
+	<span>年级:</span>
+	<select name="grade" panelHeight="auto" style="width:80px">
+		<option value="">&nbsp;</option>
+		<% grade_list.each do |key, value| %>
+			<option value="<%= key %>"><%= value %></option>
+		<% end %>
+	</select>
+	<span>学期:</span>
+	<select name="term" panelHeight="auto" style="width:80px">
+		<option value="">&nbsp;</option>
+		<% term_list.each do |key, value| %>
+			<option value="<%= key %>"><%= value %></option>
+		<% end %>
+	</select>
+	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+<%end%>

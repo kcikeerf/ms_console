@@ -10,7 +10,11 @@ class Managers::PermissionsController < ApplicationController
 
 	def index
 		#@data = {name: '权限', path: '/managers/permissions'}
-		@permissions = Permission.page(params[:page]).per(params[:rows])
+		conditions = []
+	  [:name].each{
+	    |attr| conditions << Role.send(:sanitize_sql, ["#{attr} LIKE ?", "%#{params[attr]}%"]) unless params[attr].blank? } 
+	  conditions = conditions.any? ? conditions.collect { |c| "(#{c})" }.join(' AND ') : nil
+		@permissions = Permission.where(conditions).page(params[:page]).per(params[:rows])
 		respond_with({rows: @permissions, total: @permissions.total_count}) 
 	end
 

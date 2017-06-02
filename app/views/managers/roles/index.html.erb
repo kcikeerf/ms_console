@@ -1,8 +1,15 @@
 <!--list columns-->
 <th data-options="field:'id',align:'center', width:'10%'">ID</th>
-<th data-options="field:'name',align:'center', width:'20%'">名称</th>
-<th data-options="field:'desc',align:'center', width:'45%'">描述</th>
+<th data-options="field:'name',align:'center', width:'25%'">名称</th>
+<th data-options="field:'desc',align:'center', width:'52%'">描述</th>
 <th data-options="field:'ID',width:'15%',align:'center',formatter:formatOper">操作</th>
 
 <!--form in dialog-->
 <%= render partial: "form_in_dialog" %>
+
+<!--  search  tool -->
+<% content_for :tb_search do %>
+	<span>名称:</span>
+	<input name="name" style="line-height:18px;border:1px solid #ccc;width:140px">
+	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+<%end%>

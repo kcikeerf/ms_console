@@ -318,6 +318,26 @@ function fcbSaveObj(){
     }
   });
 }
+
+function doSearch(){
+  obj = fromToJson("tb_search")
+  $('#dg').datagrid('load', obj);
+}
+
+function fromToJson(form) {  
+  var result = {};  
+  var fieldArray = $('#' + form).serializeArray();  
+  for (var i = 0; i < fieldArray.length; i++) {  
+      var field = fieldArray[i];  
+      if (field.name in result) {  
+          result[field.name] += ',' + field.value;  
+      } else {  
+          result[field.name] = field.value;  
+      }  
+  }  
+  return result;  
+}
+
 //指标体系
 function set_ckp_dialog(url_params){
   $('#checkpoint_dialog').dialog({

@@ -1,8 +1,8 @@
 <th data-options="field:'id',align:'center', width:'10%'">ID</th>
-<th data-options="field:'name',align:'center', width:'10%'">名称</th>
-<th data-options="field:'subject_class',align:'center', width:'10%'">controller</th>
-<th data-options="field:'action',align:'center', width:'10%'">action</th>
-<th data-options="field:'description',align:'center', width:'40%'">描述</th>
+<th data-options="field:'name',align:'center', width:'20%'">名称</th>
+<th data-options="field:'subject_class',align:'center', width:'20%'">controller</th>
+<th data-options="field:'action',align:'center', width:'25%'">action</th>
+<th data-options="field:'description',align:'center', width:'27%'">描述</th>
 
 <% content_for :form do %>
 	<div class="fname">
@@ -22,3 +22,10 @@
 		<%= text_field_tag :description, '', class: 'easyui-validatebox' %>
 	</div>
 <% end %>
+
+<!--  search  tool -->
+<% content_for :tb_search do %>
+	<span>名称:</span>
+	<input name="name" style="line-height:18px;border:1px solid #ccc;width:140px">
+	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+<%end%>

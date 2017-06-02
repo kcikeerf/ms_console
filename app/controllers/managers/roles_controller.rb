@@ -11,7 +11,12 @@ class Managers::RolesController < ApplicationController
 
 	def index
 		#@data = {name: '角色', path: '/managers/roles'}
-		@roles = Role.page(params[:page]).per(params[:rows])
+
+		conditions = []
+	  [:name].each{
+	    |attr| conditions << Role.send(:sanitize_sql, ["#{attr} LIKE ?", "%#{params[attr]}%"]) unless params[attr].blank? } 
+	  conditions = conditions.any? ? conditions.collect { |c| "(#{c})" }.join(' AND ') : nil
+		@roles = Role.where(conditions).page(params[:page]).per(params[:rows])
 		respond_with({rows: @roles, total: @roles.total_count}) 
 	end
 
