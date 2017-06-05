@@ -1,5 +1,4 @@
-#source 'https://ruby.taobao.org'
-source 'https://gems.ruby-china.org'
+source 'https://ruby.taobao.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -74,6 +73,8 @@ gem 'kaminari'
 
 #job
 gem 'sidekiq'
+gem 'sidekiq-superworker'
+gem 'sidekiq-cron'
 gem 'redis'
 gem 'redis-namespace'
 gem 'redis-rails'
@@ -108,3 +109,8 @@ gem 'aliyun-sdk', '~>0.3.0'
 
 # api gem
 gem 'grape'
+
+# doorkeeper
+gem 'doorkeeper'
+
+gem 'whenever'
