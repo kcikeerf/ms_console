@@ -21,7 +21,7 @@ class AreaAdministrator < ActiveRecord::Base
       conditions = conditions.any? ? conditions.collect { |c| "(#{c})" }.join(' AND ') : nil
       result = self.joins(:user).where(conditions).order("dt_update desc").page(params[:page]).per(params[:rows])
       result.each_with_index{|item, index|
-      	#获得地区信息
+        #获得地区信息
         area_h = {
           :province_rid => "",
           :city_rid => "",

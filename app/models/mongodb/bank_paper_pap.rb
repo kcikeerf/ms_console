@@ -619,10 +619,10 @@ class Mongodb::BankPaperPap
   #   2) 报告模版生成
   #
   def associated_checkpoints uniq_flag=false
-    result = {
-      Common::CheckpointCkp::Dimesion::Knowledge => [],
-      Common::CheckpointCkp::Dimesion::Skill => [],
-      Common::CheckpointCkp::Dimesion::Ability => []
+    result = Hash.new
+    dimesion_arr = Common::CheckpointCkp::Dimesions[checkpoint_system.sys_type.to_sym]
+    dimesion_arr.each{|dim|
+      result[dim] = []
     }
     qzps = bank_quiz_qizs.map{|qiz| qiz.bank_qizpoint_qzps }.flatten
     qzps.each{|qzp| 
@@ -714,13 +714,16 @@ class Mongodb::BankPaperPap
     return result if bank_quiz_qizs.blank?
     qzps = ordered_qzps
     return result if qzps.blank?
+    dimesion_arr = Common::CheckpointCkp::Dimesions[checkpoint_system.sys_type.to_sym]
+
     target_level = ckp_level
     target_level = -1 if ckp_level > Common::Report::CheckPoints::DefaultLevelEnd
     pap_checkpoint_model = qzps[0].bank_checkpoint_ckps[0].class
     qzps.each_with_index{|qzp, index|
       qzp.format_ckps_json if qzp.ckps_json.blank?
       ckp_h = JSON.parse(qzp.ckps_json)
-      target_level_ckp_h = Common::CheckpointCkp.ckp_types_loop {|dimesion|
+      
+      target_level_ckp_h = Common::CheckpointCkp.ckp_types_loop(dimesion_arr) {|dimesion|
         ckp_h[dimesion].map{|ckp|
           ckp_uid = ckp.keys[0].split("/")[target_level]
           target_ckp = pap_checkpoint_model.where(uid: ckp_uid).first
@@ -1852,6 +1855,10 @@ class Mongodb::BankPaperPap
     rescue Exception => e
       raise SwtkErrors::DeletePaperError.new(I18n.t("papers.messages.delete_paper.debug", :message => e.message))
     end
+  end
+
+  def checkpoint_system
+    CheckpointSystem.where(rid: self.checkpoint_system_rid).first
   end
 
 end

@@ -67,7 +67,7 @@ class Tenant < ActiveRecord::Base
   def save_tenant params
     tntNumber = self.class.generate_tenant_number
     areaUid,areaRid = Area.get_area_uid_rid params
-  	paramh = {
+    paramh = {
       :number => tntNumber,
       :tenant_type => params[:tenant_type] || "",
       :tenant_type_cn => Common::Locale::i18n("tenants.types.#{params[:tenant_type]}"),

@@ -2024,22 +2024,34 @@ namespace :swtk do
           out_excel.serialize(file_path)
         elsif args[:export_type] == "json"
           file_path = Rails.root.to_s + "/tmp/#{paper._id.to_s}.json"
-          json_arr = []
+          target_test = paper.bank_tests[0]
+          result = {
+            :basic =>{
+              :test => {
+                :id => target_test.id.to_s,
+                :name => target_test.name,
+                :quiz_duration => paper.quiz_duration,
+                :start_date => paper.bank_tests[0].start_date.strftime("%Y%m%d %H:%M"),
+                :end_date => paper.bank_tests[0].quiz_date.strftime("%Y%m%d %H:%M")
+              }
+            },
+            :result => []
+          }
+          # json_arr = []
           object_arr = []
           qizpoints.each do |qiz|
-            qiz_obj = {
-                id: qiz._id.to_s,
-                order: qiz.order
-              }
-    
-            object_arr << qiz_obj
+            result[:result] << {
+              id: qiz._id.to_s,
+              order: qiz.order,
+              full_score: qiz.score,
+              answer: "",
+              real_score: "",
+              type: ""
+            }
           end
-          result = object_arr.to_json
          File.open(file_path, 'w') do |f|
-            f << result
+            f << result.to_json
           end
-
-          p result
         end
       else
         p "paper not found "
@@ -2059,7 +2071,9 @@ namespace :swtk do
       (1..paper_xlsx.last_row).each do |j|
         score_row = paper_xlsx.sheet(1).row(j)
         score_row = score_row.compact
+        next if score_row.blank?
         qizpoint = Mongodb::BankQizpointQzp.where(_id: score_row[1]).first
+        next unless qizpoint
         paper = qizpoint.bank_quiz_qiz.bank_paper_paps[0]
         Mongodb::BankCkpQzp.where(qzp_uid: score_row[1]).destroy_all
         score_row.compact[2..-1].each do |ckp_str|
@@ -2307,19 +2321,19 @@ namespace :swtk do
 
     # 创建定时执行Job
     desc "create scheduled group report generate"
-    task :schedule_online_test_group_report_generator, [:test_id,:group_type] => :environment do |t, args|
+    task :schedule_online_test_group_report_generator, [:test_id,:top_group] => :environment do |t, args|
       begin
         target_test = Mongodb::BankTest.where(id: args[:test_id]).first
         end_date = target_test.quiz_date
-        cron_minute = end_date.strftime("%M").to_i + 1 #前端截止日期后，不可从测试列表中查看之后，开始执行群体报告生成
-        cron_hour = end_date.strftime("%H").to_i
-        cron_date = end_date.strftime("%d").to_i
-        cron_month = end_date.strftime("%m").to_i
-        cron_str = "#{cron_minute} #{cron_hour} #{cron_date} #{cron_month} *"
-        # cron_str = "0-59 * * * *"
+       # cron_minute = end_date.strftime("%M").to_i + 1 #前端截止日期后，不可从测试列表中查看之后，开始执行群体报告生成
+       # cron_hour = end_date.strftime("%H").to_i
+       # cron_date = end_date.strftime("%d").to_i
+       # cron_month = end_date.strftime("%m").to_i
+       # cron_str = "#{cron_minute} #{cron_hour} #{cron_date} #{cron_month} *"
+        cron_str = "0-59 * * * *"
         worker_class = 'OnlineTestScheduledGenerateGroupReportsWorker'
         sjob = ScheduledJob.new(
-          name: args[:test_id] + args[:group_type],
+          name: args[:test_id] + args[:top_group],
           cron: cron_str,
           klass: worker_class,
           start_date: target_test.start_date ? target_test.start_date.strftime("%Y%m%d %H:%M") : nil,
@@ -2330,7 +2344,7 @@ namespace :swtk do
           name: sjob.uid, 
           cron: cron_str, 
           class: worker_class,
-          args: {:test_id => args[:test_id], :group_type => args[:group_type]}
+          args: {:test_id => args[:test_id], :top_group => args[:top_group]}
         )
       rescue Exception => ex
         puts "Error(#{ex.message})"
@@ -2344,7 +2358,7 @@ namespace :swtk do
       begin
         worker_class = 'ClearExpiredScheduledJobsWorker'
         raise "ALready existed!" if ScheduledJob.where(name: worker_class).first
-        cron_str = "0-59 * * * * *"
+        #cron_str = "0-59 * * * * *"
         sjob = ScheduledJob.new(
           name: "ClearExpiredScheduledJobsWorker",
           cron: cron_str,

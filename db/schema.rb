@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170524032840) do
+ActiveRecord::Schema.define(version: 20170531082509) do
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -35,15 +35,6 @@ ActiveRecord::Schema.define(version: 20170524032840) do
     t.datetime "dt_add"
     t.datetime "dt_update"
     t.string   "tenant_uid", limit: 255
-  end
-
-  create_table "api_permissions", force: :cascade do |t|
-    t.string   "name",        limit: 255
-    t.string   "method",      limit: 255
-    t.string   "path",        limit: 255
-    t.string   "description", limit: 255
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
   end
 
   create_table "area_administrators", primary_key: "uid", force: :cascade do |t|
@@ -208,9 +199,9 @@ ActiveRecord::Schema.define(version: 20170524032840) do
 
   create_table "bank_subject_checkpoint_ckps", primary_key: "uid", force: :cascade do |t|
     t.string   "dimesion",              limit: 50
-    t.string   "rid",                   limit: 255,                   null: false
+    t.string   "rid",                   limit: 255,                  null: false
     t.string   "checkpoint",            limit: 200
-    t.string   "subject",               limit: 36,                    null: false
+    t.string   "subject",               limit: 36,                   null: false
     t.boolean  "is_entity",             limit: 1,     default: true
     t.text     "advice",                limit: 65535
     t.text     "desc",                  limit: 65535
@@ -220,6 +211,7 @@ ActiveRecord::Schema.define(version: 20170524032840) do
     t.string   "sort",                  limit: 255
     t.string   "category",              limit: 255
     t.boolean  "high_level",            limit: 1
+    t.string   "checkpoint_sytem_id",   limit: 255
     t.integer  "checkpoint_system_id",  limit: 4
     t.string   "checkpoint_system_rid", limit: 255
   end
@@ -389,10 +381,11 @@ ActiveRecord::Schema.define(version: 20170524032840) do
   create_table "permissions", force: :cascade do |t|
     t.string   "name",          limit: 255
     t.string   "subject_class", limit: 255
+    t.string   "action",        limit: 255
     t.string   "description",   limit: 255
+    t.integer  "role_id",       limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "operation",     limit: 255
   end
 
   create_table "project_administrator_tenant_links", primary_key: "uid", force: :cascade do |t|
@@ -451,14 +444,6 @@ ActiveRecord::Schema.define(version: 20170524032840) do
     t.string   "desc",       limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "name_label", limit: 255
-  end
-
-  create_table "roles_api_permissions_links", force: :cascade do |t|
-    t.integer  "role_id",           limit: 4
-    t.integer  "api_permission_id", limit: 4
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
   end
 
   create_table "roles_permissions_links", force: :cascade do |t|
@@ -492,29 +477,6 @@ ActiveRecord::Schema.define(version: 20170524032840) do
     t.datetime "updated_at"
     t.string   "test_id",      limit: 255
     t.string   "tenant_uid",   limit: 255
-  end
-
-  create_table "skope_rules", force: :cascade do |t|
-    t.string   "name",         limit: 255
-    t.string   "category",     limit: 255
-    t.integer  "priority",     limit: 4
-    t.string   "rkey",         limit: 255
-    t.string   "rkey_label",   limit: 255
-    t.string   "rvalue",       limit: 255
-    t.string   "rvalue_label", limit: 255
-    t.string   "desc",         limit: 255
-    t.string   "skope_id",     limit: 255
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-  end
-
-  add_index "skope_rules", ["category"], name: "index_skope_rules_on_category", using: :btree
-
-  create_table "skopes", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.string   "desc",       limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
   end
 
   create_table "swtk_configs", primary_key: "uid", force: :cascade do |t|
@@ -587,36 +549,6 @@ ActiveRecord::Schema.define(version: 20170524032840) do
 
   add_index "tenants", ["number", "name"], name: "index_tenants_on_number_and_name", using: :btree
 
-  create_table "user_location_links", force: :cascade do |t|
-    t.string   "user_id",    limit: 255
-    t.string   "loc_uid",    limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-  end
-
-  add_index "user_location_links", ["loc_uid"], name: "index_user_location_links_on_loc_uid", using: :btree
-  add_index "user_location_links", ["user_id"], name: "index_user_location_links_on_user_id", using: :btree
-
-  create_table "user_skope_links", force: :cascade do |t|
-    t.string   "user_id",    limit: 255
-    t.string   "skope_id",   limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-  end
-
-  add_index "user_skope_links", ["skope_id"], name: "index_user_skope_links_on_skope_id", using: :btree
-  add_index "user_skope_links", ["user_id"], name: "index_user_skope_links_on_user_id", using: :btree
-
-  create_table "user_tenant_links", force: :cascade do |t|
-    t.string   "user_id",    limit: 255
-    t.string   "tenant_uid", limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-  end
-
-  add_index "user_tenant_links", ["tenant_uid"], name: "index_user_tenant_links_on_tenant_uid", using: :btree
-  add_index "user_tenant_links", ["user_id"], name: "index_user_tenant_links_on_user_id", using: :btree
-
   create_table "users", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: "",    null: false
     t.string   "name",                   limit: 50
@@ -644,17 +576,8 @@ ActiveRecord::Schema.define(version: 20170524032840) do
     t.boolean  "locked",                 limit: 1,   default: true
     t.datetime "expired_at"
     t.string   "tk_token",               limit: 255
-    t.string   "area_uid",               limit: 255
-    t.string   "authentication_token",   limit: 255
-    t.string   "my_number",              limit: 255
-    t.string   "real_name",              limit: 255
-    t.string   "gender",                 limit: 255
-    t.string   "subject",                limit: 255
-    t.string   "grade",                  limit: 255
   end
 
-  add_index "users", ["area_uid"], name: "index_users_on_area_uid", using: :btree
-  add_index "users", ["authentication_token"], name: "index_users_on_authentication_token", using: :btree
   add_index "users", ["name"], name: "index_users_on_name", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["wx_openid"], name: "index_users_on_wx_openid", unique: true, using: :btree
