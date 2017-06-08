@@ -30,7 +30,7 @@ Rails.application.config.assets.precompile += %W{
   jquery.remotipart.js
   default/ques-bank.css
   managers/mains.css
-  managers/subject_checkpoints.css
+  managers/subject_checkpoints.scss
   managers/checkpoints.css
   managers/area.js
   managers/mains.js
