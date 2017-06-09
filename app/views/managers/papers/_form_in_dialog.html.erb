@@ -24,9 +24,8 @@
 <script type="text/javascript">
 	function formatOper(val,row,index){
 		options = "";
-		if(!row["has_bank_test"] && (row["paper_status"] == "analyzed"|| row["paper_status"] == "score_importing" || row["paper_status"] == "score_imported" || row["paper_status"] == "report_generating" || row["paper_status"] == "report_completed")){
-			options = options + '<a href="<%= page_info_item[:path] %>/'+ row["uid"] + '/new_paper_test" data-remote="true">创建测试</a> &nbsp;';
-		}
+
+		options = options + '<a href="<%= page_info_item[:path] %>/'+ row["uid"] + '/new_paper_test" data-remote="true">创建测试</a> &nbsp;';
      if (row["paper_status"] == "editted" || row["paper_status"] == "analyzing" || row["paper_status"] == "analyzed"|| row["paper_status"] == "score_importing" || row["paper_status"] == "score_imported" || row["paper_status"] == "report_generating" || row["paper_status"] == "report_completed" ){   
   			options = options + "<a  href='#' onclick=\"rollbackObj(" + "\'<%= page_info_item[:path] %>/\'," + index  + ")\">回退</a>&nbsp; ";
 		}
