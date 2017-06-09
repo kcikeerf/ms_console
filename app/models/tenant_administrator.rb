@@ -55,7 +55,7 @@ class TenantAdministrator < ActiveRecord::Base
 
   def self.save_info(options)
     options = options.extract!(:user_id, :name, :tenant_uid, :comment)
-  	create(options)
+    create(options)
   end
 
   def destroy_tenant_administrator

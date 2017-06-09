@@ -9,7 +9,6 @@ module UzerModule
     GuestUserNamePrefix = "guest_"
     WxUserNamePrefix = "wx_"
 
-
     UserAccountTitle = {
       :head_teacher => [
           Common::Locale::i18n('activerecord.attributes.user.name'),
@@ -132,6 +131,8 @@ module UzerModule
         end
       end
     end
+
+
 
   end
 end
