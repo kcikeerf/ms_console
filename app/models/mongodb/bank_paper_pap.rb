@@ -1833,7 +1833,7 @@ class Mongodb::BankPaperPap
         score_upload =  ""
       end 
       if self.orig_file_id
-        file_upload = FileUpload.find(self.orig_file_id) 
+        file_upload = FileUpload.where(id: self.orig_file_id).first 
       else
         file_upload = ""
       end
