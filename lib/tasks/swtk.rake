@@ -1812,7 +1812,11 @@ namespace :swtk do
             target_area = tnt.area_pcd
             next if target_area.blank?
             class_arr = Dir[args[:target_path].to_s + "/reports_warehouse/tests/" + id + "/**/grade/" + tnt.uid + "/klass/[0-9a-z]*[^.json]"]
+            class_re = /klass\/([0-9a-z]{1,})/
+            class_uid_arr = class_arr.map{|item| class_re.match(item)[1] }
             pupil_arr = Dir[args[:target_path].to_s + "/reports_warehouse/tests/" + id + "/**/grade/" + tnt.uid + "/**/pupil/[0-9a-z]*"]
+            pupil_re = /pupil\/([0-9a-z]{1,})/
+            pupil_uid_arr = pupil_arr.map{|item| pupil_re.match(item)[1] }
             data_arr = [
               tnt.name_cn,
               target_pap.heading+"(#{id})",
@@ -1821,8 +1825,8 @@ namespace :swtk do
               target_area[:province_name_cn],
               target_area[:city_name_cn],
               target_area[:district],
-              class_arr.size,
-              pupil_arr.size
+              class_uid_arr.compact.uniq.size,
+              pupil_uid_arr.compact.uniq.size
             ]
             sheet.add_row data_arr
           }
@@ -2325,12 +2329,12 @@ namespace :swtk do
       begin
         target_test = Mongodb::BankTest.where(id: args[:test_id]).first
         end_date = target_test.quiz_date
-       # cron_minute = end_date.strftime("%M").to_i + 1 #前端截止日期后，不可从测试列表中查看之后，开始执行群体报告生成
-       # cron_hour = end_date.strftime("%H").to_i
-       # cron_date = end_date.strftime("%d").to_i
-       # cron_month = end_date.strftime("%m").to_i
-       # cron_str = "#{cron_minute} #{cron_hour} #{cron_date} #{cron_month} *"
-        cron_str = "0-59 * * * *"
+        cron_minute = end_date.strftime("%M").to_i + 1 #前端截止日期后，不可从测试列表中查看之后，开始执行群体报告生成
+        cron_hour = end_date.strftime("%H").to_i
+        cron_date = end_date.strftime("%d").to_i
+        cron_month = end_date.strftime("%m").to_i
+        cron_str = "#{cron_minute} #{cron_hour} #{cron_date} #{cron_month} *"
+        # cron_str = "0-59 * * * *"
         worker_class = 'OnlineTestScheduledGenerateGroupReportsWorker'
         sjob = ScheduledJob.new(
           name: args[:test_id] + args[:top_group],
