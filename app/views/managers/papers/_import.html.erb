@@ -1,0 +1,24 @@
+<script type="text/template" class="template_import_form">
+  <form action="" accept-charset="UTF-8" method="post" id="refrom" class="dlg-form" enctype="multipart/form-data">
+  <input type="hidden" name="authenticity_token" value="">
+    <div class="ffile">
+      <label>题型:</label>
+      <input type="file" name="file_name">
+    </div>
+    <div class="fheading">
+      <label>标题:</label>
+      <input type="text" name="heading" id="heading" value="">
+    </div>
+    <div class="fsubheading">
+      <label>副标题:</label>
+      <input type="text" name="subheading" id="subheading" value="">
+    </div>
+    <div class="frid">
+      <label>指标体系RID:</label>
+      <input type="text" name="checkpoint_system_rid" id="checkpoint_system_rid" value="">
+    </div>
+  </form>
+</script>
+
+<%= render partial: "shared/manager/base_fileupload" %>
+

@@ -10,6 +10,14 @@
 			<%= LABEL("common.create") %>
 		</a> 
 <% end %>
+<% if ["papers"].include? controller_name %>
+		<a  href="#" 
+			class="easyui-linkbutton" 
+			iconCls="icon-add" plain="true" 
+			onclick="ImportObj('<%= LABEL("common.import_obj")%>','<%= page_info_item[:path] %>/');">
+			<%= LABEL("common.import_obj") %>
+		</a> 
+<% end %>
 <% unless ["roles","permissions"].include? controller_name %>
 	<% unless ["papers","bank_tests"].include? controller_name %>
 		<a  href="#" 
@@ -93,16 +101,28 @@
 	  class="easyui-dialog confirm-dlg" 
 	  style="min-width:300px;min-height:150px;" 
 	  closed="true"
-	  buttons="#dlg-buttons">
-	  <%= form_tag '', id: 'fcb' do  %>
+	  buttons="#dd-buttons">
+	  <%= form_tag '', id: 'fcb', :multipart=> true do  %>
 	    <input type="hidden" name="_method" id='cb_manager_method' value="post" />
 			<div id='other'>
 				<%= yield(:form_fcb) %>
 			</div>
 	  <% end %>
 	</div>
-	<div id="dlg-buttons">
+	<div id="dd-buttons">
 	  <a  href="#"  class="easyui-linkbutton" iconCls="icon-ok" onclick="fcbSaveObj()">保存</a>
 	  <a href="#" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dd').dialog('close')">取消</a>
+	</div>
+
+	<div id="rd" 
+	class="easyui-dialog dlg" 
+	style="width:600px;height:400px;" 
+	closed="true"
+	buttons="#rd-buttons">
+
+	</div>
+	<div id="rd-buttons">
+		<a  href="#"  class="easyui-linkbutton" iconCls="icon-ok" onclick="formSaveObj()">保存</a>
+	  <a href="javascript:void(0)" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#rd').dialog('close')">取消</a>
 	</div>
 <% end %>

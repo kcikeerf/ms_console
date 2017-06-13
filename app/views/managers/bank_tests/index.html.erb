@@ -31,6 +31,10 @@
 <script type="text/javascript">
 	function formatOper(val,row,index){
 		options = "";
+		options = options + '<a href="#" onclick="CombineObj(\'导入用户\',\'<%= page_info_item[:path] %>/\',\'' + row["uid"] + '\');" >导入用户</a> &nbsp;';
+		if(row["down_allow"]){	
+			options = options + '<a href="#" onclick="DownLoadObj(\'账号下载\',\'<%= page_info_item[:path] %>/\',\'' + row["uid"] + '\');" >下载</a> &nbsp;';  
+		}
 		options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/edit" data-remote="true" >编辑</a>';  
 	  return options;
 	} 
@@ -39,3 +43,9 @@
 <% content_for :form do %>
 	<%= render partial: "managers/bank_tests/form" %>
 <%end%>
+
+<%= render partial: "shared/manager/base_fileupload" %>
+
+
+
+
