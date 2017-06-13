@@ -176,6 +176,61 @@ function newObj(title, url){
   // }//没懂啥用先保留
 }
 
+function ImportObj(title, url){
+  $("#rd").html($(".template_import_form").html());
+  $('#rd').dialog('open').dialog('setTitle',title);
+  $('#rd form')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
+  $('#rd form').attr('action', url + "import");
+}
+
+function CombineObj(title, url,uid){
+  $("#rd").html($(".fileupload").html());
+  $('#rd').dialog('open').dialog('setTitle',title);
+  $('#rd form')[0]["authenticity_token"].value = $('meta[name="csrf-token"]')[0].content;
+  $('#rd form').attr('action', url + uid +  "/combine_obj");
+}
+
+function DownLoadObj(title, url,uid){
+  $.getJSON(url + uid + '/download_page', function(data) {
+    $("#rd").html("");//清空info内容
+    var items = [];
+    $.each(data.down_list, function(key, item) {
+     items.push('<li id="' + item.file_id  + '"><a href="' + url + uid + 
+      '/download?file_type='+ item.file_type +'&file_id=' + item.file_id +
+      '&upload_type='+ item.upload_type +'">' + item.down_file_name + '</a></li>');
+    });
+    $('<ul/>', {
+     'class': 'list',
+     html: items.join('')
+    }).appendTo('#rd');
+    $('#rd').dialog('open').dialog('setTitle',title);
+  });
+}
+
+function formSaveObj(){
+  $("#refrom").form('submit',{
+    onSubmit: function(){
+      return $(this).form('validate');
+    },
+    success: function(result){
+      result = JSON.parse(result);
+      if (result.status == 200){
+        $("#rd").dialog('close');      // close the dialog
+        $('#dg').datagrid('reload');    // reload the user data
+      } else{
+        $.messager.alert({
+          title: 'Error',
+          msg: result.message
+        });
+        // $("#rd").dialog('close');      // close the dialog
+      }
+    }
+  });
+}
+
+
+
+
 //编辑
 function editObj(url){
   var row = $('#dg').datagrid('getSelected');

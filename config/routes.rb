@@ -78,11 +78,18 @@ Rails.application.routes.draw do
     end
 
     resources :papers, concerns: :destroy_all do
+      collection do
+        get 'new_import'
+        post "import"
+      end
       member do
         post 'rollback'
         get 'down_file'
         get 'new_paper_test'
         post 'create_paper_test'
+        get 'export_file'
+        get "combine"
+        post "combine_obj"
       end
     end
 
@@ -96,6 +103,12 @@ Rails.application.routes.draw do
     end
 
     resources :bank_tests, concerns: :destroy_all do
+      member do
+        get "combine"
+        post "combine_obj"
+        get "download_page"
+        get "download"        
+      end
     end
 
     resources :analyzers, concerns: :destroy_all
