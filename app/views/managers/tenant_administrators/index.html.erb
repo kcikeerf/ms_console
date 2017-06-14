@@ -13,11 +13,13 @@
 <!--  search  tool -->
 <% content_for :tb_search do %>
 	<span>用户名:</span>
-	<input name="user_name" style="line-height:18px;border:1px solid #ccc;width:100px">
-	<span>姓名:</span>
-	<input name="name" style="line-height:18px;border:1px solid #ccc;width:100px">
-	<span>学校名:</span>
-	<input name="tenant_name" style="line-height:18px;border:1px solid #ccc;width:100px">
+	<input name="user_name" class="easyui-textbox" style="width:100px">
 
-	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+	<span>姓名:</span>
+	<input name="name" class="easyui-textbox" style="width:100px">
+
+	<span>学校名:</span>
+	<input name="tenant_name" class="easyui-textbox" style="width:100px">
+
+	<a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">Search</a>
 <%end%>

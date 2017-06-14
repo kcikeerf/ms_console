@@ -18,34 +18,35 @@
 <!-- search tool -->
 <% content_for :tb_search do %>
 	<span>试卷名:</span>
-	<input name="heading" style="line-height:16px;border:1px solid #ccc;width:100px">
+	<input name="heading" class="easyui-textbox" style="width:100px">
 	<span>状态:</span>
-	<select name="paper_status" panelHeight="auto" style="width:80px">
+	<select name="paper_status" panelHeight="auto" class="easyui-combobox" style="width:80px">
 		<option value="">&nbsp;</option>
 		<% paper_status_list.each do |key, value| %>
 			<option value="<%= key %>"><%= value %></option>
 		<% end %>
 	</select>
 	<span>学科:</span>
-	<select name="subject" panelHeight="auto" style="width:80px">
+	<select name="subject" panelHeight="auto" class="easyui-combobox" style="width:80px">
 		<option value="">&nbsp;</option>
 		<% subject_list.each do |key, value| %>
 			<option value="<%= key %>"><%= value %></option>
 		<% end %>
 	</select>
 	<span>年级:</span>
-	<select name="grade" panelHeight="auto" style="width:80px">
+	<select name="grade" panelHeight="auto" class="easyui-combobox" style="width:80px">
 		<option value="">&nbsp;</option>
 		<% grade_list.each do |key, value| %>
 			<option value="<%= key %>"><%= value %></option>
 		<% end %>
 	</select>
 	<span>学期:</span>
-	<select name="term" panelHeight="auto" style="width:80px">
+	<select name="term" panelHeight="auto" class="easyui-combobox" style="width:80px">
 		<option value="">&nbsp;</option>
 		<% term_list.each do |key, value| %>
 			<option value="<%= key %>"><%= value %></option>
 		<% end %>
 	</select>
-	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+	<a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">Search</a>
+
 <%end%>

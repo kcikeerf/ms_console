@@ -16,13 +16,13 @@
 
 <% content_for :tb_search do %>
 	<span>用户名:</span>
-	<input name="user_name" style="line-height:18px;border:1px solid #ccc;width:100px">
+	<input name="user_name" class="easyui-textbox" style="width:100px">
 	<span>姓名:</span>
-	<input name="name" style="line-height:18px;border:1px solid #ccc;width:100px">
+	<input name="name" class="easyui-textbox" style="width:100px">
 	<span>学校名:</span>
-	<input name="tenant_name" style="line-height:18px;border:1px solid #ccc;width:100px">
+	<input name="tenant_name" class="easyui-textbox" style="width:100px">
 	<span>年级:</span>
-	<select name="subject" panelHeight="auto" style="width:80px">
+	<select name="subject" panelHeight="auto" class="easyui-combobox" style="width:80px">
 		<option value="">&nbsp;</option>
 		<% grade_list.each do |key, value| %>
 			<option value="<%= key %>"><%= value %></option>
@@ -30,6 +30,6 @@
 	</select>
 
 	<span>班级:</span>
-	<input name="classroom" style="line-height:18px;border:1px solid #ccc;width:100px">
-	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+	<input name="classroom" class="easyui-textbox" style="width:100px">	
+	<a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">Search</a>
 <%end%>
