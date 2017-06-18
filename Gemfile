@@ -71,10 +71,6 @@ gem 'httparty'
 #page
 gem 'kaminari'
 
-#job
-gem 'sidekiq'
-gem 'sidekiq-superworker'
-gem 'sidekiq-cron'
 gem 'redis'
 gem 'redis-namespace'
 gem 'redis-rails'
@@ -113,4 +109,4 @@ gem 'grape'
 # doorkeeper
 gem 'doorkeeper'
 
-gem 'whenever'
+#gem 'whenever'
