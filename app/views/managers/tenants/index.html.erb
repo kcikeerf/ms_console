@@ -63,13 +63,13 @@
 
 <% content_for :tb_search do %>
 	<span>名称:</span>
-	<input name="name_cn" style="line-height:18px;border:1px solid #ccc;width:100px">
+	<input name="name_cn" class="easyui-textbox" style="width:100px">
 	<span>学校类型:</span>
-	<select name="tenant_type" panelHeight="auto" style="width:80px">
+	<select name="tenant_type"  class="easyui-combobox" panelHeight="auto" style="width:80px">
 		<option value="">&nbsp;</option>
 		<% tenant_type_list.each do |key, value| %>
 			<option value="<%= key %>"><%= value %></option>
 		<% end %>
 	</select>
-	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+	<a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">Search</a>
 <%end%>

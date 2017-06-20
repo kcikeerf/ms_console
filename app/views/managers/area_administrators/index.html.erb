@@ -11,8 +11,8 @@
 
 <% content_for :tb_search do %>
 	<span>用户名:</span>
-	<input name="user_name" style="line-height:18px;border:1px solid #ccc;width:100px">
+	<input name="user_name" class="easyui-textbox" style="width:100px">
 	<span>姓名:</span>
-	<input name="name_cn" style="line-height:18px;border:1px solid #ccc;width:100px">
-	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+	<input name="name_cn" class="easyui-textbox" style="width:100px">
+	<a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">Search</a>
 <%end%>

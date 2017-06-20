@@ -69,14 +69,15 @@
 
 <% content_for :tb_search do %>
   <span>名称:</span>
-  <input name="name" style="line-height:18px;border:1px solid #ccc;width:100px">
+  <input name="name" class="easyui-textbox" style="width:100px">
   <span>Rid:</span>
-  <input name="rid" style="line-height:18px;border:1px solid #ccc;width:100px">
+  <input name="rid" class="easyui-textbox" style="width:100px">
   <span>分类:</span>
-  <select name="sys_type" panelHeight="auto" style="width:80px">
+  <select name="sys_type" panelHeight="auto" class="easyui-combobox" style="width:80px">
     <option value="">&nbsp;</option>
     <% checkpoint_type_list.each do |key, value| %>
       <option value="<%= key %>"><%= value %></option>
     <% end %>
-  </select>  <a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+  </select>  
+  <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">Search</a>
 <%end%>

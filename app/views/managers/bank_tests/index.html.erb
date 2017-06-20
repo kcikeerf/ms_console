@@ -11,9 +11,9 @@
 
 <% content_for :tb_search do %>
 	<span>测试名:</span>
-	<input name="name" style="line-height:18px;border:1px solid #ccc;width:100px">
+	<input name="name" class="easyui-textbox" style="width:100px">
 	<span>测试类型:</span>
-	<select name="quiz_type" panelHeight="auto" style="width:80px">
+	<select name="quiz_type" panelHeight="auto" class="easyui-combobox" style="width:80px">
 		<option value="">&nbsp;</option>
 		<% bank_test_quiz_type_list.each do |key, value| %>
 			<option value="<%= key %>"><%= value %></option>
@@ -23,7 +23,7 @@
 	<input  name="start_date" class="easyui-datetimebox"  style="width:100px" >
 	<span>结束时间:</span>
 	<input  name="quiz_date" class="easyui-datetimebox"  style="width:100px" >
-	<a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">Search</a>
+	<a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">Search</a>
 <%end%>
 
 
