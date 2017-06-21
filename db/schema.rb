@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170531082509) do
+ActiveRecord::Schema.define(version: 20170607060302) do
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -257,15 +257,20 @@ ActiveRecord::Schema.define(version: 20170531082509) do
   add_index "class_teacher_mappings", ["tenant_uid"], name: "index_class_teacher_mappings_on_tenant_uid", using: :btree
 
   create_table "file_uploads", force: :cascade do |t|
-    t.string   "paper",         limit: 255
-    t.string   "answer",        limit: 255
-    t.string   "analysis",      limit: 255
-    t.string   "single",        limit: 255
-    t.string   "revise_paper",  limit: 255
-    t.string   "revise_answer", limit: 255
+    t.string   "paper",              limit: 255
+    t.string   "answer",             limit: 255
+    t.string   "analysis",           limit: 255
+    t.string   "single",             limit: 255
+    t.string   "revise_paper",       limit: 255
+    t.string   "revise_answer",      limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "empty_result",  limit: 255
+    t.string   "empty_result",       limit: 255
+    t.string   "paper_structure",    limit: 255
+    t.string   "combine_checkpoint", limit: 255
+    t.string   "xlsx_structure",     limit: 255
+    t.string   "json_structure",     limit: 255
+    t.string   "user_base",          limit: 255
   end
 
   create_table "image_uploads", force: :cascade do |t|
@@ -477,6 +482,7 @@ ActiveRecord::Schema.define(version: 20170531082509) do
     t.datetime "updated_at"
     t.string   "test_id",      limit: 255
     t.string   "tenant_uid",   limit: 255
+    t.string   "user_base",    limit: 255
   end
 
   create_table "swtk_configs", primary_key: "uid", force: :cascade do |t|

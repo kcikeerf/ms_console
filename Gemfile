@@ -71,6 +71,7 @@ gem 'httparty'
 #page
 gem 'kaminari'
 
+gem 'sidekiq'
 gem 'redis'
 gem 'redis-namespace'
 gem 'redis-rails'
