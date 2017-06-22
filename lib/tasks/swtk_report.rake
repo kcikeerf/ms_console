@@ -166,7 +166,7 @@ namespace :swtk do
 
       desc "输出测试大榜信息"
       task :export_test_pupil_data_table,[] => :environment do |t, args|
-        ReportBasePath = Rails.root.to_s
+        ReportBasePath = "" #Rails.root.to_s
         ReportWarehousePath = "/reports_warehouse/tests/"
         _test_ids = args.extras
         _test_count = _test_ids.size
@@ -206,117 +206,117 @@ namespace :swtk do
           :percentile => wb.styles.add_style(:bg_color => "E6FF00", :border => { :style => :thin, :color => "00" },:fg_color => "000000", :sz => 12, :alignment => { :horizontal=> :center })
         }
 
-            wb.add_worksheet name: "大榜" do |sheet|
+        wb.add_worksheet name: "大榜" do |sheet|
 
-              ####### 标题行，指标列, begin #######
-              #标题行
-              title_row2_info = [
-                I18n.t("dict.province"),
-                I18n.t("dict.city"),
-                I18n.t("dict.district"),
-                "Tenant",
-                I18n.t("dict.grade"),
-                I18n.t("dict.classroom"),
-                I18n.t("activerecord.attributes.user.name"),
-                I18n.t("dict.pupil_number"), 
-                I18n.t("dict.sex")
-              ]
+          ####### 标题行，指标列, begin #######
+          #标题行
+          title_row2_info = [
+            I18n.t("dict.province"),
+            I18n.t("dict.city"),
+            I18n.t("dict.district"),
+            "Tenant",
+            I18n.t("dict.grade"),
+            I18n.t("dict.classroom"),
+            I18n.t("activerecord.attributes.user.name"),
+            I18n.t("dict.pupil_number"), 
+            I18n.t("dict.sex")
+          ]
 
-              #标题行
-              title_row1_info = ["大榜"]
-              title_row1_info += (title_row2_info.size-1).times.map{|t| ""}
-              style_row1_info = []
+          #标题行
+          title_row1_info = ["大榜"]
+          title_row1_info += (title_row2_info.size-1).times.map{|t| ""}
+          style_row1_info = []
 
-              #标题1行
-              title_row1_total = []
-              style_row1_total = []
-              
-              #标题2行
-              title_row2_total = []
-              style_row2_total = []
+          #标题1行
+          title_row1_total = []
+          style_row1_total = []
+          
+          #标题2行
+          title_row2_total = []
+          style_row2_total = []
 
-              title_row1_total = _test_arr.map{|item|
-                [item[:pap_heading] + "总得分率", "", ""]
-              }.flatten
+          title_row1_total = _test_arr.map{|item|
+            [item[:pap_heading] + "总得分率", "", ""]
+          }.flatten
 
-              title_row2_total = _test_arr.size.times.map{|item|
-                ["知识", "技能", "能力"]
-              }.flatten
-              style_row1_info = style_row1_total = style_row2_total = title_row2_info.size.times.map{|t| cell_style[:label] }
+          title_row2_total = _test_arr.size.times.map{|item|
+            ["知识", "技能", "能力"]
+          }.flatten
+          style_row1_info = style_row1_total = style_row2_total = title_row2_info.size.times.map{|t| cell_style[:label] }
 
-              sheet.add_row(
-                  title_row1_info  + title_row1_total,
-                  :style => style_row1_info + style_row1_total
-              )
+          sheet.add_row(
+              title_row1_info  + title_row1_total,
+              :style => style_row1_info + style_row1_total
+          )
 
-              sheet.add_row(
-                  title_row2_info  + title_row2_total,
-                  :style => style_row1_info + style_row2_total
-              )
-              ####### 标题行，指标列, begin #######
+          sheet.add_row(
+              title_row2_info  + title_row2_total,
+              :style => style_row1_info + style_row2_total
+          )
+          ####### 标题行，指标列, begin #######
 
-              ####### 学生数据行, begin #######
-              #数据行
-              _all_pupil_uids.each{|pup_uid|
-                a_report_url = _all_pupil_urls.find{|item| item.include?(pup_uid)}
-                path_arr = a_report_url.split(".json")[0].split("/")
-                target_pupil = nil
-                target_location = nil
-                target_tenant = nil
-                Common::Report::Group::ListArr.each{|group|
-                  group_pos = path_arr.find_index(group)
-                  group_uid = path_arr[group_pos + 1]
-                  case group
-                  when "pupil"
-                    target_pupil = Pupil.where(uid: group_uid).first
-                  when "klass"
-                    target_location = Location.where(uid: group_uid).first
-                  when "grade"
-                    target_tenant = Tenant.where(uid: group_uid).first
-                  else
-                    # do nothing
-                  end
-                }
+          ####### 学生数据行, begin #######
+          #数据行
+          _all_pupil_uids.each{|pup_uid|
+            a_report_url = _all_pupil_urls.find{|item| item.include?(pup_uid)}
+            path_arr = a_report_url.split(".json")[0].split("/")
+            target_pupil = nil
+            target_location = nil
+            target_tenant = nil
+            Common::Report::Group::ListArr.each{|group|
+              group_pos = path_arr.find_index(group)
+              group_uid = path_arr[group_pos + 1]
+              case group
+              when "pupil"
+                target_pupil = Pupil.where(uid: group_uid).first
+              when "klass"
+                target_location = Location.where(uid: group_uid).first
+              when "grade"
+                target_tenant = Tenant.where(uid: group_uid).first
+              else
+                # do nothing
+              end
+            }
 
-                if target_tenant.blank? ||  target_location.blank? ||  target_pupil.blank?
-                  puts "invalid path data"
-                  puts "path: #{item}"
-                  puts "tenant: #{target_tenant}"
-                  puts "location: #{target_location}"
-                  puts "pupil: #{target_pupil}"
-                  next
-                end
-                target_area = target_tenant.area
-                
-                data_row_info = [
-                  target_area.blank?? ["","",""] : target_area.pcd_h.values.map{|item| item[:name_cn]},
-                  target_tenant.name_cn,
-                  Common::Grade::List[target_location.grade.to_sym],
-                  Common::Klass::List[target_location.classroom.to_sym],
-                  target_pupil.name,
-                  target_pupil.stu_number,
-                  Common::Locale::i18n("dict.#{target_pupil.sex}")
-                ].flatten
-
-                data_row_total = []
-
-                _test_arr.each{|item|
-                  target_report_url = item[:pupil_report_urls].find{|url| url.include?(pup_uid)}
-                  target_report_h = target_report_url.blank? ? {} : get_report_hash(ReportBasePath + target_report_url.to_s)
-                  target_arr = target_report_h.blank? ? ["-","-","-"] : [
-                    target_report_h["data"]["knowledge"]["base"]["weights_score_average_percent"],
-                    target_report_h["data"]["skill"]["base"]["weights_score_average_percent"],
-                    target_report_h["data"]["ability"]["base"]["weights_score_average_percent"]
-                    ]
-                  data_row_total.push(target_arr)
-                }
-                data_row_total.flatten!
-
-                sheet.add_row data_row_info + data_row_total
-              }
-
-              ####### 学生数据行, begin #######
+            if target_tenant.blank? ||  target_location.blank? ||  target_pupil.blank?
+              puts "invalid path data"
+              puts "path: #{item}"
+              puts "tenant: #{target_tenant}"
+              puts "location: #{target_location}"
+              puts "pupil: #{target_pupil}"
+              next
             end
+            target_area = target_tenant.area
+            
+            data_row_info = [
+              target_area.blank?? ["","",""] : target_area.pcd_h.values.map{|item| item[:name_cn]},
+              target_tenant.name_cn,
+              Common::Grade::List[target_location.grade.to_sym],
+              Common::Klass::List[target_location.classroom.to_sym],
+              target_pupil.name,
+              target_pupil.stu_number,
+              Common::Locale::i18n("dict.#{target_pupil.sex}")
+            ].flatten
+
+            data_row_total = []
+
+            _test_arr.each{|item|
+              target_report_url = item[:pupil_report_urls].find{|url| url.include?(pup_uid)}
+              target_report_h = target_report_url.blank? ? {} : get_report_hash(ReportBasePath + target_report_url.to_s)
+              target_arr = target_report_h.blank? ? ["-","-","-"] : [
+                target_report_h["data"]["knowledge"]["base"]["weights_score_average_percent"],
+                target_report_h["data"]["skill"]["base"]["weights_score_average_percent"],
+                target_report_h["data"]["ability"]["base"]["weights_score_average_percent"]
+                ]
+              data_row_total.push(target_arr)
+            }
+            data_row_total.flatten!
+
+            sheet.add_row data_row_info + data_row_total
+          }
+
+          ####### 学生数据行, begin #######
+        end
 
         file_path = Rails.root.to_s + "/tmp/" + Time.now.to_i.to_s + ".xlsx"
         out_excel.serialize(file_path)        
