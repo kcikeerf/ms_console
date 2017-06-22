@@ -10,7 +10,7 @@ namespace :swtk do
 
       desc "export test overall report data table"
       task :export_test_overall_report_data_table,[] => :environment do |t, args|
-        ReportWarehousePath = Rails.root.to_s + "/reports_warehouse/tests/"
+        ReportWarehousePath = "/reports_warehouse/tests/"
         _test_ids = args.extras
         _test_count = _test_ids.size
         _test_arr = _test_ids.map{|test_id|
