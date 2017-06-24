@@ -323,6 +323,62 @@ namespace :swtk do
         puts "Output: " + file_path 
       end # export_test_area_report_tenants_basic, end
 
+      desc "输出测试用户绑定信息"
+      task :export_test_user_binded_stat,[] => :environment do |t, args|
+        ReportBasePath = Rails.root.to_s
+        ReportWarehousePath = "/reports_warehouse/tests/"
+        _test_ids = args.extras
+        _test_count = _test_ids.size
+        _test_arr = _test_ids.map{|test_id|
+          target_test = Mongodb::BankTest.find(test_id)
+          target_paper = target_test.bank_paper_pap
+          target_pupil_urls = find_all_pupil_report_urls(ReportBasePath, ReportWarehousePath + test_id, [])
+          re = Regexp.new ".*pupil/(.*).json"
+          target_pupil_uids = target_pupil_urls.map{|url| 
+            r = re.match(url) 
+            r.blank? ? nil : r[1].to_s
+          }.compact
+
+          {
+            :id => test_id,
+            :pap_heading => target_paper.heading,
+            :subject => Common::Subject::List[target_paper.subject.to_sym],
+            :pupil_report_urls => target_pupil_urls,
+            :pupil_uids => target_pupil_uids
+          }
+        }
+        _all_pupil_urls = eval(_test_arr.map{|item| "#{item[:pupil_report_urls]}" }.join("|"))
+        _all_pupil_uids = eval(_test_arr.map{|item| "#{item[:pupil_uids]}" }.join("|"))
+
+        target_loc_uids = []
+        binded_pupil_number = _all_pupil_uids.map{|pup_uid| 
+          target_pupil = Pupil.where(uid: pup_uid).first
+          target_location = target_pupil.location
+          target_loc_uids.push(target_location.uid) if target_location
+          target_pupil.user.wx_users.blank? ? 0 : 1
+        }.sum
+
+        puts "total pupils: #{_all_pupil_uids.size}, binded pupils: #{binded_pupil_number}"
+
+        target_loc_uids = target_loc_uids.uniq.compact
+        target_locations = target_loc_uids.map{|uid| 
+          target_loc = Location.where(uid: uid).first
+        }
+        target_locations = target_locations.uniq.compact
+        target_tenants = target_locations.map{|loc| loc.tenant }
+        target_teachers = target_locations.map{|loc| loc.teachers.map{|item| item[:teacher]} }.flatten
+        target_teachers = target_teachers.uniq.compact
+        binded_teacher_number = target_teachers.map{|tea| tea.user.wx_users.blank? ? 0 : 1 }.sum
+
+        puts "total teachers: #{target_teachers.size}, binded teachers: #{binded_teacher_number}"
+
+        target_tenant_administrators = target_tenants.map{|tnt| tnt.tenant_administrators }.flatten.uniq.compact
+        binded_tenant_administrators_number = target_tenant_administrators.map{|tnt_admin| tnt_admin.user.wx_users.blank? ? 0 : 1 }.sum
+
+        puts "total tenant administrators: #{target_tenant_administrators.size}, binded tenant administrators: #{binded_tenant_administrators_number}"
+       
+      end # export_test_area_report_tenants_basic, end
+
       # 获取报告数据HASH
       def get_report_hash file_path
         fdata = File.open(file_path, 'rb').read
