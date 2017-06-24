@@ -376,6 +376,14 @@ namespace :swtk do
         binded_tenant_administrators_number = target_tenant_administrators.map{|tnt_admin| tnt_admin.user.wx_users.blank? ? 0 : 1 }.sum
 
         puts "total tenant administrators: #{target_tenant_administrators.size}, binded tenant administrators: #{binded_tenant_administrators_number}"
+
+        puts ">>>not binded tenant administrators<<<"
+        target_tenant_administrators.each{|tnt_admin|
+          if tnt_admin.user.wx_users.blank? 
+            target_tenant = tnt_admin.tenant
+            puts "#{target_tenant.name_cn}: tnt_admin.name"
+          end
+        }
        
       end # export_test_area_report_tenants_basic, end
 
