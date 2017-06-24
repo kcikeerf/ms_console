@@ -381,7 +381,7 @@ namespace :swtk do
         target_tenant_administrators.each{|tnt_admin|
           if tnt_admin.user.wx_users.blank? 
             target_tenant = tnt_admin.tenant
-            puts "#{target_tenant.name_cn}: tnt_admin.name"
+            puts "#{target_tenant.name_cn}: #{tnt_admin.name}"
           end
         }
        
