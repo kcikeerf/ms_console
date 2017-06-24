@@ -325,7 +325,7 @@ namespace :swtk do
 
       desc "输出测试用户绑定信息"
       task :export_test_user_binded_stat,[] => :environment do |t, args|
-        ReportBasePath = Rails.root.to_s
+        ReportBasePath = ""#Rails.root.to_s
         ReportWarehousePath = "/reports_warehouse/tests/"
         _test_ids = args.extras
         _test_count = _test_ids.size
