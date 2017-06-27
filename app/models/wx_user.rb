@@ -9,7 +9,7 @@ class WxUser < ActiveRecord::Base
   has_many :wx_user_mappings, foreign_key: "wx_uid", dependent: :destroy
   has_many :users, through: :wx_user_mappings
 
-  before_save :set_area
+  before_save :set_area, :set_sex
 
   def binded_user? user_name
      names = users.map{|u| u.name}
@@ -19,14 +19,32 @@ class WxUser < ActiveRecord::Base
   def binded_users_list
     guest_user!
     users.map{|u|
+      target_token = Doorkeeper::AccessToken.find_or_create_for(
+          nil, #client
+          u.id, #resource_owner_id
+          "", #scopes
+          7200, #expired in
+          true # use refresh token?
+      )
       {
         :id => u.id,
         :user_name => u.name,
         :name => u.role_obj.nil?? "-":u.role_obj.name,
-        :role => u.role.name
+        :role => u.role.name,
+        :oauth => {
+          :access_token => target_token.token,
+          :token_type => "bear",
+          :expires_in => target_token.expires_in,
+          :refresh_token => target_token.refresh_token,
+          :scope => "",
+          :created_at => target_token.created_at.to_i
+        }
       }
     }
   end
+
+
+
 
   def online_tests
     links = Mongodb::OnlineTestUserLink.by_wx_user(self.id)
@@ -53,17 +71,25 @@ class WxUser < ActiveRecord::Base
       :password => self.wx_openid,
       :role_name => Common::Role::Guest
     }
-    target_user = User.new(option_h)
-    return nil unless target_user.save!
+    target_user = User.where(name: option_h[:name]).first
+    unless target_user
+      target_user = User.new(option_h)
+      target_user.save!
+    end
     self.users << target_user
+    self.save!
   end
 
   ########私有方法: begin#######
   private
     def set_area
       option_h = {}
-      target_area = Area.where(name_cn: self.city) if !self.city.blank?
-      target_area = Area.where(name_cn: self.province) if target_area.blank? && !self.province.blank?
+      target_area = Area.where(name_cn: self.city).first if !self.city.blank?
+      target_area = Area.where(name_cn: self.province).first if target_area.blank? && !self.province.blank?
       self.area_uid = target_area.uid if target_area
+    end
+
+    def set_sex
+      self.sex = case self.sex when "0"; "wu" when "1"; "nan" when "2"; "n̈u" end
     end
 end

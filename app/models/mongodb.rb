@@ -1,10 +1,27 @@
 # -*- coding: UTF-8 -*-
 
 module Mongodb
-  code_file = Rails.root + "config/initializers/patches/mongodb_patch.txt"
-  begin
-    eval(TkEncryption::codes_str_decryption(code_file))
-  rescue Exception => ex
-    #
+
+  def self.table_name_prefix
+    'mongodb_'
+  end
+
+  def self.included(base)
+    others = {
+      "TestReportUrl" => %Q{
+        include Mongoid::Document
+        include Mongoid::Attributes::Dynamic
+
+        index({_id: 1}, {background: true})
+        index({test_id: 1}, {background: true})
+        index({report_url: 1}, {background: true})
+      }
+    }
+    others.each{|klass, core_str|
+      self.const_set(klass, Class.new)
+      ("Mongodb::" + klass).constantize.class_eval do
+        eval(core_str)
+      end
+    }
   end
 end
