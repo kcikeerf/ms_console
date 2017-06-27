@@ -108,6 +108,7 @@ GEM
       execjs
     coffee-script-source (1.11.1)
     concurrent-ruby (1.0.2)
+    connection_pool (2.2.1)
     daemons (1.2.4)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
@@ -210,6 +211,8 @@ GEM
       rack (>= 0.4)
     rack-cache (1.6.1)
       rack (>= 0.4)
+    rack-protection (1.5.3)
+      rack
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (4.2.0)
@@ -300,6 +303,11 @@ GEM
     sdoc (0.4.2)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
+    sidekiq (4.2.7)
+      concurrent-ruby (~> 1.0)
+      connection_pool (~> 2.2, >= 2.2.0)
+      rack-protection (>= 1.5.0)
+      redis (~> 3.2, >= 3.2.1)
     simple_form (3.3.1)
       actionpack (> 4, < 5.1)
       activemodel (> 4, < 5.1)
@@ -390,6 +398,7 @@ DEPENDENCIES
   rucaptcha
   sass-rails
   sdoc
+  sidekiq
   simple_form
   snowflake-id
   spring
