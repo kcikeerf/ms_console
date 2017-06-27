@@ -44,7 +44,6 @@ module UzerModule
       ]
     }
 
-
     def get_tenant user_id 
       tenant = nil
       current_user = get_user user_id
