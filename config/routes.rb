@@ -135,5 +135,8 @@ Rails.application.routes.draw do
 
   get '/ckeditors/urlimage'=> "ckeditor#urlimage"
 
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiq'
+
   get '*path', to: 'managers/mains#index'
 end
