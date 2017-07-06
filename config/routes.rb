@@ -118,6 +118,17 @@ Rails.application.routes.draw do
     resources :project_administrators, concerns: :destroy_all
     resources :area_administrators, concerns: :destroy_all
     resources :node_catalogs, concerns: :destroy_all
+    resources :dashbord do
+      collection do
+        get 'paper'
+        get 'user'
+        get 'danti'
+        get 'checkpoint'
+        get 'get_dashbord'
+        post 'update_dashbord'
+        # post 'update_user'
+      end
+    end
   end
 
   mount RuCaptcha::Engine => "/rucaptcha"

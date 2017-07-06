@@ -20,7 +20,18 @@ class Manager < ActiveRecord::Base
   def self.left_menus
     [
       {
-        id: 1, icon: 'icon-sys', name: '用户管理',
+        id: 1, icon: 'icon-sys', name: 'Dashbord',
+        menus: [
+          {id: 301, name: Common::Locale::i18n("managers.menus.yong_hu_fen_xi"), icon: '', url: '/managers/dashbord/user'},
+          {id: 302, name: Common::Locale::i18n("managers.menus.shi_juan_fen_xi"), icon: '', url: '/managers/dashbord/paper'},
+          {id: 303, name: Common::Locale::i18n("managers.menus.dan_ti_fen_xi"), icon: '', url: '/managers/dashbord/danti'},
+          {id: 304, name: Common::Locale::i18n("managers.menus.zhi_biao_fen_xi"), icon: '', url: '/managers/dashbord/checkpoint'},
+          # {id: 205, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'},
+          # {id: 205, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'}
+        ]
+      },
+      {
+        id: 2, icon: 'icon-sys', name: '用户管理',
         menus: [
           {id: 101, name: Common::Locale::i18n("managers.menus.jue_se_guan_li"), icon: '', url: '/managers/roles'},
           {id: 102, name: Common::Locale::i18n("managers.menus.quan_xian_guan_li"), icon: '', url: '/managers/permissions'},
@@ -34,7 +45,7 @@ class Manager < ActiveRecord::Base
         ]
       },
       {
-        id: 2, icon: 'icon-sys', name: '资源管理',
+        id: 3, icon: 'icon-sys', name: '资源管理',
         menus: [
           {id: 201, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_guan_li"), icon: '', url: '/managers/node_structures'},
           {id: 202, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/checkpoints'},
@@ -43,7 +54,8 @@ class Manager < ActiveRecord::Base
           {id: 205, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'},
           {id: 205, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'}
         ]
-      }
+      },
+      
     ]
   end
 

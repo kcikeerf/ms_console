@@ -26,6 +26,7 @@ zh:
       permission: "权限"
       bank_paper_pap: "试卷"
       checkpoint_system: "指标体系"
+      super_administrator: "超级管理员"
 
     attributes:
       default:

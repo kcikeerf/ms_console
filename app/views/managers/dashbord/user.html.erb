@@ -1,0 +1,9 @@
+<% content_for :head do %>
+  <%= javascript_include_tag 'echarts.min','data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'managers/dashbord_user','data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'managers/dashbord','data-turbolinks-track' => true %>
+<% end %>
+
+<%= render :partial => "head" %>
+
+<%= render :partial => "partical", :locals => { :chart_id => "role_id"} %>

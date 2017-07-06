@@ -42,5 +42,7 @@ Rails.application.config.assets.precompile += %W{
   managers/selected_nodes_tree.js
   managers/subject_checkpoints.js  
   managers/mains.js
-
+  managers/dashbord_paper.js
+  managers/dashbord_user.js
+  managers/dashbord.js
 }

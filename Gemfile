@@ -76,6 +76,7 @@ gem 'redis'
 gem 'redis-namespace'
 gem 'redis-rails'
 gem 'redis-rack-cache'
+gem 'sidekiq'
 
 #form
 gem 'simple_form'
