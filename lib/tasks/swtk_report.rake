@@ -387,6 +387,49 @@ namespace :swtk do
        
       end # export_test_area_report_tenants_basic, end
 
+      desc "输出报告的整体的各题得分率"
+      task :export_test_overall_quiz_table,[] => :environment do |t, args|
+        ReportWarehousePath = "/reports_warehouse/tests/"
+        _test_ids = args.extras
+
+        out_excel = Axlsx::Package.new
+        wb = out_excel.workbook
+
+        _test_ids.each{|_id|
+          target_test =Mongodb::BankTest.where(id: _id).first
+          target_paper =  target_test.bank_paper_pap
+          ordered_qzps = target_paper.ordered_qzps
+          wb.add_worksheet name: target_paper.id.to_s do |sheet|
+            title_row = [
+              "No",
+              "Order",
+              "Average Percent(Difficulty)"
+            ]
+            sheet.add_row title_row
+            if target_test.report_top_group == "project"
+              fdata = File.open(ReportWarehousePath + _id + "/project/" + _id + ".json", 'rb').read
+            else
+              target_tenant = target_test.tenants.first
+              fdata = File.open(ReportWarehousePath + _id + "/grade/" + target_tenant.uid + ".json", 'rb').read
+            end
+            target_report_data =JSON.parse(fdata)
+
+            qzps_data = target_report_data["paper_qzps"]
+            ordered_qzps.each_with_index{|qzp, index|
+              data_row = [
+	             index,
+                qzp.order,
+                qzps_data[index]["value"]["weights_score_average_percent"]
+              ]
+              sheet.add_row(data_row)  
+            }
+          end
+        }      
+        file_path = Rails.root.to_s + "/tmp/" + Time.now.to_i.to_s + ".xlsx"
+        out_excel.serialize(file_path)        
+        puts "Output: " + file_path         
+      end
+
       # 获取报告数据HASH
       def get_report_hash file_path
         fdata = File.open(file_path, 'rb').read

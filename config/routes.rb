@@ -177,7 +177,5 @@ Rails.application.routes.draw do
   require 'sidekiq/web'
   mount Sidekiq::Web => '/sidekiq'
 
-  use_doorkeeper
-  
   get '*path', to: 'managers/mains#index'
 end

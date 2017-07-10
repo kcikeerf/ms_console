@@ -1843,6 +1843,7 @@ class Mongodb::BankPaperPap
         if score_upload.filled_file.current_path.present?
 
           score_path = score_upload.filled_file.current_path.split("/")[0..-2].join("/")
+
           FileUtils.rm_rf(score_path)
         end
         score_upload.delete
