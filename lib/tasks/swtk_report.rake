@@ -389,7 +389,7 @@ namespace :swtk do
 
       desc "输出报告的整体的各题得分率"
       task :export_test_overall_quiz_table,[] => :environment do |t, args|
-        ReportWarehousePath = Rails.root.to_s + "/reports_warehouse/tests/"
+        ReportWarehousePath = "/reports_warehouse/tests/"
         _test_ids = args.extras
 
         out_excel = Axlsx::Package.new
