@@ -6,7 +6,7 @@ require 'axlsx'
 
 namespace :swtk do
   namespace :report do
-  	namespace :v1_2 do
+  	#namespace :v1_2 do
 
       desc "输出区域报告用数据表"
       task :export_test_overall_report_data_table,[] => :environment do |t, args|
@@ -430,6 +430,51 @@ namespace :swtk do
         puts "Output: " + file_path         
       end
 
+      desc "组装报告数量json"
+      task :construct_all_reports_stat_json,[] => :environment do |t, args|
+        ReportWarehousePath = "/reports_warehouse/tests/"
+        redis_key_prefix = "/" + Time.now.to_i.to_s
+        _test_ids = args.extras
+        _test_ids.each{|_id|
+          target_test =Mongodb::BankTest.where(id: _id).first
+          nav_arr = Dir[Rails.root.to_s + ReportWarehousePath + _id + "/**/**/nav.json"]
+          nav_arr.each{|nav_path|
+            target_nav_h = get_report_hash(nav_path)
+            target_nav_count = target_nav_h.values[0].size
+            target_path = nav_path.split("/nav.json")[0]
+            target_path_arr = target_path.split("/")
+            current_group = (Common::Report::Group::ListArr&target_path_arr)[-1]
+            sub_group = (Common::Report::Group::ListArr - target_path_arr)[-1]
+            next unless sub_group
+            while target_path_arr.include?(target_test.report_top_group)
+              target_key = redis_key_prefix + "/" + target_path_arr.join("/")
+              reset_redis_value(target_key, sub_group, target_nav_count)
+              target_path_arr.pop(2)
+            end
+          }
+        }
+        rpt_stat_redis_keys = Common::SwtkRedis::find_keys($cache_redis, redis_key_prefix + "/*")
+        rpt_stat_redis_keys.each{|key|
+          target_path = key + "/report_stat.json"
+          p target_path
+          File.write(target_path.split(redis_key_prefix)[1], $cache_redis.get(key))
+          $cache_redis.del(key)
+        }             
+      end
+
+      def reset_redis_value redis_key, sub_group, target_nav_count
+        target_value = $cache_redis.get(redis_key)
+        if target_value.blank?
+          result = {}
+          result[sub_group] = target_nav_count
+        else
+          result = JSON.parse(target_value)
+          result[sub_group] = 0 unless result[sub_group]
+          result[sub_group] += target_nav_count
+        end
+        $cache_redis.set(redis_key, result.to_json)
+      end      
+
       # 获取报告数据HASH
       def get_report_hash file_path
         fdata = File.open(file_path, 'rb').read
@@ -466,6 +511,6 @@ namespace :swtk do
         }
         return urls
       end
-    end
+    #end
   end
 end
