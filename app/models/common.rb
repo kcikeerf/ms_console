@@ -21,7 +21,7 @@ module Common
   include TenantModule
   include TermModule
   include TestModule
-  include TkLockModule  
+  include TkLockModule
   include UzerModule
   include WcModule
   include WxModule
@@ -31,6 +31,36 @@ module Common
 
   def logger
     Rails.logger
+  end
+
+  def template_tk_job_execution_in_controller(status_code=nil, result=nil, &block)
+    if status_code.nil? && result.nil?
+      result = {}
+      begin
+        tkc = yield
+        tkc_flag, tkc_data = tkc.execute
+        if tkc_flag
+          status_code = 200
+          result = tkc_data
+        else
+          status_code = 500
+          logger.info ">>>JOB Failed<<<"
+          logger.debug tkc_data
+          result = {
+            :message => "failed!"
+          }
+        end
+      rescue Exception => ex
+        status_code = 500
+        result = {
+          :message => "unkown error occurred!"
+        }
+        logger.debug ">>>Exception!<<<"
+        logger.debug ex.message
+        logger.debug ex.backtrace
+      end
+    end
+    return status_code, result
   end
 
   def method_template_with_rescue(from_where, &block)
