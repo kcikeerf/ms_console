@@ -1,13 +1,17 @@
-<div style="float: left;width: 49%;padding: 0.5%;overflow: scroll;">
-  <div id=<%=chart_id + '_message'%>></div>
-  <div style="height: 20px;"><input type="checkbox" style="float: left;width: 20px;height: 20px" value=<%=chart_id %>></div>
-  <div id=<%=chart_id %> style="height: 400px;"></div>
-  <div >
-    <table id=<%=chart_id + '_table'%> style="width: 100%;" class="easyui-datagrid">
-     <thead>
-      <th data-options="field:'name',align:'center', width:'70%'">分类名称</th>
-      <th data-options="field:'value',align:'center', width:'33.9%'">数量</th>
-     </thead>
-    </table>
+<div style="float: left;width: 48%;padding: 0.5%;overflow: scroll;">
+  <div class="box">
+    <div class="box-body">
+      <div id=<%=chart_id + '_message'%>></div>
+      <div style="height: 20px;"><input type="checkbox" style="float: left;width: 20px;height: 20px" value=<%=chart_id %>></div>
+      <div id=<%=chart_id %> style="height: 400px;"></div>
+      <div >
+        <table id=<%=chart_id + '_table'%> style="width: 100%;" class="easyui-datagrid">
+         <thead>
+          <th data-options="field:'name',align:'center', width:'70%'">分类名称</th>
+          <th data-options="field:'value',align:'center', width:'32.9%'">数量</th>
+         </thead>
+        </table>
+      </div>
+    </div>
   </div>
 </div>

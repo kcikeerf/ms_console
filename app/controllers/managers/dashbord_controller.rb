@@ -7,9 +7,29 @@ class Managers::DashbordController < ApplicationController
   before_action :set_dashboard, only: [:update_dashbord, :get_dashbord]
 
   def user
+    @result = User.all.size
   end
   
   def paper
+    @result = Mongodb::BankPaperPap.all.size
+  end
+
+  def danti
+    @result = Mongodb::BankQuizQiz.all.size
+  end
+
+  def checkpoint
+    # @result = BankSubjectCheckpointCkp.find_by_sql("SELECT COUNT(*),`subject`,`category`,`dimesion` from `bank_subject_checkpoint_ckps` GROUP BY `subject`,`dimesion`,`category`")
+    # result = BankSubjectCheckpointCkp.group(:subject).count
+    if request.url.include?(".json") 
+      if params[:group_name]
+        result = Mongodb::Dashbord.get_group_ckps params
+      else
+        result = Mongodb::Dashbord.get_all_ckps
+      end
+    else
+    end
+    respond_with(result)
   end
 
   #更新数据
@@ -20,6 +40,8 @@ class Managers::DashbordController < ApplicationController
         result = @dashbord.update_paper
       when "user"
         result = @dashbord.update_user
+      when "danti"
+        result = @dashbord.update_danti
       end
       status = 200
       data = {:status => 200, :message => result }

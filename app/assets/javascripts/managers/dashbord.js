@@ -14,13 +14,17 @@ function update_dashbord(branch_tp,total_tp){
     data: data,
     type: 'post',
     success: function(rs){
-      append_message(branch_tp,"更新成功")
-      title = chart.getOption().title[0].text
-      num = rs.message.data
-      time = rs.message.dt_update
-      var option = get_option(num,time,title,branch_tp,total_tp)
-      chart.setOption(option,true);
-      table.datagrid('loadData',{rows:num})
+      if (rs.status==200){
+        append_message(branch_tp,"更新成功")
+        title = chart.getOption().title[0].text
+        num = rs.message.data
+        time = rs.message.dt_update
+        var option = get_option(num,time,title,branch_tp,total_tp)
+        chart.setOption(option,true);
+        table.datagrid('loadData',{rows:num})
+      }else{
+        append_message(branch_tp,"请重新登录")
+      }
     },
     error: function(){
       append_message(branch_tp,"更新失败")
@@ -30,7 +34,17 @@ function update_dashbord(branch_tp,total_tp){
 
 //获取饼图option
 function get_option(num,time,title,branch_tp,total_tp){
+  var x = []
+  for(var i = 0; i<num.length; i++){
+    x.push(num[i].name)
+  }
   var option = {
+    legend: {
+      orient: 'vertical',
+      x: 'left',
+      y: '100',
+      data:x,
+    },
     toolbox:{
       show: true,
       feature : {  
@@ -60,7 +74,10 @@ function get_option(num,time,title,branch_tp,total_tp){
         text: title,
         subtext: time
     },
-    tooltip: {},
+    tooltip: {
+      trigger: 'item',
+      formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
     series: [{
         name: '数量',
         type: 'pie',

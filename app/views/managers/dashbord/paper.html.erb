@@ -2,8 +2,14 @@
   <%= javascript_include_tag 'echarts.min','data-turbolinks-track' => true %>
   <%= javascript_include_tag 'managers/dashbord_paper','data-turbolinks-track' => true %>
   <%= javascript_include_tag 'managers/dashbord','data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag 'managers/dashbord', media: 'all', 'data-turbolinks-track' => true %>
 <% end %>
 
-<%= render :partial => "head" %>
+<%= render :partial => "head", :locals => { :text => "试卷数量" } %>
 <%= render :partial => "partical", :locals => { :chart_id => "grade" } %>
 <%= render :partial => "partical", :locals => { :chart_id => "paper_status" } %>
+<div style="clear: both;"></div>
+<%= render :partial => "partical", :locals => { :chart_id => "school" } %>
+<%= render :partial => "partical", :locals => { :chart_id => "subject" } %>
+<div style="clear: both;"></div>
+<%= render :partial => "partical", :locals => { :chart_id => "term" } %>
