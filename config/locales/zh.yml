@@ -344,6 +344,7 @@ zh:
       jiao_shi_guan_li: "教师管理"
       xue_sheng_guan_li: "学生管理"
       jiao_cai_guan_li: "教材管理"
+      di_qu_guan_li: "地区管理"
       mu_lu_guan_li: "目录管理"
       zhi_biao_ti_xi_guan_li: "指标体系管理"
       jiao_cai_ji_mu_lu_guan_li: "教材及目录管理"
@@ -352,10 +353,6 @@ zh:
       shi_juan_guan_li: "试卷管理"
       zhi_biao_xi_tong_guan_li: "指标系统管理"
       bank_test: "测试管理"
-      yong_hu_fen_xi: "用户分析"
-      shi_juan_fen_xi: "试卷分析"
-      dan_ti_fen_xi: "单题分析"
-      zhi_biao_fen_xi: "指标分析"
     messages:
       welcome: "欢迎访问三题库管理后台!"
       tenant:

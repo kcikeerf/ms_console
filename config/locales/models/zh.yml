@@ -27,6 +27,8 @@ zh:
       bank_paper_pap: "试卷"
       checkpoint_system: "指标体系"
       super_administrator: "超级管理员"
+      bank_quiz_qiz: "单题"
+      bank_subject_checkpoint_ckp: "指标"
 
     attributes:
       default:

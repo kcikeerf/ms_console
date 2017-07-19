@@ -11,6 +11,7 @@ Rails.application.config.assets.version = '1.0'
 
 Rails.application.config.assets.precompile += %W{
   default/users.css
+  managers/dashbord.css
   users.js
   zhengjuan.css
   init_zhengjuan.js
@@ -44,5 +45,7 @@ Rails.application.config.assets.precompile += %W{
   managers/mains.js
   managers/dashbord_paper.js
   managers/dashbord_user.js
+  managers/dashbord_quiz.js
+  managers/dashbord_checkpoint.js
   managers/dashbord.js
 }

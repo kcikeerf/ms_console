@@ -2,8 +2,11 @@
   <%= javascript_include_tag 'echarts.min','data-turbolinks-track' => true %>
   <%= javascript_include_tag 'managers/dashbord_user','data-turbolinks-track' => true %>
   <%= javascript_include_tag 'managers/dashbord','data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag 'managers/dashbord', media: 'all', 'data-turbolinks-track' => true %>
 <% end %>
 
-<%= render :partial => "head" %>
+<%= render :partial => "head", :locals => { :text => "用户数量" } %>
 
 <%= render :partial => "partical", :locals => { :chart_id => "role_id"} %>
+
+

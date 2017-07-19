@@ -122,11 +122,11 @@ Rails.application.routes.draw do
       collection do
         get 'paper'
         get 'user'
-        get 'danti'
+        get 'quiz'
         get 'checkpoint'
+        post 'checkpoint_list'
         get 'get_dashbord'
         post 'update_dashbord'
-        # post 'update_user'
       end
     end
   end

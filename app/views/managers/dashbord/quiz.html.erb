@@ -1,0 +1,12 @@
+<% content_for :head do %>
+  <%= javascript_include_tag 'echarts.min','data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'managers/dashbord_quiz','data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'managers/dashbord','data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag 'managers/dashbord', media: 'all', 'data-turbolinks-track' => true %>
+<% end %>
+
+<%= render :partial => "head", :locals => { :text => "题目数量" } %>
+<%= render :partial => "partical", :locals => { :chart_id => "subject" } %>
+<%= render :partial => "partical", :locals => { :chart_id => "cat" } %>
+<div style="clear: both;"></div>
+<%= render :partial => "partical", :locals => { :chart_id => "levelword2" } %>
