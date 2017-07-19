@@ -14,7 +14,7 @@ function update_dashbord(branch_tp,total_tp){
     data: data,
     type: 'post',
     success: function(rs){
-      if (rs.status==200){
+      if (typeof(rs)== 'object'){
         append_message(branch_tp,"更新成功")
         title = chart.getOption().title[0].text
         num = rs.message.data
@@ -22,8 +22,8 @@ function update_dashbord(branch_tp,total_tp){
         var option = get_option(num,time,title,branch_tp,total_tp)
         chart.setOption(option,true);
         table.datagrid('loadData',{rows:num})
-      }else{
-        append_message(branch_tp,"请重新登录")
+      }else if(typeof(rs)== 'string'){
+        window.location.reload();
       }
     },
     error: function(){
@@ -154,7 +154,7 @@ function init_partical(branch_tp,total_tp,title){
     authenticity_token: $('meta[name="csrf-token"]')[0].content,
   }
   $.ajax({
-    url: 'get_dashbord.json',
+    url: '/managers/dashbord/get_dashbord',
     type: 'get',
     data: data,
     success: function(rs){

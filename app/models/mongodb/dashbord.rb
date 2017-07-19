@@ -49,7 +49,7 @@ class Mongodb::Dashbord
         arr = deal_result(result,"dict")
       when 'dimesion'
         result = result.sort_by{|key,value| Common::CheckpointCkp::Order[key.to_sym]}
-        arr = deal_result(result,"checkpoints.dimesion")
+        arr = deal_result(result,"dict")
       end
       return arr
     end
@@ -70,7 +70,7 @@ class Mongodb::Dashbord
         hash = {}
         hash['category'] = Common::Locale::i18n("checkpoints.subject.category.#{re[0][0]}")
         hash['subject'] = Common::Locale::i18n("dict.#{re[0][1]}")
-        hash['dimesion'] = Common::Locale::i18n("checkpoints.dimesion.#{re[0][2]}")
+        hash['dimesion'] = Common::Locale::i18n("dict.#{re[0][2]}")
         hash['dimesion_count'] = re[1]
         hash['category_count'] = category[re[0][0]]
         hash['subject_count'] = subject[re[0][0..1]]
@@ -98,9 +98,9 @@ class Mongodb::Dashbord
     return result
   end
 
-  def update_danti
-    danti = Mongodb::BankQuizQiz.only(self.branch_tp.to_sym).group_by(&self.branch_tp.to_sym)
-    arr = get_data(danti){|key| get_cn_key(key,self.branch_tp)}
+  def update_quiz
+    quiz = Mongodb::BankQuizQiz.only(self.branch_tp.to_sym).group_by(&self.branch_tp.to_sym)
+    arr = get_data(quiz){|key| get_cn_key(key,self.branch_tp)}
     result = update_data(arr)
     return result
   end
@@ -109,12 +109,11 @@ class Mongodb::Dashbord
   def get_data(data_group=[],&block)
     arr = []
     empty_key_hash = {}
-    empty_key_hash['name'] = '无'
+    empty_key_hash['name'] = Common::Locale::i18n("common.none")
     empty_key_hash['value'] = 0
-    # hash = {}
     data_group.each do |key,value|
       key = proc.call(key)
-      if key=="无"#如果key为nil或''时合并成一组
+      if key== Common::Locale::i18n("common.none")#如果key为nil或''时合并成一组
         empty_key_hash['value'] = empty_key_hash['value'] + value.size
       else
         new_hash = {}
@@ -138,9 +137,9 @@ class Mongodb::Dashbord
       key = (Common::Locale::i18n("dict.#{key}"))
     when "role_id"
       role = Role.where(id: key).first
-      key = role.present? ? Common::Locale::i18n("activerecord.models.#{role.name}") : "无"
+      key = role.present? ? Common::Locale::i18n("activerecord.models.#{role.name}") : Common::Locale::i18n("common.none")
     end
-    return key.present? ? key : "无"
+    return key.present? ? key : Common::Locale::i18n("common.none")
   end
 
   #更新数据并返回data和时间

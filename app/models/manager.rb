@@ -22,10 +22,10 @@ class Manager < ActiveRecord::Base
       {
         id: 1, icon: 'icon-sys', name: 'Dashbord',
         menus: [
-          {id: 301, name: Common::Locale::i18n("managers.menus.yong_hu_fen_xi"), icon: '', url: '/managers/dashbord/user'},
-          {id: 302, name: Common::Locale::i18n("managers.menus.shi_juan_fen_xi"), icon: '', url: '/managers/dashbord/paper'},
-          {id: 303, name: Common::Locale::i18n("managers.menus.dan_ti_fen_xi"), icon: '', url: '/managers/dashbord/danti'},
-          {id: 304, name: Common::Locale::i18n("managers.menus.zhi_biao_fen_xi"), icon: '', url: '/managers/dashbord/checkpoint'},
+          {id: 301, name: Common::Locale::i18n("activerecord.models.user"), icon: '', url: '/managers/dashbord/user'},
+          {id: 302, name: Common::Locale::i18n("activerecord.models.bank_paper_pap"), icon: '', url: '/managers/dashbord/paper'},
+          {id: 303, name: Common::Locale::i18n("activerecord.models.bank_quiz_qiz"), icon: '', url: '/managers/dashbord/quiz'},
+          {id: 304, name: Common::Locale::i18n("activerecord.models.bank_subject_checkpoint_ckp"), icon: '', url: '/managers/dashbord/checkpoint'},
           # {id: 205, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'},
           # {id: 205, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'}
         ]

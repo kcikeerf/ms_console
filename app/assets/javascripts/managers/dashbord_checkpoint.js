@@ -2,6 +2,7 @@ var data = {
   group_name: 'category',
 }
 $(function () {
+  data['authenticity_token'] = $('meta[name="csrf-token"]')[0].content
   var chart = echarts.init(document.getElementById('chart')); 
   $('#table').datagrid({
     data: []
@@ -34,8 +35,11 @@ $(function () {
 
   //获取全部checkpoint,并合并单元格
   $.ajax({
-    url: 'checkpoint.json',
-    type: 'get',
+    url: '/managers/dashbord/checkpoint_list',
+    type: 'post',
+    data:{
+      authenticity_token: $('meta[name="csrf-token"]')[0].content
+    },
     success: function(rs){
       var sum_num = 0
       for(var i = 0; i<rs.length; i++){
@@ -128,24 +132,28 @@ function get_data(data,chart){
   $('#message').html(str)
 
   $.ajax({
-    url: 'checkpoint.json',
-    type: 'get',
+    url: '/managers/dashbord/checkpoint_list',
+    type: 'post',
     data: data,
     success: function(rs){
-      var option = {
-        tooltip : {
-          trigger: 'item',
-          formatter: "{a} <br/>{b} : {c} ({d}%)"
-        },
-        series: [{
-          name: '数量',
-          type: 'pie',
-          radius: '55%',
-          data: rs
-        }],
+      if(typeof(rs)== 'object'){
+        var option = {
+          tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+          },
+          series: [{
+            name: '数量',
+            type: 'pie',
+            radius: '55%',
+            data: rs
+          }],
+        }
+        chart.setOption(option,true);
+        $('#table').datagrid('loadData',{rows:rs})
+      }else if(typeof(rs)== 'string'){
+        window.location.reload();
       }
-      chart.setOption(option,true);
-      $('#table').datagrid('loadData',{rows:rs})
     },
     error: function(rs){
 
