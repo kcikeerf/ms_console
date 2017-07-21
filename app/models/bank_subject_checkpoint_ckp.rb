@@ -454,25 +454,28 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   end
 
   def get_related_quizs params
-    params[:quiz_amount] ||= 5
+    params[:amount] ||= 5
     quiz_uid_list = []
     ckp_uid_arr = []
     if self.children.size > 0
-      ckp_uid_arr = children.where(is_entity: true).map(&:uid)
+      ckp_uid_arr = children.where(is_entity: true).select(:uid).map(&:uid)
     else
       ckp_uid_arr.push(self.uid)
     end
     ckp_uid_arr.each {|ckp_uid|
-      Mongodb::BankCkpQzp.where(ckp_uid: ckp_uid).each {|ckp_qzp|
-        quiz_uid_list << ckp_qzp.bank_qizpoint_qzp.bank_quiz_qiz._id.to_s if ckp_qzp.qzp_uid
-      }     
+      qzp_list = Mongodb::BankCkpQzp.where(ckp_uid: ckp_uid).map(&:qzp_uid).compact
+      qzp_filter = {
+        id: {'$in'=> qzp_list} 
+      }
+      quiz_uid_list = Mongodb::BankQizpointQzp.where(qzp_filter).map(&:bank_quiz_qiz_id).compact
     } 
     quiz_uid_list.uniq!
-    if quiz_uid_list.size > params[:quiz_amount]
-      quiz_uid_list = quiz_uid_list.sample(params[:quiz_amount])
+    t3 = Time.new
+    if quiz_uid_list.size > params[:amount]
+      quiz_uid_list = quiz_uid_list.sample(params[:amount])
     end
     quiz_filter = { 
-        id: {'$in'=> quiz_uid_list} 
+      id: {'$in'=> quiz_uid_list} 
     }
     quizs = Mongodb::BankQuizQiz.where(quiz_filter)
     quizs.map {|quiz| quiz.quiz_base_info }
@@ -566,4 +569,5 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
     def set_dimesion
       self.dimesion = self.dimesion || "other"
     end
+
 end
