@@ -1,60 +1,606 @@
+# -*- coding: UTF-8 -*-
+#
+
 zh:
-  api:
-    #######提示信息一览#######
-    # 通用
-    # 认证 11000 - 12000
-    # 报告 12001 - 13000
-    # 试卷 13001 - 14000
-    # 在线测试 14001 - 15000
-    i11000: "该账户已与主账户成功绑定"
-    i11001: "%{variable}已与主账户成功解绑"
-    i11002: "该账户已绑定到主账户"
-    i11201: "您的微信账户已与三维题库账户绑定。"
-    i11202: "您的微信帐户未与三维题库帐户绑定."
-    i11203: "您的微信账户与三维题库账户绑定成功！"
-    i11204: "您的微信帐户与三维题库帐户解绑成功！"    
-    i12001: "报告生成成功。"
-    i13001: "测试结果提交成功。"
+  common:
+    minus: "－"
+    none: "无"
+    shi: "是"
+    fou: "否"
+    create: "创建"
+    edit: "编辑"
+    delete: "删除"
+    list: "列表"
+    save: "保存"
+    cancel: "取消"
+    rollback: "回退"
+    import_obj: "导入"
+  areas:
+    list:
+      all: "全部"
+  #各功能用label
+  checkpoints:
+    label:
+      knowledge:
+        total: "知识总分"
+      skill:
+        total: "技能总分"
+      ability:
+        total: "能力总分"
+    dialog:
+      title: "指标体系设置"
+    subject:
+      category:
+        xiao_xue: "小学"
+        chu_zhong: "初中"
+        gao_zhong: "高中"
+  images:
+    messages:
+      info:
+        success: "头像图片上传成功。"
+      error:
+        failed: "头像图片上传失败！原因（%{cause}）"
+        invalid_size: "图片文件大小超过300KB"
 
-    #######警告信息一览#######
-    w21000: "该账户已超出额定的绑定个数，若希望绑定更多的子帐户请联系管理员！"
-    w21001: "被绑定的账户已超出额定的被绑个数，若希望能被更多账户绑定请联系管理员！"
-    w21002: "%{variable}未与主账户进行绑定"
+  views:
+    pagination:
+      first: "&laquo; 首页"
+      last: "末页 &raquo;"
+      previous: "&laquo; 上一页"
+      next: "下一页 &raquo;"
+      truncate: "..."
 
-    w21201: "您的微信账户尚未与三维题库账户绑定!"
-    w21202: "您的微信账户虽已与三维题库账户绑定，但存在异常，请联系管理员。"
-    w21203: "非有效微信用户!"
-    w21204: "请确认此学生账户是否存在"
-    w21205: "您的微信绑定参数无效！"
-    w21206: "您的微信账户无效！请确认与三维题库是否绑定，若已绑定，请联系管理员。"
-    w21207: "您的微信帐户绑定题库帐户超过额定个数，若希望绑定更多的题库帐户请联系题库！"
-    w21208: "指定的题库帐户绑定微信帐户超过额定个数，若希望绑定更多的题库帐户请联系题库！"
-    w21401: "无权限访问！" 
+  jobs:
+    status:
+      notinqueue: "未入队列"
+      inqueue: "已入队列"
+      processing: "正在生成"
+      completed: "报告完成"
+  locations:
+    messages:
+      error:
+        invalid_location: "无效的Location（班级对象）!"
 
-    w25000: "指标信息不存在" 
+  messages:
+    invalid_mobile: '短信验证码不正确或已失效'
+    invalid_email: '邮箱验证码不正确或已失效'
+    sms_not_send: '暂时不能发送验证码'
+    email_not_send: '暂时不能发送邮件'
+    sms_send_success: '短信验证码发送成功'
+    email_send_success: '邮件发送成功'
+    bind_auth_number: '你绑定账户的验证码为：'
+    password_auth_number: '你正在找回密码，验证码为：'
+    send_limit: '超出发送次数，请稍后再试'
 
-    #######错误信息一览#######
-    # 通用
-    e40004: "对象不存在!"
-    e40400: "客户端处理异常！"
-    e40401: "访问异常！"
-    e40405: "参数不正确，不能进行下面的操作"
+  papers:
+    status:
+      none: "无"
+      new: "试卷添加完成" # 1
+      editting: "正在试题拆分" # 2 【*】
+      editted: "试题拆分完成" # 3 【*】
+      analyzing: "正在三维解析" # 4
+      analyzed: "三维解析完成" # 5 【*】
+      score_importing: "正在导入成绩" # 6
+      score_imported: "成绩导入完毕" # 7
+      report_generating: "正在生成报告" # 8
+      report_completed: "报告生成完毕" # 9 【*】
+    name:
+      paper: '原试卷'
+      answer: '原答案'
+      revise_paper: '修正试卷'
+      revise_answer: '修正答案'
+      empty_result: '空成绩表'
+      empty_file: '空成绩表'
+      filled_file: '学生成绩表'
+      usr_pwd_file: '老师及学生的用户名及密码'
+    messages:
+      get_paper:
+        fail: "获取试卷发生异常错误！"
+      save_paper:
+        success: "试卷（标题：%{heading}）保存成功!"
+        fail: "试卷（原因：%{message}）保存失败!"
+        debug: "保存试卷过程中发生异常: %{message}"
+      submit_paper:
+        success: "试卷（标题：%{heading}）提交成功!"
+        fail: "试卷（标题：%{heading}）提交失败!"
+      save_analyze:
+        success: "试卷解析（标题：%{heading}）保存成功!"
+        fail: "试卷解析（标题：%{heading}）保存失败!"
+      submit_analyze:
+        success: "试卷解析（标题：%{heading}）提交成功!"
+        fail: "试卷解析（标题：%{heading}）提交失败!"
+      upload_score:
+        success: '上传成功'
+        fail: '上传失败'
+      delete_paper:
+        paper_not_found: "试卷不存在"
+        success: "试卷（标题：%{heading}）删除成功！"
+        fail: "试卷（原因：%{heading}）删除失败！"
+        debug: "删除试卷失败发生异常：%{message}"
+      warn:
+        is_locked: "试卷已被写锁定！请等待..."
+      error:
+        no_tenant: "该试卷无所属Tenant"
+        no_choose_status: "未选择回滚状态"
+        cannot_new_test: "不能创建测试"
+        cannot_combine_checkpoint: "试卷结构与本试卷不匹配，不能进行指标关联。"
 
-    # 用户 41000 - 42000
-    e41001: "账户异常！"
-    e41002: "access token过期！"
-    e41003: "与主账户绑定失败！"
-    e41004: "该账户已绑定过其他账户，不能再被绑定"
-    e41202: "微信账户异常！"
-    e41203: "您的微信账户与三维题库账户绑定失败!"
-    e41500: "用户处理异常！"
+  quizs:
+    nosource: "自编"
+    order: "题号"
+    full_score: "满分"
+    messages:
+      create:
+        success: "试题(ID: %{id})创建成功！"
+        fail: "试题(ID: %{id})创建失败！"
+      update:
+        success: "试题(ID: %{id})更新成功！"
+        fail: "试题(ID: %{id})更新失败！"
+      delete:
+        success: "试题(ID: %{id})删除成功！"
+        fail: "试题(ID: %{id})删除失败！"
+      list:
+        invalid_version: "指定教材版本无效，请选择正确的科目，年级！"  
+        invalid_type: "指定题型无效，请选择正确的科目！"
+        invalid_params: "检索条件无效：\n(%{message})"
+        success: "获取试题列表成功！"
+        fail: "获取试题列表失败！"
+  reports:
+    none: "无"
+    total: "总体情况"
+    check: "报告查看"
+    generic_url: "报告链接"
+    op_guide: "操作说明"
+    op_guide_details: "请按以下步骤查看报告：1.登录报告链接；2.进入个人中心；3.在我的报告列表查看"
+    project_url: "项目报告链接"
+    grade_url: "年级报告链接"
+    lower_than: "低"
+    equal_to: "等"
+    higher_than: "高"
+    failed_level: "不及格"
+    good_level: "良好"
+    excellent_level: "优秀"
+    correct_ratio:
+      failed_title: "答对率 < 60%的题目"
+      good_title: "60% ≤ 答对率 < 85%的题目"
+      excellent_title: "答对率 ≥ 85%的题目"
+    messages:
+      common:
+        info:
+        warn:
+          access_no_allowed: "无访问权限报告！"
+        error:
+          invalid_params: "请求参数无效！"
+      grade:
+        get_report:
+          success: "成功取得年级报告。"
+          failed: "未能取得有效的年级报告！"
+      class:
+        get_report:
+          success: "成功取得班级报告。"
+          failed: "未能取得有效的班级报告！"
+      pupil:
+        get_report:
+          success: "成功取得个人报告。"
+          failed: "未能取得有效的个人报告！"
+  scores:
+    grade_rank: "年级排名"
+    excel:
+      score_title: "成绩录入表"
+      head_teacher_password_title: "班主任老师的用户名密码"
+      teacher_password_title: "老师的用户名密码"
+      pupil_password_title: "学生的用户名密码"
+      new_user_title: "新增用户列表"
+    messages:
+      info:
+        old_user: "用户已存在，请使用当前密码"
+        correct_score: "可输入分值范围: %{min} 到 %{max} 之间的数值"
+      warn:
+        score: "请注意:"
+      error:
+        wrong_input: "错误的输入"
+        unknown: "发生未知错误"
+        add_user_failed: "生成用户异常！"
+        upload_failed: "文件上传失败！"
+        upload_exception: "文件上传中发生异常错误！"
+  tasks:
+    type:
+      create_report: "生成报告"
+      import_result: "导入成绩表"
+    status:
+      in_active: "未执行"
+      active: "执行中"
+      completed: "完成"
+  teachers:
+    abbrev:
+      subject: "科"
+      head_teacher: "主"
+  tests:
+    status:
+      not_started: "未测试"
+      none: "无"
+      new: "新添试卷"
+      editting: "正在修订"
+      editted: "修订完成"
+      analyzing: "正在解析"
+      analyzed: "解析完成"
+      no_score: "成绩未导入"
+      score_importing: "成绩导入中"
+      score_imported: "成绩已导入"
+      report_generating: "报告生成中"
+      report_completed: "报告生成完毕" 
 
-    # 报告 42001 - 43000
+  swtk_errors:
+    parameter_invalid_error: "参数无效！"
+    object_not_found: "对象未找到或不存在(详细：%{message})"
 
-    # 试卷 43001 - 44000
+  #微信使用labels
+  wx_commons:
+    messages:
+      info:
 
-    # 在线测试 44001 - 45000
-    e44001: "测试结果提交失败！"
-    e44002: "测试结果处理中，请稍后提交。"
+      warn:
+        invalid_params: "参数无效！"
+      error:
+  wx_users:
+    messages:
+      info:
+        is_binded: "您的微信账户已与三维题库账户绑定。"
+        not_binded: "您的微信帐户未与三维题库帐户绑定."
+        wx_binded: "您的微信账户与三维题库账户绑定成功！"
+        wx_unbinded: "您的微信帐户与三维题库帐户解绑成功！"
+      warn:
+        not_binded: "您的微信账户尚未与三维题库账户绑定!"
+        invalid_binded: "您的微信账户虽已与三维题库账户绑定，但存在异常，请联系管理员。"
+        not_wx_user: "非有效微信用户!"
+        invalid_pupil: "请确认此学生账户是否存在"
+        invalid_binding_params: "您的微信绑定参数无效！"
+        invalid_wx_user: "您的微信账户无效！请确认与三维题库是否绑定，若已绑定，请联系管理员。"
+        wx_binding_limit: "您的微信帐户绑定题库帐户超过 %{limit} 个，若希望绑定更多的题库帐户请联系题库！"
+        user_binding_limit: "指定的题库帐户绑定微信帐户超过 %{limit} 个，若希望绑定更多的题库帐户请联系题库！"
+      error:
+        login_failed: "您输入的用户名或密码有错误，未通过认证！"
+        wx_not_binded: "您的微信账户与三维题库账户绑定失败!"
 
-    e50000: "服务器处理异常!"
+  wx_papers:
+    messages:
+      info:
+        get_success: "成功获取试卷."
+        no_paper: "未找到合适的试卷."
+      warn:
+
+      error:
+  wx_reports:
+    messages:
+      info:
+        got_report: "成功获取您的报告！"
+        no_report: "您的报告尚未生成。"
+      warn:
+
+      error:
+        got_report_failed: "无法获得您的报告，请联系管理员。"
+  wx_scores:
+    messages:
+      info:
+        save_success: "成绩保存成功。"
+      warn:
+        no_quizs: "发生未知错误，未收到任何试题。"
+      error:
+        save_exception: "成绩保存中发生异常错误!"
+  online_tests:
+    messages:
+      info:
+        save_success: "成绩保存成功。"
+      warn:
+        no_quizs: "发生未知错误，未收到任何试题。"
+      error:
+        save_failed: "在线测试结果保存失败!"
+  #################
+
+  time:
+    formats:
+      default: "%Y-%m-%d %H:%M"
+      long: "%Y-%m-%d %H:%M:%S"
+
+  tenants:
+    type: "租户类型"
+    types:
+      gong_ban_xue_xiao: "公办学校"
+      min_ban_xue_xiao: "民办学校"
+      si_li_xue_xiao: "私立学校"
+      guo_ji_xue_xiao: "国际学校"
+      xue_xiao: "学校"
+      xue_xiao_lian_he: "学校联合"
+      jiao_yu_ju: "教育局"
+      others: "其他"
+    messages:
+      info:
+      warn:
+        no_belong: "无所属"
+      error:
+
+  managers:
+    users:
+      basic: "基本信息"
+      tenant: "Tenant"
+    head: "三维题库管理Console"
+    admin: "后台管理员"
+    user:
+      login_title: "欢迎登录三维题库管理Console"
+    node_structure: "教材版本"
+    checkpoint: "指标体系"
+    root_node: "根节点"
+    panel:
+      welcome: "Welcome"
+      navi: "功能菜单"
+    menus:
+      jue_se_guan_li: "角色管理"
+      quan_xian_guan_li: "权限管理"
+      area_admin_guan_li: "地区管理员"
+      project_admin_guan_li: "项目管理员管理"
+      tenant_guan_li: "Tenant管理"
+      tenant_yong_hu_guan_li: "Tenant管理员管理"
+      fen_xi_yuan_guan_li: "分析员管理"
+      jiao_shi_guan_li: "教师管理"
+      xue_sheng_guan_li: "学生管理"
+      jiao_cai_guan_li: "教材管理"
+      di_qu_guan_li: "地区管理"
+      mu_lu_guan_li: "目录管理"
+      zhi_biao_ti_xi_guan_li: "指标体系管理"
+      jiao_cai_ji_mu_lu_guan_li: "教材及目录管理"
+      jiao_cai_ji_mu_lu_zhi_biao_ti_xi_guan_li: "教材及目录指标体系管理"
+      ke_mu_zhi_biao_ti_xi_guan_li: "科目指标体系管理"
+      shi_juan_guan_li: "试卷管理"
+      zhi_biao_xi_tong_guan_li: "指标系统管理"
+      bank_test: "测试管理"
+    messages:
+      welcome: "欢迎访问三题库管理后台!"
+      tenant:
+        select: "请选择Tenant..."
+      user:
+        input_username: "请输入用户名。"
+        input_password: "请输入密码。"
+
+
+  # active admin使用的默认标示
+  active_admin:
+    dashboard: "控制面板"
+    dashboard_welcome:
+      welcome: "欢迎使用Active Admin. 这是默认的控制面板页."
+      call_to_action: "若要添加新的面板内容, 请修改 'app/admin/dashboard.rb'"
+    view: "查看"
+    edit: "编辑"
+    delete: "删除"
+    delete_confirmation: "确定删除?"
+    new_model: "新建%{model}"
+    edit_model: "编辑%{model}"
+    delete_model: "删除%{model}"
+    details: "%{model}详情"
+    cancel: "取消"
+    empty: "清空"
+    previous: "上一个"
+    next: "下一个"
+    download: "下载:"
+    has_many_new: "新建一个%{model}"
+    has_many_delete: "删除"
+    has_many_remove: "清除"
+    filters:
+      buttons:
+        filter: "过滤"
+        clear: "清除条件"
+      predicates:
+        contains: "包含"
+        equals: "等于"
+        starts_with: "开头"
+        ends_with: "完与"
+        greater_than: "大于"
+        less_than: "小于"
+    status_tag:
+      "yes": "是的"
+      "no": "无"
+    main_content: "请执行 %{model}#main_content 来显示内容."
+    logout: "退出"
+    powered_by: "Powered by %{active_admin} %{version}"
+    sidebars:
+      filters: "所有条件"
+    pagination:
+      empty: "暂时没有%{model}"
+      one: "显示 <b>1</b> %{model}"
+      one_page: "显示 <b>所有 %{n}</b> %{model}"
+      multiple: "显示所有 <b>%{total}</b> %{model}中的<b>%{from}&nbsp;-&nbsp;%{to}</b> 条"
+      multiple_without_total: "%{model}中的<b>%{from}&nbsp;-&nbsp;%{to}</b> 条"
+      entry:
+        one: "条目"
+        other: "条目"
+    any: "任何"
+    blank_slate:
+      content: "暂时还没有%{resource_name}."
+      link: "新建一个"
+    dropdown_actions:
+      button_label: "行动"
+    batch_actions:
+      button_label: "批处理"
+      default_confirmation: "你确定你要这样做？"
+      delete_confirmation: "你确定要删除所有%{plural_model}?"
+      succesfully_destroyed:
+        one: "成功删除 1 %{model}"
+        other: "成功删除 %{count} %{plural_model}"
+      selection_toggle_explanation: "(切换选择)"
+      link: "新建一个"
+      action_label: "%{title} 被选中"
+      labels:
+        destroy: "删除"
+    comments:
+      body: "内容"
+      author: "作者"
+      title: "评论"
+      add: "添加评论"
+      resource: "资源"
+      no_comments_yet: "暂时没有评论"
+      title_content: "(%{count})条评论"
+      errors:
+        empty_text: "评论保存失败，内空不能为空."
+    devise:
+      username:
+        title: "用户名"
+      email:
+        title: "邮箱"
+      subdomain:
+        title: "子域"
+      password:
+        title: "密码"
+      login:
+        title: "登录"
+        remember_me: "记住我"
+        submit: "登录"
+      reset_password:
+        title: "忘记了密码？"
+        submit: "重置我的密码"
+      unlock:
+        title: "重新发送送解锁命令"
+        submit: "重新发送送解锁命令"
+      resend_confirmation_instructions:
+        title: " 重新发送确认指示"
+        submit: " 重新发送确认指示"
+      links:
+        sign_in: "登录"
+        forgot_your_password: "忘记了密码？"
+        sign_in_with_omniauth_provider: "登入%{provider}"
+    access_denied:
+      message: "您无权处理此操作"
+
+  # 页面用label
+  page:
+    site_name: '三维题库系统'
+    login: '登录'
+    password: '密码'
+    register: '注册'
+    add: "添加"
+    edit: '编辑'
+    del: '删除'
+    cancel: '取消'
+    complete: '完成'
+    confirm: '确定'
+    save: "保存"
+    submit: '提交'
+    del_confirm: '你确定要删除么？'
+    warning: '警告'
+    close: '关闭'
+    next: '下一步'
+    captcha: '验证码'
+    input_captcha: '请输入验证码'
+    action: "操作"
+    order_index: "序号"
+    common:
+      save: "保存"
+      submit: "提交"
+    menu:
+      home: '首页'
+      librarys: '三维题库'
+      auto_paper: '智能组卷'
+      score_report: '成绩报告'
+      online_test: '在线测试'
+      simple_report: '简化版'
+      professional_report: '专业版'
+    sign_up:
+      name: '创见教育未来'
+      email_placeholder: '请输入邮箱地址'
+      password_placeholder: '请输入8位以上密码'
+      nickname: '昵称'
+      register_button: '立即注册'
+      direct_login: '如果您已经有账号，请直接'
+    sign_in:
+      login_placeholder: '请输入用户名／邮箱／电话'
+      remember_me: '记住我'
+      forgot_password: '找回密码'
+      other: '其他方式登录'
+      qq: 'QQ登录'
+      weixin: '微信登录'
+      sian: '新浪微博登录'
+      direct_register: '如果您没有账号，请'
+    user_left_menu:
+      users: '个人主页'
+      exam_papers: '我的卷库'
+      quizs: '我的题库'
+      online_tests: '在线测试'
+      pupils: '我的学生'
+      sys_msgs: '系统消息'
+      logout: '退出登录'
+      personal_center: '个人中心'
+      account_setting: '账号设置'
+      my_home: '我的主页'
+      my_analyzer: "我的分析员"
+      my_teacher: "我的老师"
+      my_report: "我的报告"
+      my_paper: "我的试卷"
+      test_report: '测试报告'
+      my_pupil: '我的学生'
+      my_log: '我的日志'
+      edit_password: '修改密码'
+    user_left_menu_in_account_binding:
+      registrations: '修改密码'
+      profiles: '账号绑定'
+    user:
+      login_placeholder: '请您输入已注册的手机/邮箱'
+      current_password: '原密码'
+      password: '新密码'
+      password_confirmation: '新密码确认'
+      confirm_name: '确认账号'
+      security_validate: '安全验证'
+      reset_password: '重置密码'
+      password_placeholder: '请输入6-19位字母、数字或符号'
+      binding: '绑定'
+      unbinding: '解绑'
+      modify: '修改'
+      binding_mobile: '绑定手机号'
+      unbinding_mobile: '解绑手机号'
+      binding_email: '绑定邮箱'
+      unbinding_email: '解绑邮箱'
+    teacher:
+      subject_classroom_mapping: "学科，班级列表"
+    paper:
+      add_paper: "添加试卷"
+      save: "保存"
+      check: "检查"
+      submit: "提交"
+      download: '下载文件'
+      select_score_tip: '请选择有学生成绩的excel'
+      upload_score: '上传成绩表'
+      score: '成绩表'
+      tenant_range: "Tenant范围"
+      test_range: "参评学校"
+    pupil:
+      basic_info: '个人信息'
+
+    quiz:
+      add: '增加试题'
+      add_analysis: '添加'
+      source: '试题来源'
+      view: '查看答案与解析'
+      touble: '试题难度'
+      view_count: '浏览次数'
+      edit: '编辑'
+      del: '删除'
+      question: '试题'
+      answer: '答案'
+      basic_info: '基本信息'
+      subject: '科目'
+      grade: '年级'
+      version: '教材版本'
+      cat: '题型'
+      trouble: '难度预估'
+      answer_desc: '请在此输入答案说明（可选）'
+      analysis: '分析'
+      score_point: '得分点'
+      small_score: '小分'
+      subjective_item: '主观题'
+      objective_item: '客观题'
+      tip_objective_item: '提示：默认为客观题'
+      cancel: '取消'
+      complete: '完成'
+      three_dimensiona_digital_analysis: '三维解析'
+      inspect_point: '考察点'
+      save: '试题入库'
+      search_placeholder: '请输入关键字进行搜索'
+    reports:
+      report: "报告"
