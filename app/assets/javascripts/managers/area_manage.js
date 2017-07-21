@@ -80,7 +80,7 @@ function addHoverDom(treeId, treeNode) {
           success: function(data){
             if(data.rid){
               var newID = data.rid; 
-              zTree.addNodes(treeNode, {id:newID, rid:treeNode.id, name_cn:data.name_cn}); //页面上添加节点
+              zTree.addNodes(treeNode, {id:newID, rid:treeNode.id, name_cn:data.name_cn, uid:data.uid, name: data.name}); //页面上添加节点
             }else{
               window.location.reload()
             }  
