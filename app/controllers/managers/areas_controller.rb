@@ -1,5 +1,50 @@
 class  Managers::AreasController < ApplicationController
-  layout false
+  layout 'manager'
+  respond_to :json, :html
+
+  before_action :get_area, only: [:create, :update, :destroy_all]
+
+  def index
+  end
+
+  def area_list
+    result = Area.area_list
+    respond_with(result)
+  end
+
+  def create
+    begin 
+      data = @area.new_area params
+      status = 200
+    rescue Exception => ex
+      status = 500
+      data = {:status => 500, :message => ex.message}
+    end
+    render common_json_response(status, data)
+  end
+
+  def update
+    begin 
+      data = @area.update_area params
+      status = 200
+    rescue Exception => ex
+      status = 500
+      data = {:status => 500, :message => ex.message}
+    end
+    render common_json_response(status, data)
+  end
+
+  def destroy_all
+    begin
+      @area.destroy_area
+      status = 200
+      data = {:status => 200 }
+    rescue Exception => ex
+      status = 500
+      data = {:status => 500, :message => ex.message}
+    end
+    render common_json_response(status, data)
+  end
 
   def get_province
     params.permit!
@@ -48,4 +93,10 @@ class  Managers::AreasController < ApplicationController
     result.unshift({tenant_uids: "", name_cn: Common::Locale::i18n("managers.messages.tenant.select")})
     render :json => result.to_json
   end
+
+  private
+  def get_area
+    @area = Area.find(params[:id])
+  end
+
 end

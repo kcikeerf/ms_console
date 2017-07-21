@@ -41,7 +41,8 @@ class Manager < ActiveRecord::Base
           {id: 106, name: Common::Locale::i18n("managers.menus.tenant_yong_hu_guan_li"), icon: '', url: '/managers/tenant_administrators'},
           {id: 107, name: Common::Locale::i18n("managers.menus.fen_xi_yuan_guan_li"), icon: '', url: '/managers/analyzers'},
           {id: 108, name: Common::Locale::i18n("managers.menus.jiao_shi_guan_li"), icon: '', url: '/managers/teachers'},
-          {id: 109, name: Common::Locale::i18n("managers.menus.xue_sheng_guan_li"), icon: '', url: '/managers/pupils'}
+          {id: 109, name: Common::Locale::i18n("managers.menus.xue_sheng_guan_li"), icon: '', url: '/managers/pupils'},
+          {id: 109, name: Common::Locale::i18n("managers.menus.di_qu_guan_li"), icon: '', url: '/managers/areas'}
         ]
       },
       {

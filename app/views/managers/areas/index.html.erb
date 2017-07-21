@@ -1,0 +1,19 @@
+<% content_for :head do %>  
+  <%= stylesheet_link_tag 'managers/subject_checkpoints', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'managers/area_manage', 'data-turbolinks-track' => true %>
+<% end %>
+
+<ul id="tree" class="ztree"></ul>
+<div id="dlg" class="easyui-dialog" title="地区管理"  style="width:600px;height:250px;padding:10px 10px" 
+data-options="iconCls:'icon-save',resizable:true,modal:false,closed:true,buttons:'#dlg-buttons'">
+<form id="fm" method="post">
+  <div class="fcheckpoint">
+    <label>名称：</label>
+    <input id="name_cn" type="text"  class="easyui-validatebox">
+  </div>
+</form>
+</div>
+<div id="dlg-buttons">
+  <a href="#" id="save" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+  <a href="#" id="cancel" class="easyui-linkbutton" iconCls="icon-cancel" >取消</a>
+</div>

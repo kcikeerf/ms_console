@@ -48,4 +48,5 @@ Rails.application.config.assets.precompile += %W{
   managers/dashbord_quiz.js
   managers/dashbord_checkpoint.js
   managers/dashbord.js
+  managers/area_manage.js
 }

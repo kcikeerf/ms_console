@@ -68,12 +68,13 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :areas do
+    resources :areas, concerns: :destroy_all do
       collection do
         get 'get_province'
         get 'get_city'
         get 'get_district'
         get 'get_tenants'
+        get 'area_list'
       end
     end
 
