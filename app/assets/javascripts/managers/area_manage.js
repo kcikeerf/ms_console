@@ -140,6 +140,7 @@ function zTreeBeforeEditName(treeId, treeNode){
       success: function(data){
         $("#"+treeNode.tId+"_span").text(data.name_cn);
         treeNode.name_cn = data.name_cn
+        treeNode.name = data.name
       },
       error: function(){
         alert('更新失败')
