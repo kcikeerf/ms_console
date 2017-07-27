@@ -253,7 +253,7 @@ class Mongodb::BankTest
     end
     begin    
       score_uploads.each do |su|
-          bank_link_user su
+        bank_link_user su
       end
     rescue Exception => e
       score_uploads.each do |su|
@@ -446,7 +446,7 @@ class Mongodb::BankTest
   end
 
   #删除 关联的用户 及相关信息
-  def bankbank_link_user_rollback su
+  def bank_link_user_rollback su
     if su.usr_pwd_file
       user_info_xlsx = Roo::Excelx.new(su.usr_pwd_file.current_path)
       if user_info_xlsx.sheet(3).last_row.present? 
