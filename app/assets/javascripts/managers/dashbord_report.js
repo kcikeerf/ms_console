@@ -2,7 +2,7 @@ $(function () {
   //报告统计
   $("#update_all").click(function(){
     $.ajax({
-      url: '/managers/dashbord/report_stat',
+      url: '/managers/dashbord/report_overall_stat',
       type: 'post',
       data:{
         authenticity_token: $('meta[name="csrf-token"]')[0].content,

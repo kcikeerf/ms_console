@@ -128,7 +128,7 @@ Rails.application.routes.draw do
         post 'checkpoint_list'
         get 'get_dashbord'
         post 'update_dashbord'
-        post 'report_stat'
+        post 'report_overall_stat'
         get 'report'
         get 'report_list'
         post 'report_single_stat'

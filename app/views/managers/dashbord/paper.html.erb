@@ -9,7 +9,8 @@
 <%= render :partial => "partical", :locals => { :chart_id => "grade" } %>
 <%= render :partial => "partical", :locals => { :chart_id => "paper_status" } %>
 <div style="clear: both;"></div>
-<%= render :partial => "partical", :locals => { :chart_id => "school" } %>
 <%= render :partial => "partical", :locals => { :chart_id => "subject" } %>
-<div style="clear: both;"></div>
 <%= render :partial => "partical", :locals => { :chart_id => "term" } %>
+<div style="display: none">
+<%= render :partial => "partical", :locals => { :chart_id => "school" } %>
+</div>

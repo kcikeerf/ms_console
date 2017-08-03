@@ -44,7 +44,7 @@ class Managers::DashbordController < ApplicationController
   end
 
   #更新报告所有情况
-  def report_stat
+  def report_overall_stat
     begin
       report = Mongodb::Dashbord.where(total_tp: "report").first
       report = Mongodb::Dashbord.initialize_report if report.blank?
