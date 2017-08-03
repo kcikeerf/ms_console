@@ -5,6 +5,7 @@ class Mongodb::BankTest
   include Mongodb::MongodbPatch
   include SwtkLockPatch
 
+  before_destroy :clear_old_test_state
   before_create :set_create_time_stamp
   before_save :set_update_time_stamp, :generate_ext_data_path
 
@@ -16,6 +17,9 @@ class Mongodb::BankTest
   has_many :bank_test_tenant_links, class_name: "Mongodb::BankTestTenantLink", dependent: :delete
   has_many :bank_test_location_links, class_name: "Mongodb::BankTestLocationLink", dependent: :delete
   has_many :bank_test_user_links, class_name: "Mongodb::BankTestUserLink", dependent: :delete
+
+  has_one :bank_test_state, class_name: "Mongodb::BankTestState"
+  has_many :bank_test_group_state, class_name: "Mongodb::BankTestGroupState"
 
   scope :by_user, ->(id) { where(user_id: id) }
   scope :by_type, ->(str) { where(quiz_type: str) }
@@ -61,6 +65,69 @@ class Mongodb::BankTest
       return test_result, self.count
     end
 
+  end
+
+  #统计测试报告情况
+  def get_report_state
+    @test_state = self.bank_test_state.attributes.clone unless self.bank_test_state.blank?
+    @group_state = self.bank_test_group_state.map{|group_state|
+      group_state = group_state.attributes.clone
+    } unless self.bank_test_group_state.blank?
+   
+    self.bank_test_group_state.delete_all unless self.bank_test_group_state.blank?
+    self.bank_test_state.destroy unless self.bank_test_state.blank?
+
+    hash = {
+      :area_rid => self.area_rid,
+      :bank_test_id => self._id,
+      :total_num => 0
+    }
+    begin
+      path = "/reports_warehouse/tests/"
+      nav_arr = Dir[Dir::pwd+path + self._id + "/**/**/nav.json"]
+      nav_arr.each{|nav_path|
+        target_nav_h = get_report_hash(nav_path)
+        target_nav_count = target_nav_h.values[0].size
+        target_path = nav_path.split("/nav.json")[0]
+        target_path_arr = target_path.split("/")
+        target_group = (Common::Report::Group::ListArr - target_path_arr)[-1]
+        hash.delete(:total_num)
+        params = hash.merge!({"#{target_group}_num".to_sym => target_nav_count})
+        if target_group == 'klass'
+          params.merge!({:tenant_uid => target_path_arr[-1]})
+        end
+        
+        if target_group == 'pupil'
+          params.merge!({:tenant_uid => target_path_arr[-3],:klass_uid => target_path_arr[-1]})
+        end
+        group_state = Mongodb::BankTestGroupState.new(params)
+        group_state.save!
+
+        hash["total_num"] = hash["total_num"].to_i + target_nav_count
+        hash["#{target_group}_num"] = hash["#{target_group}_num"].to_i + target_nav_count
+      }
+      test_state = Mongodb::BankTestState.new(hash)
+      test_state.save!
+      return test_state
+    rescue Exception => e
+      single_rollback
+      raise
+    end
+  end
+
+  #回滚状态
+  def single_rollback
+    self.bank_test_group_state.delete_all unless self.bank_test_group_state.blank?
+    self.bank_test_state.destroy unless self.bank_test_state.blank?
+    
+    Mongodb::BankTestState.new(@test_state).save! unless @test_state.blank?
+    @group_state.each{|group| Mongodb::BankTestGroupState.new(group).save!} unless @group_state.blank?
+  end
+
+  #读取文件内容
+  def get_report_hash file_path
+    fdata = File.open(file_path, 'rb').read
+    JSON.parse(fdata) 
   end
 
   def add_value_to_item
@@ -478,6 +545,11 @@ class Mongodb::BankTest
 
   ###私有方法###
   private
+
+    def clear_old_test_state
+      self.bank_test_group_state.delete_all unless self.bank_test_group_state.blank?
+      self.bank_test_state.destroy unless self.bank_test_state.blank?
+    end
 
     # 随机生成6位外挂码，默认生成码以"___"（三个下划线）开头
     # 

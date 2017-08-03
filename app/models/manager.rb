@@ -26,6 +26,7 @@ class Manager < ActiveRecord::Base
           {id: 302, name: Common::Locale::i18n("activerecord.models.bank_paper_pap"), icon: '', url: '/managers/dashbord/paper'},
           {id: 303, name: Common::Locale::i18n("activerecord.models.bank_quiz_qiz"), icon: '', url: '/managers/dashbord/quiz'},
           {id: 304, name: Common::Locale::i18n("activerecord.models.bank_subject_checkpoint_ckp"), icon: '', url: '/managers/dashbord/checkpoint'},
+          {id: 305, name: Common::Locale::i18n("page.reports.report"), icon: '', url: '/managers/dashbord/report'},
           # {id: 205, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'},
           # {id: 205, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'}
         ]

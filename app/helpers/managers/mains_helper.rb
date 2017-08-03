@@ -64,4 +64,9 @@ module Managers::MainsHelper
   def manager_multiple_tenant_select?
     (current_manager && ["project_administrators", "papers", "bank_tests"].include?(controller_name))
   end
+
+  def target_test_group_arr _test_top_group
+    index = _test_top_group==nil ? Common::Report::Group::ListArr.length-1 : Common::Report::Group::ListArr.index(_test_top_group)
+    Common::Report::Group::ListArr[0..index] 
+  end
 end

@@ -30,12 +30,14 @@
 
 <script type="text/javascript">
 	function formatOper(val,row,index){
+		var click_show = 'reopen(window.parent.$("#tabs"),"报告详情", "/managers/dashbord/report?id='+row["uid"]+'")';
 		options = "";
 		options = options + '<a href="#" onclick="CombineObj(\'导入用户\',\'<%= page_info_item[:path] %>/\',\'' + row["uid"] + '\');" >导入用户</a> &nbsp;';
 		if(row["down_allow"]){	
 			options = options + '<a href="#" onclick="DownLoadObj(\'账号下载\',\'<%= page_info_item[:path] %>/\',\'' + row["uid"] + '\');" >下载</a> &nbsp;';  
 		}
 		options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/edit" data-remote="true" >编辑</a>';  
+		options = options+"&nbsp;" + "<a href='#' onclick='" + click_show + "'>报告详情</a>";
 	  return options;
 	} 
 </script>

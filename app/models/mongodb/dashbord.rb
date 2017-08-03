@@ -1,18 +1,29 @@
 class Mongodb::Dashbord
   include Mongoid::Document
+  include Mongoid::Attributes::Dynamic
   include Mongodb::MongodbPatch
 
   before_create :set_create_time_stamp
   before_save :set_update_time_stamp
 
-  field :data, type: Array #分类结果
+  field :data, type: Object #分类结果
   field :branch_tp, type: String #分支类别
   field :total_tp, type: String #总类别
+  field :subject, type: String #学科类别
 
   field :dt_add, type: DateTime
   field :dt_update, type: DateTime
+
+
  
   class << self
+    #report_dashbord初始化
+    def initialize_report
+      dashbord = Mongodb::Dashbord.new
+      dashbord.total_tp = "report"
+      dashbord.data = {}
+      return dashbord
+    end
 
     #处理排序后的结果集将结果汉化并且转成相应格式
     def deal_result(result,path)
@@ -27,9 +38,10 @@ class Mongodb::Dashbord
     end
 
     #分段获取指标情况
-    def get_group_ckps(params)
+    def get_group_ckps(params,_ckp_system_rid="000") 
       group_name = params[:group_name]
       conditions = {}
+      conditions['checkpoint_system_rid'] = _ckp_system_rid
       %w{subject category}.each{|attr|
         case attr
         when 'subject'
@@ -55,8 +67,8 @@ class Mongodb::Dashbord
     end
 
     #获取所有指标情况  
-    def get_all_ckps
-      result = BankSubjectCheckpointCkp.group(:category,:subject,:dimesion).count
+    def get_all_ckps _ckp_system_rid="000"
+      result = BankSubjectCheckpointCkp.where(checkpoint_system_rid: _ckp_system_rid).group(:category,:subject,:dimesion).count
       category = {}
       subject = {}
       result.each do |key,value|
@@ -80,6 +92,27 @@ class Mongodb::Dashbord
     end
   end
 
+  #更新报告数量情况
+  # to be implemented using MapReduce
+  def update_report_overall_stat
+    self.data["total_num"] = 0
+    self.data["project_num"] = 0
+    self.data["grade_num"] = 0
+    self.data["klass_num"] = 0
+    self.data["pupil_num"] = 0
+    add_test_state = Mongodb::BankTestState.all
+    add_test_state.each do |state|
+      self.data["total_num"] += state.total_num.blank? ? 0 : state.total_num 
+      self.data["project_num"] += state.project_num.blank? ? 0 : state.project_num 
+      self.data["grade_num"] += state.grade_num.blank? ? 0 : state.grade_num
+      self.data["klass_num"] += state.klass_num.blank? ? 0 : state.klass_num
+      self.data["pupil_num"] += state.pupil_num.blank? ? 0 : state.pupil_num
+    end
+    self.data["exclude_test_id"] = []
+    self.save!
+    return self
+  end
+
   #更新试卷类型中的分类
   def update_paper
     #获取试卷对象按branch_tp分类
@@ -99,7 +132,11 @@ class Mongodb::Dashbord
   end
 
   def update_quiz
-    quiz = Mongodb::BankQuizQiz.only(self.branch_tp.to_sym).group_by(&self.branch_tp.to_sym)
+    if self.branch_tp == 'cat'
+      quiz = Mongodb::BankQuizQiz.where(subject: self.subject).only(self.branch_tp.to_sym).group_by(&self.branch_tp.to_sym)
+    else
+      quiz = Mongodb::BankQuizQiz.only(self.branch_tp.to_sym).group_by(&self.branch_tp.to_sym)
+    end
     arr = get_data(quiz){|key| get_cn_key(key,self.branch_tp)}
     result = update_data(arr)
     return result

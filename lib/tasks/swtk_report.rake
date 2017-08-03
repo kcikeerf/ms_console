@@ -7,6 +7,17 @@ require 'axlsx'
 namespace :swtk do
   namespace :report do
   	#namespace :v1_2 do
+      desc "统计系统报告数量"
+      task update_all_report_state: :environment do
+        target_test = Mongodb::BankTest.all
+        target_test.each do |test|
+          p test._id
+          test.get_report_state
+        end
+        report = Mongodb::Dashbord.where(total_tp: "report").first
+        report = Mongodb::Dashbord.initialize_report if report.blank?
+        report.update_report_overall_stat
+      end
 
       desc "输出区域报告用数据表"
       task :export_test_overall_report_data_table,[] => :environment do |t, args|
