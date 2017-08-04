@@ -38,6 +38,7 @@
 		}
 		options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/edit" data-remote="true" >编辑</a>';  
 		options = options+"&nbsp;" + "<a href='#' onclick='" + click_show + "'>报告详情</a>";
+		options = options+"&nbsp;" + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/get_binded_stat" data-remote="true" >绑定详情</a>';
 	  return options;
 	} 
 </script>
@@ -49,5 +50,34 @@
 <%= render partial: "shared/manager/base_fileupload" %>
 
 
+<div id="mydlg" class="easyui-dialog" title="绑定详情"  style="width:400px;height:250px;padding:10px 10px" 
+data-options="iconCls:'icon-save',resizable:true,modal:false,closed:true,buttons:'#dlg-buttons'">
+<form id="myfm" method="post">
+  <div class="fcheckpoint">
+    <label>学生总数：</label>
+    <span id="total_pupils"></span>
+  </div>
+  <div class="fcheckpoint">
+    <label>学生绑定数目：</label>
+    <span id="binded_pupils"></span>
+  </div>
+  <div class="fcheckpoint">
+    <label>教师总数：</label>
+    <span id="total_teachers"></span>
+  </div>
+  <div class="fcheckpoint">
+    <label>教师绑定数目：</label>
+    <span id="binded_teachers"></span>
+  </div>
+  <div class="fcheckpoint">
+    <label>校长总数：</label>
+    <span id="total_tenant"></span>
+  </div>
+  <div class="fcheckpoint">
+    <label>校长绑定数目：</label>
+    <span id="binded_tenant"></span>
+  </div>
+</form>
+</div>
 
 

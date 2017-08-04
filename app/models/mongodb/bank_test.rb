@@ -67,6 +67,47 @@ class Mongodb::BankTest
 
   end
 
+  #获取用户绑定情况
+  def get_user_binded_stat
+    reportwarehousepath = Dir::pwd + "/reports_warehouse/tests/"
+    
+    # target_pupil_urls = find_all_pupil_report_urls(reportbasepath, reportwarehousepath + self._id, [])
+    target_pupil_urls = Dir[reportwarehousepath + self._id + "/**/pupil/*.json"]
+    target_pupil_uids = []
+    target_klass_uids = []
+    target_pupil_urls.map{|url| 
+      target_path = url.split(".json")[0]
+      target_path_arr = target_path.split("/")
+      target_pupil_uids << target_path_arr[-1]
+      target_klass_uids << target_path_arr[-3]
+    }.compact
+    target_klass_uids = target_klass_uids.uniq.compact
+
+    # target_loc_uids = Location.joins(:pupils).where("pupils.uid in (?)",target_pupil_uids).pluck("locations.uid")
+    # target_loc_uids = target_loc_uids.uniq.compact
+    result = {}
+    binded_pupil_number = Pupil.joins(user: :wx_users).where(uid: target_pupil_uids).select(:user_id).distinct.size
+    result['total_pupils'] = target_pupil_uids.size
+    result['binded_pupils'] = binded_pupil_number
+
+    target_locations = Location.where(uid: target_klass_uids)
+
+    target_tenants = target_locations.map{|loc| loc.tenant }
+    target_teachers = target_locations.map{|loc| loc.teachers.map{|item| item[:teacher]} }.flatten
+    binded_teacher_number = target_teachers.map{|tea| tea.user.wx_users.blank? ? 0 : 1 }.sum
+
+    result['total_teachers'] = target_teachers.size
+    result['binded_teachers'] = binded_teacher_number
+
+    target_tenant_administrators = target_tenants.map{|tnt| tnt.tenant_administrators }.flatten.uniq.compact
+    binded_tenant_administrators_number = target_tenant_administrators.map{|tnt_admin| tnt_admin.user.wx_users.blank? ? 0 : 1 }.sum
+
+    result['total_tenant'] = target_tenant_administrators.size
+    result['binded_tenant'] = binded_tenant_administrators_number
+
+    return result
+  end
+
   #统计测试报告情况
   def get_report_state
     @test_state = self.bank_test_state.attributes.clone unless self.bank_test_state.blank?
@@ -77,7 +118,7 @@ class Mongodb::BankTest
     self.bank_test_group_state.delete_all unless self.bank_test_group_state.blank?
     self.bank_test_state.destroy unless self.bank_test_state.blank?
 
-    hash = {
+    state_hash = {
       :area_rid => self.area_rid,
       :bank_test_id => self._id,
       :total_num => 0
@@ -91,22 +132,22 @@ class Mongodb::BankTest
         target_path = nav_path.split("/nav.json")[0]
         target_path_arr = target_path.split("/")
         target_group = (Common::Report::Group::ListArr - target_path_arr)[-1]
-        hash.delete(:total_num)
-        params = hash.merge!({"#{target_group}_num".to_sym => target_nav_count})
+        state_hash.delete(:total_num)
+        group_hash = state_hash.merge!({"#{target_group}_num".to_sym => target_nav_count})
         if target_group == 'klass'
-          params.merge!({:tenant_uid => target_path_arr[-1]})
+          group_hash.merge!({:tenant_uid => target_path_arr[-1]})
         end
         
         if target_group == 'pupil'
-          params.merge!({:tenant_uid => target_path_arr[-3],:klass_uid => target_path_arr[-1]})
+          group_hash.merge!({:tenant_uid => target_path_arr[-3],:klass_uid => target_path_arr[-1]})
         end
-        group_state = Mongodb::BankTestGroupState.new(params)
+        group_state = Mongodb::BankTestGroupState.new(group_hash)
         group_state.save!
 
-        hash["total_num"] = hash["total_num"].to_i + target_nav_count
-        hash["#{target_group}_num"] = hash["#{target_group}_num"].to_i + target_nav_count
+        state_hash["total_num"] = state_hash["total_num"].to_i + target_nav_count
+        state_hash["#{target_group}_num"] = state_hash["#{target_group}_num"].to_i + target_nav_count
       }
-      test_state = Mongodb::BankTestState.new(hash)
+      test_state = Mongodb::BankTestState.new(state_hash)
       test_state.save!
       return test_state
     rescue Exception => e

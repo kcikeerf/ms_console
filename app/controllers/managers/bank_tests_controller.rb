@@ -41,6 +41,12 @@ class Managers::BankTestsController < ApplicationController
     render common_json_response(status, data)
 	end
 
+  #获取绑定情况
+  def get_binded_stat
+    bank_test = Mongodb::BankTest.find(params[:id])
+    @result = bank_test.get_user_binded_stat
+  end
+
   # def combine
   #   status = 200
   #   html = '

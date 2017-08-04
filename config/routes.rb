@@ -108,7 +108,8 @@ Rails.application.routes.draw do
         get "combine"
         post "combine_obj"
         get "download_page"
-        get "download"        
+        get "download"
+        get "get_binded_stat"        
       end
     end
 
