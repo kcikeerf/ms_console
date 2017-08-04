@@ -69,10 +69,10 @@ class Mongodb::BankTest
 
   #获取用户绑定情况
   def get_user_binded_stat
-    reportwarehousepath = Dir::pwd + "/reports_warehouse/tests/"
+    _report_warehouse_path = Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/"
     
     # target_pupil_urls = find_all_pupil_report_urls(reportbasepath, reportwarehousepath + self._id, [])
-    target_pupil_urls = Dir[reportwarehousepath + self._id + "/**/pupil/*.json"]
+    target_pupil_urls = Dir[_report_warehouse_path + self._id + "/**/pupil/*.json"]
     target_pupil_uids = []
     target_klass_uids = []
     target_pupil_urls.map{|url| 
@@ -124,8 +124,8 @@ class Mongodb::BankTest
       :total_num => 0
     }
     begin
-      path = "/reports_warehouse/tests/"
-      nav_arr = Dir[Dir::pwd+path + self._id + "/**/**/nav.json"]
+      _report_warehouse_path = Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/"
+      nav_arr = Dir[_report_warehouse_path + self._id + "/**/**/nav.json"]
       nav_arr.each{|nav_path|
         target_nav_h = get_report_hash(nav_path)
         target_nav_count = target_nav_h.values[0].size
