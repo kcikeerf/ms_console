@@ -126,12 +126,15 @@ class Mongodb::BankTest
     begin
       _report_warehouse_path = Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/"
       nav_arr = Dir[_report_warehouse_path + self._id + "/**/**/nav.json"]
+      # path = "/reports_warehouse/tests/"
+      # nav_arr = Dir[Dir::pwd+path + self._id + "/**/**/nav.json"].sort
+      index = self.report_top_group==nil ? Common::Report::Group::ListArr.length-1 : Common::Report::Group::ListArr.index(self.report_top_group)
       nav_arr.each{|nav_path|
         target_nav_h = get_report_hash(nav_path)
         target_nav_count = target_nav_h.values[0].size
         target_path = nav_path.split("/nav.json")[0]
         target_path_arr = target_path.split("/")
-        target_group = (Common::Report::Group::ListArr - target_path_arr)[-1]
+        target_group = (Common::Report::Group::ListArr[0..index] - target_path_arr)[-1]
         state_hash.delete(:total_num)
         group_hash = state_hash.merge!({"#{target_group}_num".to_sym => target_nav_count})
         if target_group == 'klass'
