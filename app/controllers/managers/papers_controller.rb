@@ -3,7 +3,7 @@ class Managers::PapersController < ApplicationController
 
   respond_to :json, :html, :js
 
-  before_action :set_paper, only: [:new_paper_test, :create_paper_test, :rollback, :export_file, :combine_obj]
+  before_action :set_paper, only: [:new_paper_test, :create_paper_test, :rollback, :export_file, :combine_obj,:download,:download_page]
 
   #before_action :get_user, only: [:edit, :update]
 
@@ -84,10 +84,24 @@ class Managers::PapersController < ApplicationController
     render common_json_response(status, data)
   end
 
-  def down_file
-    status = 403
-    data = {:status => 403 }
-    render common_json_response(status, data)
+  def download
+    file_path, file_name = @paper.export_paper_associated_ckps_file    
+    send_file file_path, filename: file_name
+  end
+
+  def download_page
+    status = 200
+    score_uploads = []
+    if ["analyzed", "score_importing", "score_imported", "report_generating", "report_completed"].include?(@paper.paper_status)
+      paper_hash = {}
+      paper_hash[:file_id] = params[:id]
+      paper_hash[:file_type] = "ckps_file" #三维解析下载
+      paper_hash[:upload_type] = ""
+      paper_hash[:down_file_name] = Common::Locale::i18n("activerecord.models.bank_paper_pap")+Common::Locale::i18n("page.quiz.three_dimensiona_digital_analysis")#"试卷三维解析下载"
+      score_uploads << paper_hash
+    end
+    data = {:down_list => score_uploads}
+    render common_json_response(status, data) 
   end
 
 #   def new_import

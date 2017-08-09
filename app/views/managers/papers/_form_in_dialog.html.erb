@@ -29,7 +29,8 @@
      if (row["paper_status"] == "editted" || row["paper_status"] == "analyzing" || row["paper_status"] == "analyzed"|| row["paper_status"] == "score_importing" || row["paper_status"] == "score_imported" || row["paper_status"] == "report_generating" || row["paper_status"] == "report_completed" ){   
   			options = options + "<a  href='#' onclick=\"rollbackObj(" + "\'<%= page_info_item[:path] %>/\'," + index  + ")\">回退</a>&nbsp; ";
 		}
-		options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/down_file">下载</a>&nbsp; ';
+		// options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/down_file">下载</a>&nbsp; ';
+		options = options + '<a href="#" onclick="DownLoadObj(\'试卷相关下载\',\'<%= page_info_item[:path] %>/\',\'' + row["uid"] + '\');" >下载</a> &nbsp;';
 		if(row["is_empty"]){
 			options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/export_file?down_type=xlsx">导出Execl</a> &nbsp;';  
 			options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/export_file?down_type=json">导出Json</a> &nbsp;';

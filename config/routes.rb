@@ -85,7 +85,8 @@ Rails.application.routes.draw do
       end
       member do
         post 'rollback'
-        get 'down_file'
+        get 'download'
+        get 'download_page'
         get 'new_paper_test'
         post 'create_paper_test'
         get 'export_file'
