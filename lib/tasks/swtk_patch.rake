@@ -91,6 +91,7 @@ namespace :swtk_patch do
         optional_h = nav_h.deep_dup
         optional_abstract_h = nav_h.deep_dup
         nav_h.values[0].each_with_index{|_item, _index|
+          _target_report_url = _item[1]["report_url"].split("?")[0]
           _report_data = File.open(BasePath + _item[1]["report_url"], 'rb').read
           _report_h = _report_data.blank?? {} : JSON.parse(_report_data)
           optional_h.values[0][_index][1]["report_data"] = _report_h
