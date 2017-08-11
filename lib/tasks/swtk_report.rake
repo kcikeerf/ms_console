@@ -447,9 +447,11 @@ namespace :swtk do
         ReportWarehousePath = "/reports_warehouse/tests/"
         redis_key_prefix = "/" + Time.now.to_i.to_s
         _test_ids = args.extras
+        _test_ids = Mongodb::BankTest.all.only(:id).map{|item| item.id.to_s} if _test_ids.blank?
         _test_ids.each{|_id|
           target_test =Mongodb::BankTest.where(id: _id).first
           nav_arr = Dir[ReportWarehousePath + _id + "/**/**/nav.json"]
+          next if nav_arr.blank?
           nav_arr.each{|nav_path|
             target_nav_h = get_report_hash(nav_path)
             target_nav_count = target_nav_h.values[0].size
