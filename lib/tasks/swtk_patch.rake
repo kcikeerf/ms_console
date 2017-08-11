@@ -96,6 +96,7 @@ namespace :swtk_patch do
           _report_data = File.open(BasePath + _target_report_url, 'rb').read
           next if _report_data.blank?
           _report_h = JSON.parse(_report_data)
+          next if _report_h.blank?
           optional_h.values[0][_index][1]["report_data"] = _report_h
           optional_abstract_h.values[0][_index][1]["report_data"] = {"basic" => _report_h["basic"], "data" => _report_h["data"]["knowledge"]["base"]}
         }
