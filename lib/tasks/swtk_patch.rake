@@ -87,6 +87,7 @@ namespace :swtk_patch do
         file_data = File.open(nav_file, 'rb').read
         next if file_data.blank?
         nav_h = JSON.parse(file_data)
+        next if nav_h.values.blank?
         optional_h = nav_h.deep_dup
         optional_abstract_h = nav_h.deep_dup
         nav_h.values[0].each_with_index{|_item, _index|
