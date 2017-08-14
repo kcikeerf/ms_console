@@ -104,6 +104,18 @@ class Managers::PapersController < ApplicationController
     render common_json_response(status, data) 
   end
 
+  def export_ckpz_qzs
+    begin
+      result = Mongodb::BankPaperPap.export_pap_ckpz_qzps params
+      status = 200
+      data = {:status => "200",:message => result}
+    rescue Exception => e
+      status = 500
+      data = {:status => 500, :message => e.message}
+    end
+    render common_json_response(status, data)
+  end
+
 #   def new_import
 #     status = 200
 #     html = '

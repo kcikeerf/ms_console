@@ -48,5 +48,16 @@
 		<% end %>
 	</select>
 	<a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="doSearch()">Search</a>
-
 <%end%>
+
+<% content_for :content do %>	
+	<div id="pap_analsys" class="easyui-accordion" style="width: 98%;" data-options="selected:false">
+    <div title=<%= LABEL("common.paper_analysis") %>  style="overflow:auto;padding:10px;">
+			<a href="#" id="select_message" style="width: 90%;float: left;"></a>
+			<button style="width: 10%;float: right;" id="sure">确认</button>
+    </div>
+	</div>
+<%end%>
+
+
+
