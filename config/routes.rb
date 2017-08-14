@@ -82,6 +82,7 @@ Rails.application.routes.draw do
       collection do
         get 'new_import'
         post "import"
+        post "export_ckpz_qzs"
       end
       member do
         post 'rollback'
