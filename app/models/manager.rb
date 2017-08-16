@@ -22,11 +22,11 @@ class Manager < ActiveRecord::Base
       {
         id: 1, icon: 'icon-sys', name: 'Dashbord',
         menus: [
-          {id: 301, name: Common::Locale::i18n("activerecord.models.user"), icon: '', url: '/managers/dashbord/user'},
-          {id: 302, name: Common::Locale::i18n("activerecord.models.bank_paper_pap"), icon: '', url: '/managers/dashbord/paper'},
-          {id: 303, name: Common::Locale::i18n("activerecord.models.bank_quiz_qiz"), icon: '', url: '/managers/dashbord/quiz'},
-          {id: 304, name: Common::Locale::i18n("activerecord.models.bank_subject_checkpoint_ckp"), icon: '', url: '/managers/dashbord/checkpoint'},
-          {id: 305, name: Common::Locale::i18n("page.reports.report"), icon: '', url: '/managers/dashbord/report'},
+          {id: 101, name: Common::Locale::i18n("activerecord.models.user"), icon: '', url: '/managers/dashbord/user'},
+          {id: 102, name: Common::Locale::i18n("activerecord.models.bank_paper_pap"), icon: '', url: '/managers/dashbord/paper'},
+          {id: 103, name: Common::Locale::i18n("activerecord.models.bank_quiz_qiz"), icon: '', url: '/managers/dashbord/quiz'},
+          {id: 104, name: Common::Locale::i18n("activerecord.models.bank_subject_checkpoint_ckp"), icon: '', url: '/managers/dashbord/checkpoint'},
+          {id: 105, name: Common::Locale::i18n("page.reports.report"), icon: '', url: '/managers/dashbord/report'},
           # {id: 205, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'},
           # {id: 205, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'}
         ]
@@ -34,27 +34,32 @@ class Manager < ActiveRecord::Base
       {
         id: 2, icon: 'icon-sys', name: '用户管理',
         menus: [
-          {id: 101, name: Common::Locale::i18n("managers.menus.jue_se_guan_li"), icon: '', url: '/managers/roles'},
-          {id: 102, name: Common::Locale::i18n("managers.menus.quan_xian_guan_li"), icon: '', url: '/managers/permissions'},
-          {id: 103, name: Common::Locale::i18n("managers.menus.area_admin_guan_li"), icon: '', url: '/managers/area_administrators'},
-          {id: 104, name: Common::Locale::i18n("managers.menus.project_admin_guan_li"), icon: '', url: '/managers/project_administrators'},
-          {id: 105, name: Common::Locale::i18n("managers.menus.tenant_guan_li"), icon: '', url: '/managers/tenants'},
-          {id: 106, name: Common::Locale::i18n("managers.menus.tenant_yong_hu_guan_li"), icon: '', url: '/managers/tenant_administrators'},
-          {id: 107, name: Common::Locale::i18n("managers.menus.fen_xi_yuan_guan_li"), icon: '', url: '/managers/analyzers'},
-          {id: 108, name: Common::Locale::i18n("managers.menus.jiao_shi_guan_li"), icon: '', url: '/managers/teachers'},
-          {id: 109, name: Common::Locale::i18n("managers.menus.xue_sheng_guan_li"), icon: '', url: '/managers/pupils'},
-          {id: 110, name: Common::Locale::i18n("managers.menus.di_qu_guan_li"), icon: '', url: '/managers/areas'}
+          {id: 201, name: Common::Locale::i18n("managers.menus.jue_se_guan_li"), icon: '', url: '/managers/roles'},
+          {id: 202, name: Common::Locale::i18n("managers.menus.quan_xian_guan_li"), icon: '', url: '/managers/permissions'},
+          {id: 203, name: Common::Locale::i18n("managers.menus.tenant_guan_li"), icon: '', url: '/managers/tenants'},
+          {id: 204, name: Common::Locale::i18n("managers.menus.di_qu_guan_li"), icon: '', url: '/managers/areas'},
+          {id: 205, name: Common::Locale::i18n("managers.menus.project_admin_guan_li"), icon: '', url: '/managers/project_administrators'},
+          {id: 206, name: Common::Locale::i18n("managers.menus.fen_xi_yuan_guan_li"), icon: '', url: '/managers/analyzers'},
         ]
       },
       {
-        id: 3, icon: 'icon-sys', name: '资源管理',
+        id: 3, icon: 'icon-sys', name: '身份管理',
         menus: [
-          {id: 201, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_guan_li"), icon: '', url: '/managers/node_structures'},
-          {id: 202, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/checkpoints'},
-          {id: 203, name: Common::Locale::i18n("managers.menus.ke_mu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/subject_checkpoints'},
-          {id: 204, name: Common::Locale::i18n("managers.menus.shi_juan_guan_li"), icon: '', url: '/managers/papers'},
-          {id: 205, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'},
-          {id: 205, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'}
+          {id: 301, name: Common::Locale::i18n("managers.menus.area_admin_guan_li"), icon: '', url: '/managers/area_administrators'},
+          {id: 302, name: Common::Locale::i18n("managers.menus.tenant_yong_hu_guan_li"), icon: '', url: '/managers/tenant_administrators'},
+          {id: 303, name: Common::Locale::i18n("managers.menus.jiao_shi_guan_li"), icon: '', url: '/managers/teachers'},
+          {id: 304, name: Common::Locale::i18n("managers.menus.xue_sheng_guan_li"), icon: '', url: '/managers/pupils'},
+        ]
+      },
+      {
+        id: 4, icon: 'icon-sys', name: '资源管理',
+        menus: [
+          {id: 401, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_guan_li"), icon: '', url: '/managers/node_structures'},
+          {id: 402, name: Common::Locale::i18n("managers.menus.jiao_cai_ji_mu_lu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/checkpoints'},
+          {id: 403, name: Common::Locale::i18n("managers.menus.ke_mu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/subject_checkpoints'},
+          {id: 404, name: Common::Locale::i18n("managers.menus.shi_juan_guan_li"), icon: '', url: '/managers/papers'},
+          {id: 405, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'},
+          {id: 406, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'}
         ]
       },
       

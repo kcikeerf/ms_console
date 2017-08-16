@@ -88,11 +88,15 @@ class Managers::AnalyzersController < ApplicationController
   end
 
   def user_params
+    if params[:is_master]
+      params[:is_master] = (params[:is_master]  == "true") ? true : false 
+    end
     params.permit(
       :user_name,
       :password,
       :password_confirmation,
       :name,
+      :is_master,
       # :province_rid,
       # :city_rid,
       # :district_rid, 

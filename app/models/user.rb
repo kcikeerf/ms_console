@@ -156,7 +156,8 @@ class User < ActiveRecord::Base
         :role_name => role_name,
         :qq => params[:qq] || "",
         :phone => params[:phone] || "",
-        :email => params[:email] || ""
+        :email => params[:email] || "",
+        :is_master => params[:is_master] || false,
       }
       return self unless update_attributes(paramsh)
 

@@ -86,6 +86,9 @@ class Managers::ProjectAdministratorsController < ApplicationController
   end
 
   def user_params
+    if params[:is_master]
+      params[:is_master] = (params[:is_master]  == "true") ? true : false 
+    end
     params.permit(
       :user_name,
       :password,
@@ -95,7 +98,8 @@ class Managers::ProjectAdministratorsController < ApplicationController
       :city_rid,
       :district_rid, 
       :subject, 
-      :qq, 
+      :qq,
+      :is_master, 
       :phone,
       :email,
       :tenant_uids => [])

@@ -92,3 +92,12 @@
   <label for="manager_user_form_email"><%=LABEL("activerecord.attributes.user.email")%></label>
   <input class="easyui-validatebox" id="manager_user_form_email" name="email" style="width:200px;" data-options="required:false">
 </div>
+
+<!--分析员，项目管理员-->
+<% if ["analyzers","project_administrators"].include?(controller_name) %>
+    <div style="margin:5px 0px 5px 15px;">
+      <label>主账号</label>
+      <label><input name="is_master" type="radio" value='true' checked="checked" />是</label>
+      <label><input name="is_master" type="radio" value='false' />否</label>
+    </div>
+<% end %>
