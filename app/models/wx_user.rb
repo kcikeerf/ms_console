@@ -84,7 +84,9 @@ class WxUser < ActiveRecord::Base
       :wx_related => true
     }
     target_user = User.where(name: option_h[:name]).first
-    unless target_user
+    if target_user
+      target_user.update(option_h)
+    else
       target_user = User.new(option_h)
       target_user.save!
     end
@@ -110,6 +112,7 @@ class WxUser < ActiveRecord::Base
     _target_users = _other_master_user.present? ? _other_master_user.children : _other_wx_user.users
 
     master_user.children += _target_users
+    _other_wx_user.users.delete(_target_users)
     # _other_master_user.destroy if _other_master_user
   end
 
