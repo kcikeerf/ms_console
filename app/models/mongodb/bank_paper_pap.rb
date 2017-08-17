@@ -1891,10 +1891,12 @@ class Mongodb::BankPaperPap
         score_upload.delete
       end
 
-      if file_upload.present?
-        file_path = file_upload.paper_structure.current_path.split("/")[0..-2].join("/")
-        FileUtils.rm_rf(file_path)
-        file_upload.delete
+      if file_upload.present? 
+        if file_upload.paper_structure.present?
+          file_path = file_upload.paper_structure.current_path.split("/")[0..-2].join("/") 
+          FileUtils.rm_rf(file_path)
+        end
+          file_upload.delete
       end
       self.delete
     rescue Exception => e
