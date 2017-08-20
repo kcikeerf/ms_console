@@ -156,8 +156,7 @@ class User < ActiveRecord::Base
         :role_name => role_name,
         :qq => params[:qq] || "",
         :phone => params[:phone] || "",
-        :email => params[:email] || "",
-        :is_master => params[:is_master] || false,
+        :email => params[:email] || ""
       }
       return self unless update_attributes(paramsh)
 
@@ -173,8 +172,7 @@ class User < ActiveRecord::Base
         :role_name => role_name,
         :qq => params[:qq] || "",
         :phone => params[:phone] || "",
-        :email => params[:email] || "",
-        :is_master => params[:is_master] || false,
+        :email => params[:email] || ""
       }
       unless params[:password].blank?
         paramsh[:password] = params[:password]
@@ -367,7 +365,7 @@ class User < ActiveRecord::Base
     return user_list
   end
 
-  def get_user_base_info  
+  def fresh_access_token
     target_token = Doorkeeper::AccessToken.find_or_create_for(
       nil, #client
       self.id, #resource_owner_id
@@ -375,14 +373,18 @@ class User < ActiveRecord::Base
       7200, #expired in
       true # use refresh token?
     )
-    oauth_hash = {
-        :access_token => target_token.token,
-        :token_type => "bear",
-        :expires_in => target_token.expires_in,
-        :refresh_token => target_token.refresh_token,
-        :scope => "",
-        :created_at => target_token.created_at.to_i
-      } 
+    {
+      :access_token => target_token.token,
+      :token_type => "bear",
+      :expires_in => target_token.expires_in,
+      :refresh_token => target_token.refresh_token,
+      :scope => "",
+      :created_at => target_token.created_at.to_i
+    } 
+  end
+
+  def get_user_base_info  
+    oauth_hash = fresh_access_token 
     user_base_info = {
       :id => self.id,
       :user_name => self.name,
@@ -392,6 +394,7 @@ class User < ActiveRecord::Base
     third_hash = {}
     if self.is_master
       user_base_info[:is_customer] = self.is_customer
+      t_name = nil
       Common::Uzer::ThirdPartyList.each do |oauth2|
         if send("#{oauth2}_related?")
           oauth2_users = send("#{oauth2}_users")
@@ -405,10 +408,13 @@ class User < ActiveRecord::Base
             third_hash[oauth2] = oauth2_obj
           end
           user_base_info["#{oauth2}_related"] = true
+          t_name ||=  oauth2_user.nickname
         else
           user_base_info["#{oauth2}_related"] = false
         end
       end
+      nick_base = t_name.present? ? t_name : self.name
+      user_base_info[:name] = self.nickname.present? ? self.nickname : nick_base
     end
     if third_hash.present?
       user_base_info[:third_party] = third_hash
