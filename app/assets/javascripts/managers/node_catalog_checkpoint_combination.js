@@ -70,6 +70,9 @@ function node_catalog_checkpoint_combination(node_uid,catalog_uids){
 							},
 							dataType: "json",
 							success: function(data){
+								self.selected_knowledge_tree = self.node_checked_func_core("#managers_selected_subejct_ckp_knowledge_tree", []);
+								self.selected_knowledge_tree = self.node_checked_func_core("#managers_selected_subejct_ckp_skill_tree", []);
+								self.selected_knowledge_tree = self.node_checked_func_core("#managers_selected_subejct_ckp_ability_tree", []);
 								var flag = true;//treeNode.checked;
 								self.knowledge_tree.check_nodes(data.knowledge, flag);
 								self.skill_tree.check_nodes(data.skill,flag);

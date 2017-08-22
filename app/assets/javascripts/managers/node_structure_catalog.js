@@ -107,7 +107,7 @@ function catalog(textbook_uid, catalog_tree_id, catalog_checked_uids, callback_a
 		check: {
 			enable: true,
 			chkStyle: 'checkbox',
-			chkboxType: { "Y": "p", "N": "ps" },
+			chkboxType: { "Y": "", "N": "" },
 			radioType: "level",
 			autoCheckTrigger: true
 		},
