@@ -13,12 +13,18 @@ namespace :swtk do
             puts "Command format not correct."
             exit
           end
-          _report_warehouse_path = Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/"
-          nav_arr = Dir[_report_warehouse_path + args[:test_id] + "/**/**/nav.json"]
-          # path = "/reports_warehouse/tests/"
-          # nav_arr = Dir[Dir::pwd+path + args[:test_id] + "/**/**/nav.json"].sort
           test = Mongodb::BankTest.find(args[:test_id])
-          index = test.report_top_group==nil ? Common::Report::Group::ListArr.length-1 : Common::Report::Group::ListArr.index(test.report_top_group)
+          top_group = test.report_top_group.blank? ? "project" : test.report_top_group
+          index = Common::Report::Group::ListArr.index(top_group)
+
+          _report_warehouse_path = Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/"
+          nav_arr = Dir[_report_warehouse_path + args[:test_id] + '/' + top_group + "/**/**/nav.json"]
+          nav_arr += Dir[_report_warehouse_path + args[:test_id] + '/nav.json']
+
+          # path = "/reports_warehouse/tests/"
+          # nav_arr = Dir[Common::Report::WareHouse::ReportLocation + Dir::pwd + path + args[:test_id] + '/' + top_group + "/**/**/nav.json"]
+          # nav_arr += Dir[Common::Report::WareHouse::ReportLocation + Dir::pwd + path + args[:test_id] + '/nav.json']
+
           nav_arr.each{|nav_path|
             p nav_path
             target_nav_h = get_report_hash(nav_path)
