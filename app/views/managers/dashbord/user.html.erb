@@ -10,3 +10,29 @@
 <%= render :partial => "partical", :locals => { :chart_id => "role_id"} %>
 
 
+
+<div style="float: left;width: 99%;padding: 0.5%;overflow: scroll;">
+  <div class="box">
+    <div class="box-body">
+      <div style="margin-bottom: 50px">
+        <div id='area_message'></div>
+        <button class="btn btn-primary" id="update_area" style="float: left;margin-right:10px;margin-bottom: 10px; ">更新数据</button>
+      </div>
+      <div id="area" style="height: 800px;"></div>
+      <div >
+        <table id='area_table' style="width: 100%;" class="easyui-datagrid">
+         <thead>
+          <tr>
+            <th field="name" width="20%" align="center">地区</th>
+            <th field="pupil_value" width="17%" align="center">学生数量</th>
+            <th field="teacher_value" width="17%" align="center">老师数量</th>
+            <th field="tenent_admin_value" width="17%" align="center">校领导数量</th>
+            <th field="analyser_value" width="17%" align="center">分析员数量</th>
+            <th field="area_admin_value" width="17%" align="center">地区管理员数量</th>
+          </tr> 
+         </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

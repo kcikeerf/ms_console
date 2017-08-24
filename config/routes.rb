@@ -135,6 +135,7 @@ Rails.application.routes.draw do
         get 'report'
         get 'report_list'
         post 'report_single_stat'
+        get 'user_area_update'
       end
     end
   end

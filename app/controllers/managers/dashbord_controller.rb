@@ -4,7 +4,7 @@ class Managers::DashbordController < ApplicationController
   # skip_before_action :authenticate_person!
   # before_action :authenticate_manager
 
-  before_action :set_dashboard, only: [:update_dashbord, :get_dashbord]
+  before_action :set_dashboard, only: [:update_dashbord, :get_dashbord, :user_area_update]
 
   def user
     @result = User.all.size
@@ -35,6 +35,18 @@ class Managers::DashbordController < ApplicationController
     begin
       test = Mongodb::BankTest.find(params[:id])
       data = test.get_report_state
+      status = 200
+    rescue Exception => e
+      status = 500
+      data = {:status => 500, :message => e.message}
+    end
+    render common_json_response(status, data)
+  end
+
+  #更新用户地区信息
+  def user_area_update
+    begin
+      data = @dashbord.area_user_update
       status = 200
     rescue Exception => e
       status = 500

@@ -9,11 +9,12 @@
     }
   </style>
 <% end %>
-<div class="head" style="height: 35px;">
+<div class="head">
   <%if @test%>
     <h2 style="display: inline;float: left;width: 50%;">测试名称：<span><%=@test.name%></span></h2>
     <h2 id="append_button" style="display: inline;float: right;width: 50%;">试卷名称：<span><%=@test.bank_paper_pap.heading unless @test.bank_paper_pap.blank?%></span> <button class='btn btn-primary btn-sm' id='update_single' style='float: right;margin-right:10px'>更新统计</button></h2>
     <input type="hidden" id="test_id" value=<%= @test._id%> >
+    <div style="clear: both;"></div>
   <% else %>
     <button class="btn btn-primary" id="update_all" style="float: right;margin-right:10px ">更新统计</button>
     <h2>所有测试统计</h2>
