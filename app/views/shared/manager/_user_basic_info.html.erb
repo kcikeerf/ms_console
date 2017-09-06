@@ -13,6 +13,8 @@
   <input class="easyui-validatebox" id="manager_user_form_password_confirmation" name="password_confirmation" type="password" style="width:200px;" data-options="required:true">
 </div>
 
+<% unless ["managers"].include?(controller_name) %>
+
 <div style="margin:5px 0px 5px 15px;">
   <label for="manager_user_form_name"><%=LABEL("activerecord.attributes.user.real_name")%></label>
   <input class="easyui-validatebox" id="manager_user_form_name" name="name" style="width:200px;" data-options="required:true">
@@ -87,7 +89,7 @@
   <label for="manager_user_form_phone"><%=LABEL("activerecord.attributes.user.phone")%></label>
   <input class="easyui-validatebox" id="manager_user_form_phone" name="phone" style="width:200px;" data-options="required:false">
 </div>
-
+<% end %>
 <div style="margin:5px 0px 5px 15px;">
   <label for="manager_user_form_email"><%=LABEL("activerecord.attributes.user.email")%></label>
   <input class="easyui-validatebox" id="manager_user_form_email" name="email" style="width:200px;" data-options="required:false">

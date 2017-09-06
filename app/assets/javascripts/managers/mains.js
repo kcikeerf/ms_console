@@ -283,7 +283,9 @@ function editObjWithArea(url){
 
 //保存
 function saveObj(){
+  url = $('#fm').form()[0].action
   $('#fm').form('submit',{
+    url: url,
     onSubmit: function(){
       return $(this).form('validate');
     },
