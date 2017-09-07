@@ -24,7 +24,7 @@ namespace :swtk_patch do
     desc "update unionid with openid"
     task :update_unionid_with_openid, [:file_path] => :environment do
       if args[:file_path].nil?
-        puts "Command format not correct, Usage: #rake swtk:patch:update_unionid_with_openid[file_path]"
+        puts "Command format not correct, Usage: #rake swtk_patch:v1_2:update_unionid_with_openid[file_path]"
         exit 
       end
       wx_xlsx = Roo::Excelx.new(args[:file_path])
@@ -126,6 +126,75 @@ namespace :swtk_patch do
       #   $cache_redis.del(key)
       # }   
       puts "刷新完成"
-    end    
+    end 
+
+    desc "Use Openid or Unionid rollback"
+    task :rollback_wx_with_args, [:wx_openid, :wx_unionid] => :environment do
+      wx_users = WxUser.where("wx_unionid = ? or wx_openid = ?", args[:wx_unionid], args[:wx_openid])
+      wx_users.each do |wx|
+        if wx.master
+          wx.master.delete
+        end
+      end
+    end
+
+    desc "rollback wx user with time"
+    task :rollback_wx_with_time, [:rollback_time] => :environment do
+      if args[:rollback_time].nil?
+        puts "Need rollback_time, Usage: #rake swtk_patch:v1_2:rollback_wx_with_time[rollback_time]"
+        exit 
+      end      
+      roll_time = Time.parse(args[:rollback_time])
+      wx_users = WxUser.where("dt_update > ?", roll_time )
+      wx_users.each do |wx|
+        if wx.master
+          wx.master.delete
+        end
+      end
+    end
+
+  end
+
+  namespace :v1_2_1 do
+    desc "match grade and subject to bank_quiz_qiz"
+    task :match_grade_subject => :environment do
+      Mongodb::BankQuizQiz.each_with_index do |quiz,index|
+        p index
+        paper = quiz.bank_paper_paps[0]
+        if paper.present?
+          if paper.grade.present?
+            quiz.grade = paper.grade
+            quiz.subject = paper.subject
+          end
+        elsif quiz.node_uid.present?
+          node = BankNodestructure.where(uid: quiz.node_uid).first
+          if node
+            quiz.grade = node.grade
+            quiz.subject = node.subject
+          end
+        else 
+          quiz.grade = nil
+          quiz.subject = nil
+        end
+        quiz.save!
+      end
+    end
+
+    desc "import permission definition into mysql"
+    task :inport_permission_diffnition, [:file_path] => :environment do |t,args|
+
+      xlsx = Roo::Excelx.new(args[:file_path])
+      permissions = Permission.all.delete_all
+      (3..xlsx.sheet("permissions").last_row).each do |i|     
+        row = xlsx.sheet("permissions").row(i)
+        Permission.new(name: row[1], subject_class: row[2],operation: row[3], description: row[4]).save!
+      end
+      api_permissions = ApiPermission.all.delete_all
+      (2..xlsx.sheet("api_permissions").last_row).each do |j|
+        row = xlsx.sheet("api_permissions").row(j)
+        ApiPermission.new(name: row[1], method: row[2], path: row[3], description: row[4]).save!
+      end
+    end
+    
   end
 end
