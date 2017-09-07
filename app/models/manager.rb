@@ -11,6 +11,39 @@ class Manager < ActiveRecord::Base
   
   validates :password, length: { in: 6..19 }, presence: true, confirmation: true, if: :password_required?
 
+  before_destroy :validate_manager_num
+
+  class << self
+    def get_list params
+      params[:page] = params[:page].blank?? Common::SwtkConstants::DefaultPage : params[:page]
+      params[:rows] = params[:rows].blank?? Common::SwtkConstants::DefaultRows : params[:rows]
+      conditions = []
+      conditions << self.send(:sanitize_sql, ["name LIKE ?", "%#{params[:name]}%"]) unless params[:name].blank?
+      conditions << self.send(:sanitize_sql, ["email LIKE ?", "%#{params[:email]}%"]) unless params[:email].blank?
+      conditions = conditions.any? ? conditions.collect { |c| "(#{c})" }.join(' AND ') : nil
+      result = self.where(conditions).order("updated_at desc").page(params[:page]).per(params[:rows])
+      result.each_with_index{|item, index|
+        h = {
+          :id => item.id,
+          :user_name => item.name,
+          :email => item.email,
+          :updated_at => item.updated_at.strftime("%Y-%m-%d %H:%M")
+        }
+        result[index] = h
+      }
+      return result
+    end
+
+    # def authenticate(name,password)
+    #   manager = Manager.where(name: name).first
+    #   manager.try(:valid_password?, password) ? manager : nil
+    # end
+  end
+
+  def validate_manager_num
+    return Manager.count > 1
+  end
+
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
     login = conditions.delete(:login)
@@ -40,6 +73,7 @@ class Manager < ActiveRecord::Base
           {id: 204, name: Common::Locale::i18n("managers.menus.di_qu_guan_li"), icon: '', url: '/managers/areas'},
           {id: 205, name: Common::Locale::i18n("managers.menus.project_admin_guan_li"), icon: '', url: '/managers/project_administrators'},
           {id: 206, name: Common::Locale::i18n("managers.menus.fen_xi_yuan_guan_li"), icon: '', url: '/managers/analyzers'},
+          {id: 207, name: Common::Locale::i18n("activerecord.models.super_administrator"), icon: '', url: '/managers/managers'},
         ]
       },
       {

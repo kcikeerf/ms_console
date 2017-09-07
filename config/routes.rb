@@ -115,6 +115,7 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :managers, concerns: :destroy_all
     resources :analyzers, concerns: :destroy_all
     resources :teachers, concerns: :destroy_all
     resources :pupils, concerns: :destroy_all
