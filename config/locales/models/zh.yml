@@ -3,7 +3,7 @@ zh:
   activerecord:
     models:
       area: "地区"
-      area_administrator: "区领导"
+      area_administrator: "地区管理员"
       bank_checkpoint_ckp: "测评点表"
       bank_ckp_comment: "测评点评价模版表"
       bank_ckp_cube: "测评点立体交叉表"
@@ -21,7 +21,7 @@ zh:
       pupil: "学生"
       teacher: "教师"
       tenant: "Tenant"
-      tenant_administrator: "校领导"
+      tenant_administrator: "Tenant管理员"
       project_administrator: "项目管理员"
       permission: "权限"
       bank_paper_pap: "试卷"
@@ -29,7 +29,15 @@ zh:
       super_administrator: "超级管理员"
       bank_quiz_qiz: "单题"
       bank_subject_checkpoint_ckp: "指标"
-
+      permissions: "一般权限"
+      api_permissions: "API权限"
+      auth_domain_white_lists: "域名白名单"
+      oauth2_clients: "第三方客户端认证"
+      skopes: "Scope"
+      skope_rules: "Scope规则"
+      node_structures: "教材"
+      checkpoints: "指标"
+      locations: "班级"
     attributes:
       default:
         name: "名称"
