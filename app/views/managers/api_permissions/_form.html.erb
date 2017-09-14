@@ -1,0 +1,39 @@
+<div style="margin:5px 0px 5px 15px;">
+  <label for="name">resources</label>
+  <input class="easyui-validatebox" id="name" name="name" style="width:200px;">
+</div>
+
+<div style="margin:5px 0px 5px 15px;">
+  <label for="method">method</label>
+  <select name="method" panelHeight="auto" class="easyui-combobox" style="width:200px">
+    <option value="">&nbsp;</option>
+    <% Common::Locale::HttpMethod.each do |value| %>
+      <option value="<%= value %>"><%= value %></option>
+    <% end %>
+  </select> 
+</div>
+
+<div style="margin:5px 0px 5px 15px;">
+  <label for="path">url_path</label>
+  <input class="easyui-validatebox" id="path" name="path" style="width:200px;" data-options="required:true">
+</div>
+
+<div style="margin:5px 0px 5px 15px;">
+  <label for="description">description</label>
+  <input class="easyui-validatebox" id="description" name="description" style="width:200px;" >
+</div>
+
+<div style="margin:5px 0px 5px 15px;">
+  <label>role</label>
+  <select class="easyui-combobox" 
+    id="roles" 
+    name="roles[]"
+    multiple="true" 
+    multiline="true"
+    url="/managers/roles/get_list"
+    method = 'get' 
+    style="width:200px;height:100px;"
+    data-options="valueField:'name',textField:'name'">
+    >
+  </select>
+</div>

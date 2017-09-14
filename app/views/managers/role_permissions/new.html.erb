@@ -1,9 +1,8 @@
 角色：<%= @role.name %>
 <br />
-权限：
-
 <div>
 <%= form_tag managers_role_role_permissions_path(@role) do %>
+  权限：
 	<ul>
 		<% @permissions.each do |p| %>
 			<li>
@@ -12,6 +11,16 @@
 			</li>
 		<% end %>
 	</ul>
+ 
+  API权限：
+  <ul>
+    <% @api_permissions.each do |p| %>
+      <li>
+        <%= check_box_tag 'api_permission[][api_permission_id]', p.id %>
+        <%= p.path %>
+      </li>
+    <% end %>
+  </ul> 
 	<%= submit_tag '保存' %>
 <% end %>
 </div>

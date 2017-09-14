@@ -74,6 +74,7 @@ class Manager < ActiveRecord::Base
           {id: 205, name: Common::Locale::i18n("managers.menus.project_admin_guan_li"), icon: '', url: '/managers/project_administrators'},
           {id: 206, name: Common::Locale::i18n("managers.menus.fen_xi_yuan_guan_li"), icon: '', url: '/managers/analyzers'},
           {id: 207, name: Common::Locale::i18n("activerecord.models.super_administrator"), icon: '', url: '/managers/managers'},
+          {id: 208, name: Common::Locale::i18n("activerecord.models.api_permissions"), icon: '', url: '/managers/api_permissions'},
         ]
       },
       {
@@ -93,7 +94,8 @@ class Manager < ActiveRecord::Base
           {id: 403, name: Common::Locale::i18n("managers.menus.ke_mu_zhi_biao_ti_xi_guan_li"), icon: '', url: '/managers/subject_checkpoints'},
           {id: 404, name: Common::Locale::i18n("managers.menus.shi_juan_guan_li"), icon: '', url: '/managers/papers'},
           {id: 405, name: Common::Locale::i18n("managers.menus.zhi_biao_xi_tong_guan_li"), icon: '', url: '/managers/checkpoint_systems'},
-          {id: 406, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'}
+          {id: 406, name: Common::Locale::i18n("managers.menus.bank_test"), icon: '', url: '/managers/bank_tests'},
+          {id: 406, name: Common::Locale::i18n("managers.menus.union_test"), icon: '', url: '/managers/union_tests'}
         ]
       },
       

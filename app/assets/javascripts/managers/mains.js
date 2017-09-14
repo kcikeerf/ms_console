@@ -1,5 +1,5 @@
-// require jquery
-// require jquery_ujs
+//= require jquery
+//= require jquery_ujs
 //= require jquery-min
 //= require easyui/jquery.easyui.min.js
 //= require easyui/easyui-lang-zh_CN.js
@@ -157,6 +157,7 @@ function msgShow(title, msgString, msgType) {
 
 //创建对象
 function newObj(title, url){
+  $('#roles').combobox('clear')
   $('#dlg').dialog('open').dialog('setTitle',title);
   $('#fm')[0].reset();
   $('#fm').attr('action', url);
@@ -235,6 +236,10 @@ function formSaveObj(){
 function editObj(url){
   var row = $('#dg').datagrid('getSelected');
   if (row){
+    $('#roles').combobox('clear')
+    if(row.roles){
+      row['roles[]'] = row.roles
+    }
     // var $resource_edit = $("#resource_edit");//没懂啥用先保留
     // if($resource_edit.length){//没懂啥用先保留
     //   var $html = $resource_edit.clone();

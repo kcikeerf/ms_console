@@ -2,7 +2,7 @@
 	<h2><%= page_info_item[:title] %></h2>
 	<div style="margin:20px 0;"></div>
 	<div id="tb">
-<% unless ["permissions", "pupils", "papers","bank_tests"].include? controller_name %>
+<% unless ["permissions", "pupils", "papers","bank_tests","union_tests"].include? controller_name %>
 		<a  href="#" 
 			class="easyui-linkbutton" 
 			iconCls="icon-add" plain="true" 
@@ -20,7 +20,7 @@
 		</a> 
 <% end %>
 <% unless ["roles","permissions"].include? controller_name %>
-	<% unless ["papers","bank_tests"].include? controller_name %>
+	<% unless ["papers","bank_tests","union_tests"].include? controller_name %>
 		<a  href="#" 
 			class="easyui-linkbutton" 
 			iconCls="icon-edit" 

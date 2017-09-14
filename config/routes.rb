@@ -41,7 +41,14 @@ Rails.application.routes.draw do
     end
 
     resources :roles, concerns: :destroy_all do
-      resources :role_permissions, concerns: :destroy_all 
+      resources :role_permissions, concerns: :destroy_all do
+        member do
+          delete 'destroy_api_permission'
+        end
+      end
+      collection do
+        get 'get_list'
+      end 
     end
 
     resources :node_structures, concerns: :destroy_all do 
@@ -115,6 +122,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :api_permissions, concerns: :destroy_all
+    resources :union_tests, concerns: :destroy_all
     resources :managers, concerns: :destroy_all
     resources :analyzers, concerns: :destroy_all
     resources :teachers, concerns: :destroy_all

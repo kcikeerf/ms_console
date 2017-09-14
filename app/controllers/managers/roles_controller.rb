@@ -27,6 +27,7 @@ class Managers::RolesController < ApplicationController
 
 	def show
 		@permissions = @role.roles_permissions_links.includes(:permission)
+		@api_permissions = @role.api_permissions
 		render layout: 'manager'
 	end
 
@@ -38,6 +39,11 @@ class Managers::RolesController < ApplicationController
 		Role.destroy(params[:id])
 		respond_with(@role)
 	end
+
+  def get_list
+    roles = Role.all.select(:name)
+    render :json => roles
+  end
 
 	private
 
