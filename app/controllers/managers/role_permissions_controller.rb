@@ -9,8 +9,8 @@ class Managers::RolePermissionsController < ApplicationController
     # before_action :authenticate_manager
     
 	def new
-		@permissions = Permission.where('id not in (?)', @role.permissions.pluck(:id))
-		@api_permissions = ApiPermission.where('id not in (?)',@role.api_permissions.pluck(:id))
+		@permissions = Permission.where.not(id: @role.permissions.pluck(:id))
+		@api_permissions = ApiPermission.where.not(id: @role.api_permissions.pluck(:id))
 	end
 
 	def create
