@@ -41,13 +41,15 @@ Rails.application.routes.draw do
     end
 
     resources :roles, concerns: :destroy_all do
-      resources :role_permissions, concerns: :destroy_all do
-        member do
-          delete 'destroy_api_permission'
-        end
-      end
+      # resources :role_permissions, concerns: :destroy_all do
+      #   member do
+      #     delete 'destroy_api_permission'
+      #   end
+      # end
       collection do
         get 'get_list'
+        post 'update_permission'
+        post 'update_api_permission'
       end 
     end
 

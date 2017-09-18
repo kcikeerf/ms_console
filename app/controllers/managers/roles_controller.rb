@@ -5,7 +5,7 @@ class Managers::RolesController < ApplicationController
 
 	
 
-	before_action :set_role, only: [:show, :edit, :update]
+	before_action :set_role, only: [:show, :edit, :update, :update_permission, :update_api_permission]
     # skip_before_action :authenticate_person!
     # before_action :authenticate_manager
 
@@ -26,8 +26,10 @@ class Managers::RolesController < ApplicationController
 	end
 
 	def show
-		@permissions = @role.roles_permissions_links.includes(:permission)
-		@api_permissions = @role.api_permissions
+		@permissions = @role.permissions.sort
+		@no_permissions = Permission.where.not(id: @role.permissions.pluck(:id)).sort
+		@api_permissions = @role.api_permissions.sort_by(&:path)
+		@no_api_permissions = ApiPermission.where.not(id: @role.api_permissions.pluck(:id)).sort_by(&:path)
 		render layout: 'manager'
 	end
 
@@ -43,6 +45,31 @@ class Managers::RolesController < ApplicationController
   def get_list
     roles = Role.all.select(:name)
     render :json => roles
+  end
+
+  def update_permission
+  	permission = Permission.find(params[:permission_id])
+  	case params[:method_type]
+  	when 'add'
+  		@role.permissions << permission
+  	when 'del'
+  		@role.permissions.destroy(permission)
+  	end
+  	result = permission.attributes
+  	result['permission_name'] = permission.permission_name
+  	render :json => result
+  end
+
+  def update_api_permission
+  	api_permission = ApiPermission.find(params[:permission_id])
+  	case params[:method_type]
+  	when 'add'
+  		@role.api_permissions << api_permission
+  	when 'del'
+  		@role.api_permissions.destroy(api_permission)
+  	end
+  	@role.delete_role_auth_redis
+  	render :json => api_permission
   end
 
 	private

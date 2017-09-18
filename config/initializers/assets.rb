@@ -50,4 +50,5 @@ Rails.application.config.assets.precompile += %W{
   managers/dashbord_report.js
   managers/dashbord.js
   managers/area_manage.js
+  managers/roles.js
 }

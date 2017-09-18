@@ -1,26 +1,92 @@
+<% content_for :head do %>
+	<%= javascript_include_tag 'managers/roles','data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag 'managers/dashbord', media: 'all', 'data-turbolinks-track' => true %>
+<% end %>
 	<p>
 		角色：<%= @role.name %>
+		<button class="btn btn-primary" style="float: right;"><a href="/managers/roles" style="color: #fff">返回</a></button>
+		<input id="role_id" type="hidden" value=<%= @role.id%>>
 	</p>
-	<div>
-		已有权限
-		<ul>
-			<% @permissions.each do |p| %>
-				<li id='permission_<%= p.id %>'>
-					<%= p.permission.try(:permission_name) %>
-					<%= link_to '删除', managers_role_role_permission_path(@role, p), method: :delete, data: {confirm: '你确定要删除么', remote: true} %>
-				</li>	
-			<% end %>
-		</ul>
+	
+	<div class="easyui-tabs">
+		<!-- <div title="Permission" style="padding:20px;">
 
-		已有API权限
-		<ul>
-			<% @api_permissions.each do |p| %>
-				<li id='api_permission_<%= p.id %>'>
-					<%= p.path %>
-					<%= link_to '删除', destroy_api_permission_managers_role_role_permission_path(@role, p), method: :delete, data: {confirm: '你确定要删除么', remote: true} %>
-				</li>	
-			<% end %>
-		</ul>
-		<%= link_to '添加新权限', new_managers_role_role_permission_path(@role) %>
+			<div style="float: left;width: 39%;padding: 0.5%;overflow: scroll;">
+			  <div class="box">
+			  	<div class="box-title" style="text-align: center;width: 100%">
+			  		<h3>已有权限</h3>
+			  	</div>
+			    <div class="box-body">
+			      <ul id="permission_add">
+							<% @permissions.each do |p| %>
+								<li>
+									<%= check_box_tag 'permission',p.id ,true,:id => 'permission_'+p.id.to_s %>
+									<%= p.permission_name %>
+								</li>
+							<% end %>
+						</ul>
+			    </div>
+			  </div>
+			</div>
+
+			<div style="float: left;width: 59%;padding: 0.5%;overflow: scroll;">
+			  <div class="box">
+			  	<div class="box-title" style="text-align: center;width: 100%">
+			  		<h3>未添加权限</h3>
+			  	</div>
+			    <div class="box-body">
+			      <ul id="permission_del">
+							<% @no_permissions.each do |p| %>
+								<li>
+									<%= check_box_tag 'permission', p.id,false,:id => 'permission_'+p.id.to_s%>
+									<%= p.permission_name %>
+								</li>
+							<% end %>
+						</ul>
+			    </div>
+			  </div>
+			</div>
+
+    </div> -->
+    <div title="ApiPermission" data-options="closable:true" style="overflow:auto;padding:20px;display:none;">
+			
+			<div style="float: left;width: 39%;padding: 0.5%;overflow: scroll;">
+			  <div class="box">
+			  	<div class="box-title" style="text-align: center;width: 100%">
+			  		<h3>已有API权限</h3>
+			  	</div>
+			    <div class="box-body">
+			      <ul id="api_permission_add">
+					    <% @api_permissions.each do |p| %>
+					      <li>
+					        <%= check_box_tag 'api_permission', p.id, true,:id => 'api_permission_'+p.id.to_s %>
+					        <%= p.path %>
+					      </li>
+					    <% end %>
+					  </ul> 
+			    </div>
+			  </div>
+			</div>
+
+			<div style="float: left;width: 59%;padding: 0.5%;overflow: scroll;">
+			  <div class="box">
+			  	<div class="box-title" style="text-align: center;width: 100%">
+			  		<h3>未添加API权限</h3>
+			  	</div>
+			    <div class="box-body">
+			      <ul id="api_permission_del">
+					    <% @no_api_permissions.each do |p| %>
+					      <li>
+					        <%= check_box_tag 'api_permission', p.id, false,:id => 'api_permission_'+p.id.to_s %>
+					        <%= p.path %>
+					      </li>
+					    <% end %>
+					  </ul> 
+			    </div>
+			  </div>
+			</div>
+
+    </div>
 	</div>
 
+	
