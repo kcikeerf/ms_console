@@ -2090,15 +2090,22 @@ class Mongodb::BankPaperPap
       ckp_hash = {}
       if export_type == "xlsx"
         bank_subject_checkpoint_ckps.each do |ckp|
-          checkpoint_arr = [ckp.checkpoint]
-          if ckp.parent
-            p_ckp = ckp.parent
+          ckp_uid = ckp.uid
+          ckp_label = (ckp.is_entity ? "[end]" : "" ) + ckp.checkpoint
+          checkpoint_arr = [ckp_label]
+          while ckp.parent
             checkpoint_arr.unshift("++++")
-            if p_ckp.parent
-              checkpoint_arr.unshift("++++")
-            end
+            ckp = ckp.parent
           end
-          ckp_hash[ckp.uid] = checkpoint_arr.join("")
+          checkpoint_arr.unshift(ckp.dimesion)
+          # if ckp.parent
+          #   p_ckp = ckp.parent
+          #   checkpoint_arr.unshift("++++")
+          #   if p_ckp.parent
+          #     checkpoint_arr.unshift("++++")
+          #   end
+          # end
+          ckp_hash[ckp_uid] = checkpoint_arr.join("")
         end
         out_excel = Axlsx::Package.new
         wb = out_excel.workbook
