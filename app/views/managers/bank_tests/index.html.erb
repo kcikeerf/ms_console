@@ -38,9 +38,81 @@
 		}
 		options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/edit" data-remote="true" >编辑</a>';  
 		options = options+"&nbsp;" + "<a href='#' onclick='" + click_show + "'>报告详情</a>";
-		options = options+"&nbsp;" + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/get_binded_stat" data-remote="true" >绑定详情</a>';
+		options = options+"&nbsp;" + '<a href="#" onclick="get_binded_stat(\'' + row["uid"] + '\')" >绑定详情</a>';
 	  return options;
-	} 
+	}
+  function get_binded_stat(uid){
+    $.ajax({
+      url: '/managers/bank_tests/get_binded_stat',
+      data: {
+        id:uid,
+        authenticity_token: $('meta[name="csrf-token"]')[0].content,
+      },
+      type: 'get',
+      success: function(rs){
+        result_arr = rs.result_arr
+        var total_tenant = 0
+            binded_tenant = 0
+            total_teachers = 0
+            binded_teachers = 0
+            total_pupils = 0
+            binded_pupils = 0
+        for(var i=0;i<result_arr.length;i++){
+          total_tenant += result_arr[i].total_tenant
+          binded_tenant += result_arr[i].binded_tenant
+          total_teachers += result_arr[i].total_teachers
+          binded_teachers += result_arr[i].binded_teachers
+          total_pupils += result_arr[i].total_pupils
+          binded_pupils += result_arr[i].binded_pupils
+        }
+        $("#mydlg").html($(".binded_stat_table").html());
+        $("#total_stat").append("绑定总情况:校长："+binded_tenant+'/'+total_tenant+"老师："+binded_teachers+'/'+total_teachers+"学生："+binded_pupils+'/'+total_pupils)
+        $('#binded_stat').datagrid({
+          data: result_arr,
+          view: detailview,
+          columns:[[
+            {field:'name',title:'班级',width:180},
+            {field:'total_tenant',title:'校长总数',width:100},
+            {field:'binded_tenant',title:'校长绑定数目',width:100},
+            {field:'total_teachers',title:'教师总数',width:100},
+            {field:'binded_teachers',title:'教师绑定数目',width:100},
+            {field:'total_pupils',title:'学生总数',width:100},
+            {field:'binded_pupils',title:'学生绑定数目',width:100},
+          ]],
+          detailFormatter:function(index,row){
+            return '<div style="padding:2px"><table class="ddv"></table></div>';
+          },
+          onExpandRow: function(index,row){
+            var ddv = $(this).datagrid('getRowDetail',index).find('table.ddv');
+            ddv.datagrid({
+              data: rs.result_hash[row.name],
+              fitColumns:true,
+              singleSelect:true,
+              rownumbers:true,
+              loadMsg:'',
+              height:'auto',
+              columns:[[
+                {field:'name',title:'班级',width:100},
+                {field:'total_teachers',title:'教师总数',width:100},
+                {field:'binded_teachers',title:'教师绑定数目',width:100},
+                {field:'total_pupils',title:'学生总数',width:100},
+                {field:'binded_pupils',title:'学生绑定数目',width:100},
+              ]],
+              onResize:function(){
+                $('#dg').datagrid('fixDetailRowHeight',index);
+              },
+            })
+            $('#binded_stat').datagrid('fixDetailRowHeight',index);
+          }
+        })
+        
+        $('#mydlg').dialog('open')
+      },
+      error: function(){
+        alert('获取失败')
+      }
+    })
+  }  
 </script>
 
 <% content_for :form do %>
@@ -50,34 +122,11 @@
 <%= render partial: "shared/manager/base_fileupload" %>
 
 
-<div id="mydlg" class="easyui-dialog" title="绑定详情"  style="width:400px;height:250px;padding:10px 10px" 
-data-options="iconCls:'icon-save',resizable:true,modal:false,closed:true,buttons:'#dlg-buttons'">
-<form id="myfm" method="post">
-  <div class="fcheckpoint">
-    <label>学生总数：</label>
-    <span id="total_pupils"></span>
-  </div>
-  <div class="fcheckpoint">
-    <label>学生绑定数目：</label>
-    <span id="binded_pupils"></span>
-  </div>
-  <div class="fcheckpoint">
-    <label>教师总数：</label>
-    <span id="total_teachers"></span>
-  </div>
-  <div class="fcheckpoint">
-    <label>教师绑定数目：</label>
-    <span id="binded_teachers"></span>
-  </div>
-  <div class="fcheckpoint">
-    <label>校长总数：</label>
-    <span id="total_tenant"></span>
-  </div>
-  <div class="fcheckpoint">
-    <label>校长绑定数目：</label>
-    <span id="binded_tenant"></span>
-  </div>
-</form>
+<div id="mydlg" class="easyui-dialog" title="绑定详情"  style="width:850px;height:450px;padding:10px 10px" data-options="iconCls:'icon-save',resizable:true,closed:true,buttons:'#dlg-buttons'">
+  
 </div>
-
+<script type="text/template" class="binded_stat_table">
+  <h2 id="total_stat"></h2>
+  <table id="binded_stat"></table>
+</script>
 

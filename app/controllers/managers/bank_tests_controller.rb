@@ -1,5 +1,5 @@
 class Managers::BankTestsController < ApplicationController
-	before_action :set_bank_test, only: [:edit, :update, :combine, :combine_obj, :download_page,:download]
+	before_action :set_bank_test, only: [:edit, :update, :combine, :combine_obj, :download_page,:download,:get_binded_stat]
 	layout 'manager_crud'
 
   respond_to :json, :html, :js
@@ -43,8 +43,8 @@ class Managers::BankTestsController < ApplicationController
 
   #获取绑定情况
   def get_binded_stat
-    bank_test = Mongodb::BankTest.find(params[:id])
-    @result = bank_test.get_user_binded_stat
+    result_hash,result_arr = @bank_test.get_user_binded_stat
+    render :json => {result_hash: result_hash,result_arr: result_arr}
   end
 
   # def combine

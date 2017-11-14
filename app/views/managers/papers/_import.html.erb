@@ -13,6 +13,24 @@
       <label>副标题:</label>
       <input type="text" name="subheading" id="subheading" value="">
     </div>
+    <div class="fsubject">
+      <label>科目:</label>
+      <select name="subject" panelHeight="auto" class="easyui-combobox" style="width:100px">
+        <option value="">&nbsp;</option>
+        <% subject_list.each do |key, value| %>
+          <option value="<%= key %>"><%= value %></option>
+        <% end %>
+      </select>
+    </div>
+    <div class="fgrade">
+      <label>年级:</label>
+      <select name="grade" panelHeight="auto" class="easyui-combobox" style="width:100px">
+        <option value="">&nbsp;</option>
+        <% grade_list.each do |key, value| %>
+          <option value="<%= key %>"><%= value %></option>
+        <% end %>
+      </select>
+    </div>
     <div class="frid">
       <label>指标体系RID:</label>
       <input type="text" name="checkpoint_system_rid" id="checkpoint_system_rid" value="">

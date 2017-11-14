@@ -71,42 +71,87 @@ class Mongodb::BankTest
   #获取用户绑定情况
   def get_user_binded_stat
     _report_warehouse_path = Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/"
-    
-    # target_pupil_urls = find_all_pupil_report_urls(reportbasepath, reportwarehousepath + self._id, [])
     target_pupil_urls = Dir[_report_warehouse_path + self._id + "/**/pupil/*.json"]
-    target_pupil_uids = []
-    target_klass_uids = []
+    #树形ID hash
+    target_hash = {}
+    #分类hash
     target_pupil_urls.map{|url| 
       target_path = url.split(".json")[0]
       target_path_arr = target_path.split("/")
-      target_pupil_uids << target_path_arr[-1]
-      target_klass_uids << target_path_arr[-3]
+      target_pupil_uid = target_path_arr[-1]
+      target_klass_uid = target_path_arr[-3]
+      target_tenant_uid = target_path_arr[-5]
+
+      if target_hash.has_key?(target_tenant_uid)
+        if target_hash[target_tenant_uid].has_key?(target_klass_uid)
+          target_hash[target_tenant_uid][target_klass_uid] << target_pupil_uid
+        else
+          target_hash[target_tenant_uid][target_klass_uid] = []
+          target_hash[target_tenant_uid][target_klass_uid] << target_pupil_uid
+        end
+      else
+        target_hash[target_tenant_uid] = {}
+        if target_hash[target_tenant_uid].has_key?(target_klass_uid)
+          target_hash[target_tenant_uid][target_klass_uid] << target_pupil_uid
+        else
+          target_hash[target_tenant_uid][target_klass_uid] = []
+          target_hash[target_tenant_uid][target_klass_uid] << target_pupil_uid
+        end
+      end
     }.compact
-    target_klass_uids = target_klass_uids.uniq.compact
 
-    # target_loc_uids = Location.joins(:pupils).where("pupils.uid in (?)",target_pupil_uids).pluck("locations.uid")
-    # target_loc_uids = target_loc_uids.uniq.compact
-    result = {}
-    binded_pupil_number = Pupil.joins(user: :wx_users).where(uid: target_pupil_uids).select(:user_id).distinct.size
-    result['total_pupils'] = target_pupil_uids.size
-    result['binded_pupils'] = binded_pupil_number
+    
+    #父表格数据
+    result_arr = []
+    #子表格数据
+    result_hash = {}
+    target_hash.each{|k,v|
+      tenant_hash = {}
+      tenant_name = Tenant.where(uid: k).first.name_cn
+      tenant_hash['name'] = tenant_name
+      tenant_hash['total_pupils'] = 0
+      tenant_hash['binded_pupils'] = 0
+      tenant_hash['total_teachers'] = 0
+      tenant_hash['binded_teachers'] = 0
+      result_hash[tenant_name] = []
+      v.map{|k1,v1|
+        class_hash = {}
+        loc = Location.where(uid: k1).first
+        class_hash['name'] = loc.blank? ? k1 : Common::Locale::i18n("dict.#{loc.grade}")
 
-    target_locations = Location.where(uid: target_klass_uids)
+        target_pupil_ids = Pupil.joins(:user).where(uid: v1).pluck(:id).uniq
+        target_teacher_ids = Teacher.joins(:user).where(loc_uid: k1).pluck(:id).uniq
 
-    target_tenants = target_locations.map{|loc| loc.tenant }
-    target_teachers = target_locations.map{|loc| loc.teachers.map{|item| item[:teacher]} }.flatten
-    binded_teacher_number = target_teachers.map{|tea| tea.user.wx_users.blank? ? 0 : 1 }.sum
+        binded_pupil_user = get_binded_num(target_pupil_ids)
+        binded_teacher_user = get_binded_num(target_teacher_ids)
 
-    result['total_teachers'] = target_teachers.size
-    result['binded_teachers'] = binded_teacher_number
+        binded_pupil_number = (binded_pupil_user&target_pupil_ids).size
+        binded_teacher_number = (binded_teacher_user&target_teacher_ids).size
 
-    target_tenant_administrators = target_tenants.map{|tnt| tnt.tenant_administrators }.flatten.uniq.compact
-    binded_tenant_administrators_number = target_tenant_administrators.map{|tnt_admin| tnt_admin.user.wx_users.blank? ? 0 : 1 }.sum
+        class_hash["total_pupils"] = v1.length
+        tenant_hash['total_pupils'] += v1.length
+        class_hash["binded_pupils"] = binded_pupil_number
+        tenant_hash['binded_pupils'] += binded_pupil_number
 
-    result['total_tenant'] = target_tenant_administrators.size
-    result['binded_tenant'] = binded_tenant_administrators_number
+        class_hash["total_teachers"] = target_teacher_ids.size
+        tenant_hash['total_teachers'] += target_teacher_ids.size
+        class_hash["binded_teachers"] = binded_teacher_number
+        tenant_hash['binded_teachers'] += binded_teacher_number
+        result_hash[tenant_name] << class_hash
+      }
+      target_tenant_ids = TenantAdministrator.where(tenant_uid: k).pluck(:user_id).uniq
+      binded_tenant_user = get_binded_num(target_tenant_ids)
+      binded_tenant_number = (binded_tenant_user&target_tenant_ids).size
+      tenant_hash['total_tenant'] = target_tenant_ids.size
+      tenant_hash['binded_tenant'] = binded_tenant_number
+      result_arr << tenant_hash
+    }
+    return result_hash,result_arr
+  end
 
-    return result
+  def get_binded_num(user_ids)
+    master_ids = User.joins(:wx_user_mappings, :groups_as_child).where("user_links.child_id in (:child_ids) ", child_ids: user_ids)
+    binded_wx_user = UserLink.where(parent_id: master_ids).pluck(:child_id)
   end
 
   #统计测试报告情况

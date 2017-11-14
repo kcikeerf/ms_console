@@ -1988,6 +1988,8 @@ class Mongodb::BankPaperPap
   def import_paper_structure params
     begin 
       file, heading, subheading, rid = params[:file_name], params[:heading], params[:subheading], params[:checkpoint_system_rid]
+      grade = params[:grade]
+      subject = params[:subject]
       order = 1
       point_order = 1
       quiz_qiz = nil
@@ -2004,6 +2006,8 @@ class Mongodb::BankPaperPap
       self.checkpoint_system_rid = rid
       self.orig_file_id = fu.id
       self.is_empty = true
+      self.subject = subject
+      self.grade = grade
       self.paper_status = "none"
       self.paper_json = pjson.to_json
       self.save!
@@ -2062,7 +2066,8 @@ class Mongodb::BankPaperPap
       ckp = {}
       file_path = ""
       file_name = ""
-      bank_subject_checkpoint_ckps = BankSubjectCheckpointCkp.where(checkpoint_system_rid: self.checkpoint_system_rid).order("rid ASC")
+      category = Common::Grade.judge_xue_duan self.grade
+      bank_subject_checkpoint_ckps = BankSubjectCheckpointCkp.where(checkpoint_system_rid: self.checkpoint_system_rid,subject: self.subject,category: category).order("rid ASC")
       ckp_hash = {}
       if export_type == "xlsx"
         bank_subject_checkpoint_ckps.each do |ckp|

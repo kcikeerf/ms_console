@@ -2,6 +2,7 @@
 // require jquery_ujs
 //= require jquery-min
 //= require easyui/jquery.easyui.min.js
+//= require easyui/datagrid-detailview.js
 //= require easyui/easyui-lang-zh_CN.js
 //= require managers/area
 
