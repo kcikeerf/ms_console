@@ -233,7 +233,10 @@ zh:
       score_importing: "成绩导入中"
       score_imported: "成绩已导入"
       report_generating: "报告生成中"
-      report_completed: "报告生成完毕" 
+      report_completed: "报告生成完毕"
+    messages:
+      debug: "保存测试过程中发生异常: %{message}"
+      cannot_rollback: "无法回到目标状态"
 
   swtk_errors:
     parameter_invalid_error: "参数无效！"
@@ -371,6 +374,7 @@ zh:
       shi_juan_guan_li: "试卷管理"
       zhi_biao_xi_tong_guan_li: "指标系统管理"
       bank_test: "测试管理"
+      union_test: "考试管理"
     messages:
       welcome: "欢迎访问三题库管理后台!"
       tenant:

@@ -29,6 +29,11 @@ module TestModule
       ReportCompleted = "report_completed" 
     end
 
+    RollbackStatus = {
+      Status::New => I18n.t("tests.status.#{Status::New}"),
+      Status::ScoreImported => I18n.t("tests.status.#{Status::ScoreImported}"),
+    }
+
     ExtDataCodeArr = Common::SwtkConstants::AlphabetDownCaseArr + Common::SwtkConstants::AlphabetUpCaseArr + Common::SwtkConstants::NumberArr
     ExtDataPathLength = 6
     ExtDataPathDefaultPrefix = "___"    

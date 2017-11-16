@@ -61,6 +61,24 @@ class Managers::BankTestsController < ApplicationController
   #   render common_json_response(status, data)   
   # end
 
+  #测试状态回退
+  def rollback
+    begin
+      result = @bank_test.roll_back params
+      if result
+        status = 200
+        data = {:status => 200, :message => result}
+      else
+        status = 500
+        data = {:status => 500, :message => I18n.t("tests.messages.cannot_rollback")}
+      end
+    rescue Exception => e
+      status = 500
+      data = {:status => 500, :message => e.message}
+    end
+    render common_json_response(status,data)
+  end
+
   def combine_obj
     params.permit!
     begin

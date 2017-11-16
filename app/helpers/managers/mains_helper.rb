@@ -53,6 +53,9 @@ module Managers::MainsHelper
     when "managers"
       title = I18n.t("activerecord.models.super_administrator")
       path = "/managers/managers"
+    when "union_tests"
+      title = I18n.t("managers.menus.union_test")
+      path = "/managers/union_tests"
     else
       title = I18n.t("dict.unknown")
       path = "/managers/"

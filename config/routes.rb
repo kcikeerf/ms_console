@@ -114,9 +114,11 @@ Rails.application.routes.draw do
       end
       collection do
         get "get_binded_stat"
+        post "rollback"        
       end
     end
 
+    resources :union_tests, concerns: :destroy_all
     resources :managers, concerns: :destroy_all
     resources :analyzers, concerns: :destroy_all
     resources :teachers, concerns: :destroy_all

@@ -28,6 +28,7 @@ class Managers::PapersController < ApplicationController
     bank_test = Mongodb::BankTest.new
     begin
       bank_test.bank_paper_pap_id = @paper._id
+      bank_test.test_status = Common::Test::Status::New
       bank_test.save_bank_test(bank_test_params)
 
       status = 200

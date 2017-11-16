@@ -191,6 +191,19 @@ function CombineObj(title, url,uid){
   $('#rd form').attr('action', url + uid +  "/combine_obj");
 }
 
+function Rollback(url, rowIndex){
+  rows  = $('#dg').datagrid('getRows');
+  console.log($('meta[name="csrf-token"]')[0].content)
+  row = rows[rowIndex]
+  $("#rb").html($(".rollback_test").html());
+  $('#rb').dialog('open').dialog('setTitle',"测试回退");
+  $('#token').val($('meta[name="csrf-token"]')[0].content);
+  $('#uid').val(row.uid);
+  $('#heading').val(row.name);
+  $('#status_label').val(row.test_status);
+  $('#rb form').attr('action', url + row.uid +  "/rollback");
+}
+
 function DownLoadObj(title, url,uid){
   $.getJSON(url + uid + '/download_page', function(data) {
     $("#rd").html("");//清空info内容
@@ -216,6 +229,7 @@ function formSaveObj(){
     success: function(result){
       result = JSON.parse(result);
       if (result.status == 200){
+        $("#rb").dialog('close'); 
         $("#rd").dialog('close');      // close the dialog
         $('#dg').datagrid('reload');    // reload the user data
       } else{

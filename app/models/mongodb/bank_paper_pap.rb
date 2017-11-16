@@ -281,22 +281,22 @@ class Mongodb::BankPaperPap
     def get_pap pap_uid
       target_pap = Mongodb::BankPaperPap.where(_id: pap_uid).first
       #判断状态是否需要更新
-      case target_pap.paper_status
-      when Common::Paper::Status::Analyzed,Common::Paper::Status::ScoreImporting
-        if !target_pap.bank_tests[0].blank? && !target_pap.bank_tests[0].tenant_list.blank?
-          unless target_pap.bank_tests[0].tenant_list.map{|a| a[:tenant_status] == Common::Paper::Status::ScoreImported}.include?(false)
-            paper_json_h = JSON.parse(target_pap.paper_json)
-            paper_json_h["information"]["paper_status"] = Common::Paper::Status::ScoreImported
-            target_pap.update({
-              :paper_status => Common::Paper::Status::ScoreImported,
-              :paper_json => paper_json_h.to_json
-            })
-          end
-        end
-      else
-        #do nothing
-      end
-      target_pap
+      # case target_pap.paper_status
+      # when Common::Paper::Status::Analyzed,Common::Paper::Status::ScoreImporting
+      #   if !target_pap.bank_tests[0].blank? && !target_pap.bank_tests[0].tenant_list.blank?
+      #     unless target_pap.bank_tests[0].tenant_list.map{|a| a[:tenant_status] == Common::Paper::Status::ScoreImported}.include?(false)
+      #       paper_json_h = JSON.parse(target_pap.paper_json)
+      #       paper_json_h["information"]["paper_status"] = Common::Paper::Status::ScoreImported
+      #       target_pap.update({
+      #         :paper_status => Common::Paper::Status::ScoreImported,
+      #         :paper_json => paper_json_h.to_json
+      #       })
+      #     end
+      #   end
+      # else
+      #   #do nothing
+      # end
+      # target_pap
     end
 
     ##############################
@@ -1269,7 +1269,7 @@ class Mongodb::BankPaperPap
   # => ###############################################################
   def save_pap_plus params
     result = false
-    phase_arr = %w{phase1 phase2 phase3 phase4 phase5}
+    phase_arr = %w{phase1 phase2 phase3}
     error_index = 0
     self.status = Common::Paper::Status::None
     begin
@@ -1335,41 +1335,41 @@ class Mongodb::BankPaperPap
   ##############################
   #临时处理，伴随试卷保存
   #创建测试
-  def save_pap_phase1 params
-    # step1 new_bank_tests
-    begin
-      if self.bank_tests.blank?
-        pap_test = Mongodb::BankTest.new({
-          :name => self._id.to_s + "_" +Common::Locale::i18n("activerecord.models.bank_test"),
-          :user_id => current_user_id,
-          :quiz_date => Time.now,
-          :bank_paper_pap_id => self.id.to_s
-        })
-        pap_test.save!
-        # self.bank_tests = [pap_test]
-        # save!
-      else
-        self.old_tenant_links = self.bank_tests[0].bank_test_tenant_links.map(&:tenant_uid)
-        self.bank_tests[0].bank_test_tenant_links.destroy_all unless params[:information][:tenants].blank?
-      end
-      return params
-    rescue Exception => e
-      raise e.message 
-    end   
-  end
+  # def save_pap_phase1 params
+  #   # step1 new_bank_tests
+  #   begin
+  #     if self.bank_tests.blank?
+  #       pap_test = Mongodb::BankTest.new({
+  #         :name => self._id.to_s + "_" +Common::Locale::i18n("activerecord.models.bank_test"),
+  #         :user_id => current_user_id,
+  #         :quiz_date => Time.now,
+  #         :bank_paper_pap_id => self.id.to_s
+  #       })
+  #       pap_test.save!
+  #       # self.bank_tests = [pap_test]
+  #       # save!
+  #     else
+  #       self.old_tenant_links = self.bank_tests[0].bank_test_tenant_links.map(&:tenant_uid)
+  #       self.bank_tests[0].bank_test_tenant_links.destroy_all unless params[:information][:tenants].blank?
+  #     end
+  #     return params
+  #   rescue Exception => e
+  #     raise e.message 
+  #   end   
+  # end
 
   ##############################
   #试卷状态更新
-  def save_pap_phase2 params
+  def save_pap_phase1 params #原来的第二步
     #更改tenant状态
     begin
-      self.test_associated_tenant_uids.each{|tnt_uid|
-        test_tenant_link = Mongodb::BankTestTenantLink.new({
-          :tenant_uid => tnt_uid
-        })
-        test_tenant_link.save!
-        self.bank_tests[0].bank_test_tenant_links.push(test_tenant_link)
-      }
+      # self.test_associated_tenant_uids.each{|tnt_uid|
+      #   test_tenant_link = Mongodb::BankTestTenantLink.new({
+      #     :tenant_uid => tnt_uid
+      #   })
+      #   test_tenant_link.save!
+      #   self.bank_tests[0].bank_test_tenant_links.push(test_tenant_link)
+      # }
       if params[:information][:heading] && params[:bank_quiz_qizs].blank?
         self.status = Common::Paper::Status::New
       elsif params[:information][:heading] && params[:bank_quiz_qizs] && self.bank_quiz_qizs.blank?
@@ -1381,10 +1381,10 @@ class Mongodb::BankPaperPap
       params["information"]["paper_status"] = status
 
       #测试各Tenant的状态更新
-      params = update_test_tenants_status(params,
-        Common::Test::Status::NotStarted,
-        self.bank_tests[0].bank_test_tenant_links.map(&:tenant_uid)
-      )
+      # params = update_test_tenants_status(params,
+      #   Common::Test::Status::NotStarted,
+      #   self.bank_tests[0].bank_test_tenant_links.map(&:tenant_uid)
+      # )
       return params
     rescue Exception => e
       raise e.message 
@@ -1394,43 +1394,43 @@ class Mongodb::BankPaperPap
   ##############################
   #Task List创建： 上传成绩， 生成报告
   # step3 params["information"]["tasks"]不存在时 创建bank_test_task_links, tasklist
-  def save_pap_phase3 params
-    begin
-      params["information"]["tasks"] = params["information"]["tasks"] || {}
-      if params["information"]["tasks"].blank?
-        self.bank_tests[0].bank_test_task_links.destroy_all
-        [Common::Task::Type::ImportResult, Common::Task::Type::CreateReport].each{|tk|
-          tkl = TaskList.new({
-            :name => id.to_s + "_" + Common::Locale::i18n("tasks.type." + tk),
-            :task_type => tk,
-            #:pap_uid => id.to_s,
-            :status => Common::Task::Status::InActive
-          })
-          tkl.save!
-          tkl_link = Mongodb::BankTestTaskLink.new(:task_uid => tkl.uid)
-          tkl_link.save!
-          params["information"]["tasks"][tk] = tkl.uid
-          bank_tests[0].bank_test_task_links.push(tkl_link)
-        }
-      else
-        # if bank_tests[0].bank_test_task_links.blank?
-        #   [Common::Task::Type::ImportResult, Common::Task::Type::CreateReport].each{|tk|
-        #     tkl_link = Mongodb::BankTestTaskLink.new(:task_uid => params["information"]["tasks"][tk])
-        #     tkl_link.save!
-        #     bank_tests[0].bank_test_task_links.push(tkl_link)
-        #   }
-        # else
-        # end
-      end
-      return params
-    rescue Exception => e
-      raise e.message 
-    end
-  end
+  # def save_pap_phase3 params
+  #   begin
+  #     params["information"]["tasks"] = params["information"]["tasks"] || {}
+  #     if params["information"]["tasks"].blank?
+  #       self.bank_tests[0].bank_test_task_links.destroy_all
+  #       [Common::Task::Type::ImportResult, Common::Task::Type::CreateReport].each{|tk|
+  #         tkl = TaskList.new({
+  #           :name => id.to_s + "_" + Common::Locale::i18n("tasks.type." + tk),
+  #           :task_type => tk,
+  #           #:pap_uid => id.to_s,
+  #           :status => Common::Task::Status::InActive
+  #         })
+  #         tkl.save!
+  #         tkl_link = Mongodb::BankTestTaskLink.new(:task_uid => tkl.uid)
+  #         tkl_link.save!
+  #         params["information"]["tasks"][tk] = tkl.uid
+  #         bank_tests[0].bank_test_task_links.push(tkl_link)
+  #       }
+  #     else
+  #       if bank_tests[0].bank_test_task_links.blank?
+  #         [Common::Task::Type::ImportResult, Common::Task::Type::CreateReport].each{|tk|
+  #           tkl_link = Mongodb::BankTestTaskLink.new(:task_uid => params["information"]["tasks"][tk])
+  #           tkl_link.save!
+  #           bank_tests[0].bank_test_task_links.push(tkl_link)
+  #         }
+  #       else
+  #       end
+  #     end
+  #     return params
+  #   rescue Exception => e
+  #     raise e.message 
+  #   end
+  # end
 
   ##############################
   #试卷大纲信息保存
-  def save_pap_phase4 params
+  def save_pap_phase2 params #原来的第四步
     begin
       params["information"]["paper_outline"] = params["information"]["paper_outline"] || {}
       paper_outline_arr = []
@@ -1475,7 +1475,7 @@ class Mongodb::BankPaperPap
 
   #试卷保存
   # step5 save/update paper
-  def save_pap_phase5 params
+  def save_pap_phase3 params #原来的第五步
     begin
       target_tenant = Common::Uzer.get_tenant current_user_id
       self.update_attributes({
@@ -1498,49 +1498,51 @@ class Mongodb::BankPaperPap
 
 
   #第一步发生异常时调用的回调
-  def save_pap_phase1_rollback 
-    #delete bank_test
-    if bank_tests[0].present?
-      old_tenant_links ||= []
-      old_tenant_links.each{|tnt_uid|
-        test_tenant_link = Mongodb::BankTestTenantLink.new({
-          :tenant_uid => tnt_uid
-        })
-        test_tenant_link.save!
-        self.bank_tests[0].bank_test_tenant_links.push(test_tenant_link)
-      }
-    end
-    params = JSON.parse(self.paper_json)
-    if params["information"]["tasks"].blank?
-      self.bank_tests[0].destroy_all if self.bank_tests[0]
-    end
-    if self.locked_by_current_operator?
-      self.release_lock!
-    end
+  # def save_pap_phase1_rollback 
+  #   #delete bank_test
+  #   if bank_tests[0].present?
+  #     old_tenant_links ||= []
+  #     old_tenant_links.each{|tnt_uid|
+  #       test_tenant_link = Mongodb::BankTestTenantLink.new({
+  #         :tenant_uid => tnt_uid
+  #       })
+  #       test_tenant_link.save!
+  #       self.bank_tests[0].bank_test_tenant_links.push(test_tenant_link)
+  #     }
+  #   end
+  #   params = JSON.parse(self.paper_json)
+  #   if params["information"]["tasks"].blank?
+  #     self.bank_tests[0].destroy_all if self.bank_tests[0]
+  #   end
+  #   if self.locked_by_current_operator?
+  #     self.release_lock!
+  #   end
 
-    #delete bank_paper_pap    
-  end
+  #   #delete bank_paper_pap    
+  # end
 
   #第二步发生的回滚
-  def save_pap_phase2_rollback 
-    #delete bank_test_tenant_links
-    self.bank_tests[0].bank_test_tenant_links.destroy_all if self.bank_tests[0].present? && self.bank_tests[0].bank_test_tenant_links 
-  end
+  # def save_pap_phase2_rollback 
+  #   #delete bank_test_tenant_links
+  #   self.bank_tests[0].bank_test_tenant_links.destroy_all if self.bank_tests[0].present? && self.bank_tests[0].bank_test_tenant_links 
+  # end
 
   #第三步发生回滚
-  def save_pap_phase3_rollback 
+  # def save_pap_phase3_rollback 
 
-    params = JSON.parse(self.paper_json)
+  #   params = JSON.parse(self.paper_json)
 
-    if params["information"]["tasks"].blank?
-      self.bank_tests[0].tasks.destroy_all if self.bank_tests[0].present? && self.bank_tests[0].tasks.present?
-      #delete test task list
-      self.bank_tests[0].bank_test_task_links.destroy_all if self.bank_tests[0].present? && self.bank_tests[0].bank_test_task_links.present?
-    end
+  #   if params["information"]["tasks"].blank?
+  #     self.bank_tests[0].tasks.destroy_all if self.bank_tests[0].present? && self.bank_tests[0].tasks.present?
+  #     #delete test task list
+  #     self.bank_tests[0].bank_test_task_links.destroy_all if self.bank_tests[0].present? && self.bank_tests[0].bank_test_task_links.present?
+  #   end
+  # end
+  def save_pap_phase1_rollback #第一步回滚
   end
 
   #第四步发生回滚
-  def save_pap_phase4_rollback 
+  def save_pap_phase2_rollback  #第二步回滚
     params = JSON.parse(self.paper_json)
     if params["information"]["paper_outline_edittable"]
       paper_outlines.destroy_all
@@ -1550,7 +1552,7 @@ class Mongodb::BankPaperPap
   end
 
   #第五步发生回滚
-  def save_pap_phase5_rollback 
+  def save_pap_phase3_rollback #第三步回滚
   end
 
   # => ###############################################################
@@ -1797,11 +1799,11 @@ class Mongodb::BankPaperPap
       paper_h = JSON.parse(self.paper_json)    
 
       #测试各Tenant的状态更新
-      paper_h = update_test_tenants_status(
-        paper_h,
-        Common::Test::Status::Analyzed,
-        self.bank_tests[0].bank_test_tenant_links.map(&:tenant_uid)
-      )
+      # paper_h = update_test_tenants_status(
+      #   paper_h,
+      #   Common::Test::Status::Analyzed,
+      #   self.bank_tests[0].bank_test_tenant_links.map(&:tenant_uid)
+      # )
       paper_h["information"]["paper_status"] = status
       self.update_attributes({
        :paper_json => paper_h.to_json || "",
@@ -1858,11 +1860,11 @@ class Mongodb::BankPaperPap
   def submit_ckp_phase2_rollback 
     paper_h = JSON.parse(self.paper_json)
     paper_h["information"]["paper_status"] = Common::Paper::Status::Analyzing
-    update_test_tenants_status(
-      paper_h,
-      Common::Paper::Status::None,
-      self.bank_tests[0].bank_test_tenant_links.map(&:tenant_uid)
-    )
+    # update_test_tenants_status(
+    #   paper_h,
+    #   Common::Paper::Status::None,
+    #   self.bank_tests[0].bank_test_tenant_links.map(&:tenant_uid)
+    # )
     self.update_attributes({
        :paper_json => paper_h.to_json || "",
     }) 
@@ -1933,11 +1935,11 @@ class Mongodb::BankPaperPap
   #删除相关试卷的上传文件，删除试卷及依赖
   def delete_paper_pap
     begin
-      if bank_tests[0].present? 
-        score_uploads = bank_tests[0].score_uploads
-      else
-        score_upload =  ""
-      end 
+      # if bank_tests[0].present? 
+      #   score_uploads = bank_tests[0].score_uploads
+      # else
+      #   score_upload =  ""
+      # end 
 
       if self.orig_file_id
         file_upload = FileUpload.where(id: self.orig_file_id).first 
@@ -1945,21 +1947,21 @@ class Mongodb::BankPaperPap
         file_upload = ""
       end
 
-      score_path = ""
+      # score_path = ""
       file_path = ""
-      if score_uploads.present?
-        score_uploads.each {|su| 
-          if su.filled_file.current_path.present?
-            score_path = su.filled_file.current_path.split("/")[0..-2].join("/")
-          elsif su.empty_file.current_path.present?
-            score_path = su.empty_file.current_path.split("/")[0..-2].join("/")
-          end
-          if score_path
-            FileUtils.rm_rf(score_path)
-          end
-          su.delete
-        }
-      end
+      # if score_uploads.present?
+      #   score_uploads.each {|su| 
+      #     if su.filled_file.current_path.present?
+      #       score_path = su.filled_file.current_path.split("/")[0..-2].join("/")
+      #     elsif su.empty_file.current_path.present?
+      #       score_path = su.empty_file.current_path.split("/")[0..-2].join("/")
+      #     end
+      #     if score_path
+      #       FileUtils.rm_rf(score_path)
+      #     end
+      #     su.delete
+      #   }
+      # end
 
       if file_upload.present?
         if file_upload.paper.current_path.present?

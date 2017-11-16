@@ -27,11 +27,13 @@
 <%end%>
 
 
-
 <script type="text/javascript">
 	function formatOper(val,row,index){
 		var click_show = 'reopen(window.parent.$("#tabs"),"报告详情", "/managers/dashbord/report?id='+row["uid"]+'")';
 		options = "";
+    if(row['test_status'] != 'new'){
+      options = options + "<a  href='#' onclick=\"Rollback(" + "\'<%= page_info_item[:path] %>/\'," + index  + ")\">回退</a>&nbsp; ";
+    }
 		options = options + '<a href="#" onclick="CombineObj(\'导入用户\',\'<%= page_info_item[:path] %>/\',\'' + row["uid"] + '\');" >导入用户</a> &nbsp;';
 		if(row["down_allow"]){	
 			options = options + '<a href="#" onclick="DownLoadObj(\'账号下载\',\'<%= page_info_item[:path] %>/\',\'' + row["uid"] + '\');" >下载</a> &nbsp;';  
@@ -44,12 +46,19 @@
   function get_binded_stat(uid){
     $.ajax({
       url: '/managers/bank_tests/get_binded_stat',
+      beforeSend: function(){
+        $.messager.progress({ 
+          title:'Please waiting',
+          msg:'Loading data...'
+        });
+      },
       data: {
         id:uid,
         authenticity_token: $('meta[name="csrf-token"]')[0].content,
       },
       type: 'get',
       success: function(rs){
+        $.messager.progress('close');
         result_arr = rs.result_arr
         var total_tenant = 0
             binded_tenant = 0
@@ -71,7 +80,7 @@
           data: result_arr,
           view: detailview,
           columns:[[
-            {field:'name',title:'班级',width:180},
+            {field:'name',title:'学校',width:180},
             {field:'total_tenant',title:'校长总数',width:100},
             {field:'binded_tenant',title:'校长绑定数目',width:100},
             {field:'total_teachers',title:'教师总数',width:100},
@@ -113,7 +122,10 @@
       }
     })
   }  
+
 </script>
+
+
 
 <% content_for :form do %>
 	<%= render partial: "managers/bank_tests/form" %>
@@ -128,5 +140,29 @@
 <script type="text/template" class="binded_stat_table">
   <h2 id="total_stat"></h2>
   <table id="binded_stat"></table>
+</script>
+
+
+
+<script type="text/template" class="rollback_test">
+  <form action="" accept-charset="UTF-8" method="post" id="refrom" class="dlg-form" enctype="multipart/form-data">
+    <input type="hidden" name="authenticity_token" id="token" value="">
+    <div class="fuid">
+      <label>ID:</label>
+      <%= text_field_tag :uid, '',"readonly" => "readonly" %>
+    </div>
+    <div class="fname">
+      <label>名称:</label>
+      <%= text_field_tag :heading, '', "readonly" => "readonly"%>
+    </div>
+    <div class="fstatus">
+      <label>状态:</label>
+      <%= text_field_tag :status_label, '', "readonly" => "readonly" %>
+    </div>
+    <div class="fback">
+      <label>回退到:</label>
+      <%= select_tag "back_to",options_for_select(Common::Test::RollbackStatus.invert),{class: 'back_to'} %>
+    </div>
+  </form>
 </script>
 

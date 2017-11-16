@@ -37,6 +37,7 @@ class Mongodb::BankTest
   field :checkpoint_system_rid, type: String
   field :is_public, type: Boolean
   field :area_rid, type: String
+  field :test_status, type: String
 
   field :dt_add, type: DateTime
   field :dt_update, type: DateTime
@@ -107,7 +108,8 @@ class Mongodb::BankTest
     result_hash = {}
     target_hash.each{|k,v|
       tenant_hash = {}
-      tenant_name = Tenant.where(uid: k).first.name_cn
+      tena = Tenant.where(uid: k).first
+      tenant_name = tena.blank? ? k : tena.name_cn
       tenant_hash['name'] = tenant_name
       tenant_hash['total_pupils'] = 0
       tenant_hash['binded_pupils'] = 0
@@ -212,6 +214,179 @@ class Mongodb::BankTest
       single_rollback
       raise
     end
+  end
+
+  #保存测试
+  def save_test params
+    paper = Mongodb::BankPaperPap.where(_id: params[:paper_uid]).first 
+    union_test = Mongodb::UnionTest.where(_id: params[:id]).first
+    params[:tenant_uids] = union_test.tenant_uids
+    params[:paper_uid] = paper._id.to_s
+    params[:union_test_id] = union_test.id
+
+    phase_arr = %w{ phase1 phase2 phase3 }
+    error_index = 0
+    begin
+      phase_arr.each_with_index do |phase, index|
+        error_index = index
+        send("save_bank_test_#{phase}",params)
+      end
+    rescue Exception => e
+      phase_arr = phase_arr[0..error_index].reverse
+      phase_arr.each_with_index do |phase, index|
+        send("save_bank_test_#{phase}_rollback")
+      end
+      #以后修改成测试的异常
+      raise e#SwtkErrors::BankTestHasError.new(I18n.t("tests.messages.debug", :message => e.message))
+    end
+  end
+
+  #创建测试第一步，关联学校
+  def save_bank_test_phase1 params
+    begin
+      if self.bank_test_tenant_links.blank?
+        params[:tenant_uids].each {|tenant|
+          bank_test_tenant_link = Mongodb::BankTestTenantLink.new(tenant_uid: tenant, bank_test_id: self._id, tenant_status: Common::Test::Status::New)
+          bank_test_tenant_link.save   
+        }
+      end
+    rescue Exception => e
+      raise e.message 
+    end
+  end
+
+  #创建测试第二步，保存测试
+  def save_bank_test_phase2 params
+    begin
+      self.update_attributes({
+        :name => params[:name]||params[:paper_uid] + "_" +Common::Locale::i18n("activerecord.models.bank_test"),
+        :user_id => params[:user_id],
+        :quiz_date => Time.now,
+        :union_test_id => params[:union_test_id],
+        :bank_paper_pap_id => params[:paper_uid],
+        :test_status => Common::Test::Status::New
+      })
+    rescue Exception => e
+      raise e.message 
+    end
+  end
+
+  #创建测试第三步，TaskList
+  def save_bank_test_phase3 params
+    begin
+      if self.bank_test_task_links.blank?
+        [Common::Task::Type::ImportResult, Common::Task::Type::CreateReport].each{|tk|
+          tkl = TaskList.new({
+            :name => self.id.to_s + "_" + Common::Locale::i18n("tasks.type." + tk),
+            :task_type => tk,
+            #:pap_uid => id.to_s,
+            :status => Common::Task::Status::InActive
+          })
+          tkl.save!
+          tkl_link = Mongodb::BankTestTaskLink.new(:task_uid => tkl.uid)
+          tkl_link.save!
+          self.bank_test_task_links.push(tkl_link)
+        }
+      end
+    rescue Exception => e
+      raise e.message 
+    end
+  end
+
+  #第一步异常调用
+  def save_bank_test_phase1_rollback
+    self.bank_test_tenant_links.destroy_all
+  end
+
+  #第二步异常调用
+  def save_bank_test_phase2_rollback
+    self.destroy
+  end
+
+  #第三步异常调用
+  def save_bank_test_phase3_rollback
+    self.tasks.destroy_all
+    self.bank_test_task_links.destroy_all
+  end
+
+  #测试状态回退
+  def roll_back params
+    case params[:back_to]
+    when Common::Test::Status::New
+      if [Common::Test::Status::New].include?(self.test_status)
+        return false
+      else        
+        #删除报告文件
+        # del_report_file
+        #去除资源锁
+        del_lock
+        #删除job_lists
+        self.tasks.each{|task|
+          task.job_lists.destroy_all
+        }
+        #修改学校状态
+        self.bank_test_tenant_links.each{ |t|
+          t.update(tenant_status: Common::Test::Status::New)
+        }
+        #修改测试状态
+        self.update(test_status: Common::Test::Status::New)
+      end
+    when Common::Test::Status::ScoreImported
+      if [Common::Test::Status::ReportGenerating,Common::Test::Status::ReportCompleted].include?(self.test_status)
+        #删除报告文件
+        # del_report_file
+        #去除资源锁
+        del_lock
+        #删除job_lists
+        task = self.tasks.by_task_type("create_report").first
+        task.job_lists.destroy_all
+        #修改测试状态
+        self.update(test_status: Common::Test::Status::ScoreImported)
+      else
+        return false
+      end
+    end
+  end
+
+  #删除报告文件
+  def del_report_file
+    _report_warehouse_path = Dir::pwd + Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/" + self._id.to_s
+    FileUtils.rm_rf(_report_warehouse_path)
+  end
+
+  #去除资源锁
+  def del_lock
+    Common::TkLock::force_release_lock_paper_test_qzp_ckp self.id
+  end
+
+  #删除上传的成绩文件以及相关信息
+  # def delete_score_uploads
+  #   score_path = ""
+  #   if self.score_uploads.present?
+  #     self.score_uploads.each {|su| 
+  #       # bank_link_user_rollback su
+  #       if su.filled_file.current_path.present?
+  #         score_path = su.filled_file.current_path.split("/")[0..-2].join("/")
+  #       elsif su.empty_file.current_path.present?
+  #         score_path = su.empty_file.current_path.split("/")[0..-2].join("/")
+  #       end
+  #       if score_path
+  #         FileUtils.rm_rf(score_path)
+  #       end
+  #       su.delete
+  #     }
+  #   end
+  # end
+
+  #删除学校上传的成绩文件以及相关信息
+  def single_tenant_rollback
+    #删除绑定信息
+    tenant = Mongodb::BankTestTenantLink.where(bank_test_id: self._id,tenant_uid: t_uid).first
+    #删除job_list
+    job = JobList.where(uid: tenant.job_uid).first
+    job.destroy
+    #修改学校状态
+    tenant.update(tenant_status: Common::Test::Status::New)
   end
 
   #回滚状态
@@ -358,17 +533,17 @@ class Mongodb::BankTest
       }
    
       # 试卷的json中，插入测试tenant信息，未来考虑丢掉
-      target_pap = self.bank_paper_pap
-      paper_h = JSON.parse(target_pap.paper_json)
-      unless paper_h["information"]["tenants"].blank?
-        paper_h["information"]["tenants"].each_with_index{|item, index|
-          if tenant_uids.include?(item["tenant_uid"])
-            paper_h["information"]["tenants"][index]["tenant_status"] = status_str
-            paper_h["information"]["tenants"][index]["tenant_status_label"] = Common::Locale::i18n("tests.status.#{status_str}")
-          end
-        }
-        target_pap.update(:paper_json => paper_h.to_json)
-      end 
+      # target_pap = self.bank_paper_pap
+      # paper_h = JSON.parse(target_pap.paper_json)
+      # unless paper_h["information"]["tenants"].blank?
+      #   paper_h["information"]["tenants"].each_with_index{|item, index|
+      #     if tenant_uids.include?(item["tenant_uid"])
+      #       paper_h["information"]["tenants"][index]["tenant_status"] = status_str
+      #       paper_h["information"]["tenants"][index]["tenant_status_label"] = Common::Locale::i18n("tests.status.#{status_str}")
+      #     end
+      #   }
+      #   target_pap.update(:paper_json => paper_h.to_json)
+      # end 
     rescue Exception => ex
       logger.debug ex.message
       logger.debug ex.backtrace
@@ -613,7 +788,7 @@ class Mongodb::BankTest
 
   #删除 关联的用户 及相关信息
   def bank_link_user_rollback su
-    if su.usr_pwd_file
+    if su.usr_pwd_file.current_path
       user_info_xlsx = Roo::Excelx.new(su.usr_pwd_file.current_path)
       if user_info_xlsx.sheet(3).last_row.present? 
         user_info_xlsx.sheet(3).each_with_index do |row,index|
@@ -640,7 +815,6 @@ class Mongodb::BankTest
       su.save!
     end   
   end
-
 
   ###私有方法###
   private
