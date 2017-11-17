@@ -110,11 +110,11 @@ Rails.application.routes.draw do
         get "combine"
         post "combine_obj"
         get "download_page"
-        get "download"        
+        get "download"  
+        post "rollback"      
       end
       collection do
-        get "get_binded_stat"
-        post "rollback"        
+        get "get_binded_stat"     
       end
     end
 

@@ -1,5 +1,5 @@
 class Managers::BankTestsController < ApplicationController
-	before_action :set_bank_test, only: [:edit, :update, :combine, :combine_obj, :download_page,:download,:get_binded_stat]
+	before_action :set_bank_test, only: [:edit, :update, :combine, :combine_obj, :download_page,:download,:get_binded_stat,:rollback]
 	layout 'manager_crud'
 
   respond_to :json, :html, :js
