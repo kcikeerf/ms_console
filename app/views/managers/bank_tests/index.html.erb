@@ -44,12 +44,19 @@
   function get_binded_stat(uid){
     $.ajax({
       url: '/managers/bank_tests/get_binded_stat',
+      beforeSend: function(){
+        $.messager.progress({ 
+          title:'Please waiting',
+          msg:'Loading data...'
+        });
+      },
       data: {
         id:uid,
         authenticity_token: $('meta[name="csrf-token"]')[0].content,
       },
       type: 'get',
       success: function(rs){
+        $.messager.progress('close');
         result_arr = rs.result_arr
         var total_tenant = 0
             binded_tenant = 0
@@ -66,12 +73,12 @@
           binded_pupils += result_arr[i].binded_pupils
         }
         $("#mydlg").html($(".binded_stat_table").html());
-        $("#total_stat").append("绑定总情况:校长："+binded_tenant+'/'+total_tenant+"老师："+binded_teachers+'/'+total_teachers+"学生："+binded_pupils+'/'+total_pupils)
+        $("#total_stat").append("绑定总情况:校长："+binded_tenant+'/'+total_tenant+"教师："+binded_teachers+'/'+total_teachers+"学生："+binded_pupils+'/'+total_pupils)
         $('#binded_stat').datagrid({
           data: result_arr,
           view: detailview,
           columns:[[
-            {field:'name',title:'班级',width:180},
+            {field:'name',title:'学校',width:180},
             {field:'total_tenant',title:'校长总数',width:100},
             {field:'binded_tenant',title:'校长绑定数目',width:100},
             {field:'total_teachers',title:'教师总数',width:100},
@@ -109,6 +116,7 @@
         $('#mydlg').dialog('open')
       },
       error: function(){
+        $.messager.progress('close');
         alert('获取失败')
       }
     })
