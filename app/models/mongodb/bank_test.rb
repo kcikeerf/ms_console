@@ -119,16 +119,14 @@ class Mongodb::BankTest
       v.map{|k1,v1|
         class_hash = {}
         loc = Location.where(uid: k1).first
-        class_hash['name'] = loc.blank? ? k1 : Common::Locale::i18n("dict.#{loc.grade}")
+        class_hash['name'] = loc.blank? ? k1 : Common::Locale::i18n("dict.#{loc.classroom}")
 
         target_pupil_ids = Pupil.joins(:user).where(uid: v1).pluck(:id).uniq
-        target_teacher_ids = Teacher.joins(:user).where(loc_uid: k1).pluck(:id).uniq
+        target_teacher_ids = loc.blank? ? [] : loc.teachers.map{|item| item[:teacher].user_id.to_i}.uniq
+        # target_teacher_ids = Teacher.joins(:user).where(loc_uid: k1).pluck(:id).uniq
 
-        binded_pupil_user = get_binded_num(target_pupil_ids)
-        binded_teacher_user = get_binded_num(target_teacher_ids)
-
-        binded_pupil_number = (binded_pupil_user&target_pupil_ids).size
-        binded_teacher_number = (binded_teacher_user&target_teacher_ids).size
+        binded_pupil_number = get_binded_num(target_pupil_ids)
+        binded_teacher_number = get_binded_num(target_teacher_ids)
 
         class_hash["total_pupils"] = v1.length
         tenant_hash['total_pupils'] += v1.length
@@ -136,14 +134,17 @@ class Mongodb::BankTest
         tenant_hash['binded_pupils'] += binded_pupil_number
 
         class_hash["total_teachers"] = target_teacher_ids.size
-        tenant_hash['total_teachers'] += target_teacher_ids.size
         class_hash["binded_teachers"] = binded_teacher_number
-        tenant_hash['binded_teachers'] += binded_teacher_number
         result_hash[tenant_name] << class_hash
       }
       target_tenant_ids = TenantAdministrator.where(tenant_uid: k).pluck(:user_id).uniq
-      binded_tenant_user = get_binded_num(target_tenant_ids)
-      binded_tenant_number = (binded_tenant_user&target_tenant_ids).size
+      binded_tenant_number = get_binded_num(target_tenant_ids)
+
+      tenant_teacher_ids = tena.teachers.map{|item| item.user_id.to_i}.uniq
+      binded_tenant_teacher_number = get_binded_num(tenant_teacher_ids)
+
+      tenant_hash['total_teachers'] = tenant_teacher_ids.size
+      tenant_hash['binded_teachers'] = binded_tenant_teacher_number
       tenant_hash['total_tenant'] = target_tenant_ids.size
       tenant_hash['binded_tenant'] = binded_tenant_number
       result_arr << tenant_hash
@@ -154,6 +155,7 @@ class Mongodb::BankTest
   def get_binded_num(user_ids)
     master_ids = User.joins(:wx_user_mappings, :groups_as_child).where("user_links.child_id in (:child_ids) ", child_ids: user_ids).pluck(:id)
     binded_wx_user = UserLink.where(parent_id: master_ids).pluck(:child_id)
+    return (user_ids&binded_wx_user).size
   end
 
   #统计测试报告情况
