@@ -116,6 +116,7 @@ class Mongodb::BankTest
       tenant_hash['total_teachers'] = 0
       tenant_hash['binded_teachers'] = 0
       result_hash[tenant_name] = []
+      tenant_teacher_ids = []
       v.map{|k1,v1|
         class_hash = {}
         loc = Location.where(uid: k1).first
@@ -123,7 +124,7 @@ class Mongodb::BankTest
 
         target_pupil_ids = Pupil.joins(:user).where(uid: v1).pluck(:id).uniq
         target_teacher_ids = loc.blank? ? [] : loc.teachers.map{|item| item[:teacher].user_id.to_i}.uniq
-        # target_teacher_ids = Teacher.joins(:user).where(loc_uid: k1).pluck(:id).uniq
+        tenant_teacher_ids += target_teacher_ids
 
         binded_pupil_number = get_binded_num(target_pupil_ids)
         binded_teacher_number = get_binded_num(target_teacher_ids)
@@ -140,10 +141,9 @@ class Mongodb::BankTest
       target_tenant_ids = TenantAdministrator.where(tenant_uid: k).pluck(:user_id).uniq
       binded_tenant_number = get_binded_num(target_tenant_ids)
 
-      tenant_teacher_ids = tena.teachers.map{|item| item.user_id.to_i}.uniq
-      binded_tenant_teacher_number = get_binded_num(tenant_teacher_ids)
+      binded_tenant_teacher_number = get_binded_num(tenant_teacher_ids.uniq)
 
-      tenant_hash['total_teachers'] = tenant_teacher_ids.size
+      tenant_hash['total_teachers'] = tenant_teacher_ids.uniq.size
       tenant_hash['binded_teachers'] = binded_tenant_teacher_number
       tenant_hash['total_tenant'] = target_tenant_ids.size
       tenant_hash['binded_tenant'] = binded_tenant_number
