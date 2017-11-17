@@ -118,6 +118,7 @@
         $('#mydlg').dialog('open')
       },
       error: function(){
+        $.messager.progress('close');
         alert('获取失败')
       }
     })

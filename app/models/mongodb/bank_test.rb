@@ -152,7 +152,7 @@ class Mongodb::BankTest
   end
 
   def get_binded_num(user_ids)
-    master_ids = User.joins(:wx_user_mappings, :groups_as_child).where("user_links.child_id in (:child_ids) ", child_ids: user_ids)
+    master_ids = User.joins(:wx_user_mappings, :groups_as_child).where("user_links.child_id in (:child_ids) ", child_ids: user_ids).pluck(:id)
     binded_wx_user = UserLink.where(parent_id: master_ids).pluck(:child_id)
   end
 
