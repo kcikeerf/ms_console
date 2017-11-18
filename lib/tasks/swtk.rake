@@ -1131,7 +1131,9 @@ namespace :swtk do
 
             urls = find_all_pupil_report_urls base_path,ReportWarehousePath,[]
             urls.each{|item|
-              rpt_path = base_path + item
+              next unless item
+              rpt_path_suffix = item.split("?ext_data_path")[0]
+              rpt_path = base_path + rpt_path_suffix
               fdata = File.open(rpt_path, 'rb').read
               rpt_json =JSON.parse(fdata)
               rpt_data = rpt_json["data"]
