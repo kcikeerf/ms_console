@@ -733,6 +733,45 @@ class Mongodb::BankPaperPap
     return result
   end
 
+
+  def get_ckp_quiz params
+    result = {}
+    redis_key_prefix = "/papers/#{self._id.to_s}/ckps/#{params[:ckp_uid]}" 
+    if Common::SwtkRedis::has_key?(Common::SwtkRedis::Ns::Cache, redis_key_prefix)
+      result_date = Common::SwtkRedis::get_value(Common::SwtkRedis::Ns::Cache, redis_key_prefix)
+      result = JSON.parse(result_date)
+    else
+      ckp = BankSubjectCheckpointCkp.where(uid: params[:ckp_uid]).first
+      qzps = bank_quiz_qizs.map{|qiz| qiz.bank_qizpoint_qzps }.flatten
+      paper_qzp_uids = qzps.map{|qzp| qzp._id.to_s}
+      ckp_uid_arr = []
+      if ckp.children.size > 0
+        ckp_uid_arr = ckp.children.where(is_entity: true).select(:uid).map(&:uid)
+      else
+        ckp_uid_arr.push(ckp.uid)
+      end
+      ckp_qzp_uids =  Mongodb::BankCkpQzp.where({ckp_uid: {'$in'=> ckp_uid_arr}}).map(&:qzp_uid)
+      include_qzps_uid = ckp_qzp_uids&paper_qzp_uids
+      result = {
+        :uid => ckp.uid,
+        :order => ckp.sort,
+        :rid => ckp.rid,
+        :dimesion => ckp.dimesion,
+        :checkpoint => ckp.checkpoint,
+        :high_level => ckp.high_level,
+        :advice => ckp.advice,
+        :is_entity => ckp.is_entity,
+        # :qzps => include_qzps_uid,
+        # :qzp_count => include_qzps_uid.size
+      }
+      qizpoints = Mongodb::BankQizpointQzp.where({id: {'$in'=> include_qzps_uid}})
+      result[:qzps] = qizpoints.map {|point| point.point_info }
+      result[:qzps_count] = qizpoints.size
+      Common::SwtkRedis::set_key(Common::SwtkRedis::Ns::Cache, redis_key_prefix , result.to_json)
+    end
+
+    result
+  end
   # 获取试卷关联大纲的树形结构数据
   #
   def associated_outlines uniq_flag=false
@@ -1126,7 +1165,7 @@ class Mongodb::BankPaperPap
           :promptTitle => Common::Locale::i18n('dict.classroom'),
           :prompt => ""
         })
-        sheet.add_data_validation("G#{line+5}",{
+        sheet.add_data_validation("I#{line+5}",{
           :type => :list,
           :formula1 => "sex_list!A$1:A$3",
           :showDropDown => false,
@@ -2228,6 +2267,10 @@ class Mongodb::BankPaperPap
     rescue Exception => ex
       raise ex.message
     end
+  end
+
+  def is_report_completed?
+    self.paper_status == Common::Paper::Status::ReportCompleted
   end
 
 end
