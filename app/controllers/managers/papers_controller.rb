@@ -74,7 +74,7 @@ class Managers::PapersController < ApplicationController
     begin
       @papers = Mongodb::BankPaperPap.where(:_id.in =>  params[:id])
       @papers.each{ |paper| 
-        paper.delete_paper_pap
+        paper.destroy
       }
       status = 200
       data = {:status => "200"}
