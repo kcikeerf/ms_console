@@ -20,7 +20,9 @@ class Mongodb::BankQuizQiz
   # has_many :bank_quizlogs,  class_name: "Mongodb::BankQuizlog"
   # has_many :bank_qiz_qtgs,  class_name: "Mongodb::BankQizQtg"
   has_many :bank_qizpoint_qzps, class_name: "Mongodb::BankQizpointQzp", dependent: :delete
-  has_and_belongs_to_many :bank_paper_paps, class_name: "Mongodb::BankPaperPap" 
+  has_and_belongs_to_many :bank_paper_paps, class_name: "Mongodb::BankPaperPap"
+  has_many :bank_quiz_tag_links, class_name: "Mongodb::BankQuizTagLink", foreign_key: "quiz_uid", dependent: :delete
+  has_many :bank_quiz_options, class_name: "Mongodb::BankQuizOption", dependent: :delete
 
   #field :uid, type: String
   field :subject, type: String
@@ -30,6 +32,7 @@ class Mongodb::BankQuizQiz
   field :tpl_id, type: String
   field :ext1, type: Integer
   field :ext2, type: Integer
+  field :grade, type: String
   field :cat, type: String
   field :type, type: String
   field :optional, type: Boolean
@@ -47,6 +50,8 @@ class Mongodb::BankQuizQiz
   field :order, type: String #系统顺序
   field :asc_order, type: Integer #递增顺序
   field :custom_order, type: String #自定义顺序
+  field :quiz_body, type: String
+  field :is_II_quiz, type: Boolean, default: false
 
   #是否为空
   field :is_empty, type: Boolean, default: false
@@ -58,7 +63,7 @@ class Mongodb::BankQuizQiz
 
   def save_quiz params, paper_status=nil
     #params = JSON.parse(params["_json"]) if params["_json"]
-    qzp_arr = []
+    qzp_arr, op_detail = [], []
    
 #    begin
       original_qzp_ids = self.bank_qizpoint_qzps.map{|qzp| qzp._id.to_s}
@@ -72,11 +77,14 @@ class Mongodb::BankQuizQiz
         :tpl_id => params["tpl_id"] || "",
         :ext1 => params["ext1"] || 0,
         :ext2 => params["ext2"] || 0,
+        :grade => params["grade"] || "",
         :cat => params["cat"] || "",
         :type => params["type"] || "",
         :optional => params["optional"] || "",
         :text => params["text"] || "",
         :text_is_image => params["text_is_image"] || "",
+        :quiz_body => params["question_body"] || "",
+        :is_II_quiz => params["is_II_quiz"] || false,
         :answer => params["answer"] || "",
         :answer_is_image => params["answer_is_image"] || "",
         :desc => params["desc"] || "",
@@ -93,6 +101,10 @@ class Mongodb::BankQuizQiz
         :paper_outline_id => params["paper_outline_id"] || nil
       })
       self.save!
+
+      if params["quiz_tags"]
+        save_quiz_tags params["quiz_tags"]
+      end
 =begin
       params["bank_qizpoint_qzps"].each_with_index{|bqq, index|
         qiz_point = Mongodb::BankQizpointQzp.new
@@ -101,9 +113,9 @@ class Mongodb::BankQuizQiz
         if bqq["bank_checkpoint_ckps"]
           bqq["bank_checkpoint_ckps"].each{|bcc|
             ckp = Mongodb::BankCkpQzp.new
-	    ckp.save_ckp_qzp qiz_point._id, bcc["uid"]
+      ckp.save_ckp_qzp qiz_point._id, bcc["uid"]
             #self.bank_qizpoint_qzps[index].bank_ckp_qzp = ckp
-	  }
+    }
         end
 
       } unless params["bank_qizpoint_qzps"].blank?
@@ -111,6 +123,12 @@ class Mongodb::BankQuizQiz
       if params["bank_qizpoint_qzps"]
         qzp_arr = save_all_qzps self,params, paper_status
       end
+
+      if params["option_details"]
+        op_detail = save_quiz_option params
+      end
+
+      return qzp_arr, op_detail
 #    rescue Exception => ex
 #      return false
 #    end
@@ -136,13 +154,36 @@ class Mongodb::BankQuizQiz
     return result
   end
 
+  def save_quiz_option params
+    result = []
+    self.bank_quiz_options.delete_all
+    params["option_details"].each_with_index {|option,index|
+      qop = Mongodb::BankQuizOption.new
+      qop.save_quiz_option option
+      result <<  qop._id.to_s
+      self.bank_quiz_options.push(qop)
+    }
+    return result
+  end
+
   def save_qzp_all_ckps qiz_point, params
     params["bank_checkpoints_ckps"].each{|bcc|
       ckp = Mongodb::BankCkpQzp.new
       ckp.save_ckp_qzp qiz_point._id.to_s, bcc["uid"], bcc["ckp_source"]
     }
+  end
 
-
+  def save_quiz_tags tags_str
+    bank_quiz_tag_links.destroy_all
+    tag_arr = tags_str.split("|")
+    tag_arr.each { |str|
+      tag = Mongodb::BankTag.where(content: str).first
+      unless tag
+        tag = Mongodb::BankTag.new(content: str)
+        tag.save
+      end
+      Mongodb::BankQuizTagLink.new.save_ins self._id.to_s, nil, tag._id.to_s
+    }
   end
 
   def destroy_quiz
@@ -161,9 +202,15 @@ class Mongodb::BankQuizQiz
 
   def quiz_base_info
     result = {}
-    result[:id] = self._id.to_s
+    result[:uid] = self._id.to_s
     result[:text] = self.text
     result[:answer] = self.answer
+    result[:cat_cn] = Common::Locale::i18n("dict.#{self.cat}")
+    result[:levelword] = Common::Locale::i18n("dict.#{self.levelword2}")
+    result[:order] = self.order
+    result[:custom_order] = self.custom_order.present? ? self.custom_order : nil
+    result[:asc_order] = self.asc_order.present? ? self.asc_order : nil
+    result[:score] = self.score
     return result
   end
 
@@ -201,6 +248,108 @@ class Mongodb::BankQuizQiz
       }
     } 
     result
+  end
+
+  def bank_tag_ids
+    bank_quiz_tag_links.map(&:tag_uid)
+  end
+
+  def bank_tags
+    Mongodb::BankTag.where({id: {"$in" => bank_tag_ids }})
+  end
+
+  def detail_info
+    result ={}
+    qzps = self.bank_qizpoint_qzps
+    result[:quiz_uid] = self._id.to_s
+    result[:subject] = self.subject
+    # result[:grade]= self.grade
+    result[:text] = self.text
+    result[:answer] = self.answer
+    result[:desc] = self.desc
+    result[:levelword2] = self.levelword2
+    result[:quiz_body] = self.quiz_body
+    result[:is_II_quiz] = self.is_II_quiz
+    result[:quiz_options] = bank_quiz_options.map {|op|
+      {
+        uid: op._id.to_s,
+        content: op.content,
+        is_answer: op.is_answer
+      }
+    }
+    result[:bank_qizpoint_qzps] = qzps.map{|qzp|
+      { 
+        "type" => qzp.type,
+        "type_label" => Common::Locale::i18n("dict.#{qzp.type}"),
+        "answer" => qzp.answer,
+        "desc" => qzp.desc,
+        "score" => qzp.score,
+        "bank_checkpoint_ckps" => qzp.bank_checkpoint_ckps.map{|bcc|
+           {
+             "dimesion" => bcc.dimesion,
+             "rid" => bcc.rid,
+             "uid" => bcc.uid,
+             "checkpoint" => bcc.checkpoint,
+             "desc" => bcc.desc
+           }
+        }
+      }
+    } 
+    result
+  end
+
+  # def exercise
+  #   content = {
+  #     uid: self._id.to_s,
+  #     text: self.text,
+  #     order:  self.order,
+  #     custom_order: self.custom_order,
+  #     ckps: {
+  #       knowledge: [],
+  #       skill: [],
+  #       ability: []
+  #     }
+  #   }
+  #   answer = {
+  #     uid: self._id.to_s,
+  #     answer: [],
+  #     order:  self.order,
+  #     custom_order: self.custom_order
+  #   }
+  #   qzps = self.bank_qizpoint_qzps
+  #   qzps.each { |qzp|
+  #     answer[:answer] << qzp.answer 
+  #     result_ckp = qzp.level1_levle2_info.deep_symbolize_keys
+  #     content[:ckps][:knowledge] += result_ckp[:knowledge] if result_ckp[:knowledge]
+  #     content[:ckps][:skill] += result_ckp[:skill] if result_ckp[:skill]
+  #     content[:ckps][:ability] += result_ckp[:ability] if result_ckp[:ability]
+  #   }
+  #   return content, answer
+  # end
+
+  def exercise
+    result ={}
+    qzps = self.bank_qizpoint_qzps
+    result[:quiz_uid] = self._id.to_s
+    result[:subject] = self.subject
+    # result[:grade]= self.grade
+    result[:text] = self.text
+    result[:answer] = self.answer
+    result[:quiz_cat] = self.cat.present? ? self.cat : "other"
+    result[:quiz_cat_cn] = self.cat.present? ? Common::Locale::i18n("dict.#{self.cat}") : Common::Locale::i18n("dict.other")
+    result[:desc] = self.desc
+    result[:levelword2] = self.levelword2
+    result[:bank_qizpoint_qzps] = qzps.map{|qzp|
+      { 
+        "type" => qzp.type,
+        "type_label" => Common::Locale::i18n("dict.#{qzp.type}"),
+        "answer" => qzp.answer,
+        "desc" => qzp.desc,
+        "score" => qzp.score,
+        "bank_checkpoint_ckps" => qzp.level1_levle2_info_plus
+      } if qzp.present?
+    } 
+    return result.deep_stringify_keys
   end
 
 

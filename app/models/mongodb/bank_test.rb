@@ -25,9 +25,10 @@ class Mongodb::BankTest
   scope :by_user, ->(id) { where(user_id: id) }
   scope :by_type, ->(str) { where(quiz_type: str) }
   scope :by_public, ->(flag) { where(is_public: flag) }
+  scope :by_name, ->(name) { where(name: /#{name}/) if name.present?}
 
   field :name, type: String
-  field :quiz_type, type: String
+  field :quiz_type, type: String  #测试类型：期中／期末
   field :start_date, type: DateTime
   field :quiz_date, type: DateTime #默认为截止日期
   field :user_id, type: String
@@ -38,6 +39,8 @@ class Mongodb::BankTest
   field :is_public, type: Boolean
   field :area_rid, type: String
   field :test_status, type: String
+  field :test_type, type: String #测试类型：在线／离线
+
 
   field :dt_add, type: DateTime
   field :dt_update, type: DateTime
@@ -71,17 +74,18 @@ class Mongodb::BankTest
 
   #获取用户绑定情况
   def get_user_binded_stat
+    #获取学生报告的路径
     _report_warehouse_path = Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/"
     target_pupil_urls = Dir[_report_warehouse_path + self._id + "/**/pupil/*.json"]
     #树形ID hash
     target_hash = {}
-    #分类hash
+    #遍历学生的报告路径，将获取的id进行分类，结构为{学校uid:{班级uid:学生uid}}
     target_pupil_urls.map{|url| 
       target_path = url.split(".json")[0]
       target_path_arr = target_path.split("/")
-      target_pupil_uid = target_path_arr[-1]
-      target_klass_uid = target_path_arr[-3]
-      target_tenant_uid = target_path_arr[-5]
+      target_pupil_uid = target_path_arr[-1]#学生uid
+      target_klass_uid = target_path_arr[-3]#班级uid
+      target_tenant_uid = target_path_arr[-5]#学校uid
 
       if target_hash.has_key?(target_tenant_uid)
         if target_hash[target_tenant_uid].has_key?(target_klass_uid)
@@ -102,32 +106,33 @@ class Mongodb::BankTest
     }.compact
 
     
-    #父表格数据
-    result_arr = []
-    #子表格数据
-    result_hash = {}
+    #父表格数据，各个学校内的绑定情况
+    result_arr = []#内容为[{name:学校名,total_tenant:校长数量,binded_tenant:校长绑定数量,total_teacher:教师数量,..}]
+    #子表格数据,内容为key是学校名称，value是学校内各班级绑定情况
+    result_hash = {}#内容为{学校名:[{name:班级名,total_teacher:教师数量,binded_teacher:教师绑定数量,total_pupil:学生数量,..}]}
+    #遍历id hash获取结果
     target_hash.each{|k,v|
-      tenant_hash = {}
-      tena = Tenant.where(uid: k).first
+      tenant_hash = {}#每个学校内的绑定情况hash
+      tena = Tenant.where(uid: k).first#根据学校uid获取学校
       tenant_name = tena.blank? ? k : tena.name_cn
       tenant_hash['name'] = tenant_name
-      tenant_hash['total_pupils'] = 0
+      tenant_hash['total_pupils'] = 0#初始化数量为0
       tenant_hash['binded_pupils'] = 0
       tenant_hash['total_teachers'] = 0
       tenant_hash['binded_teachers'] = 0
-      result_hash[tenant_name] = []
-      tenant_teacher_ids = []
+      result_hash[tenant_name] = []#key为学校名称，value为各个班级的绑定情况组成的数组
+      tenant_teacher_ids = []#学校的老师id为各个班级的老师id加在一起再去除重复
       v.map{|k1,v1|
-        class_hash = {}
-        loc = Location.where(uid: k1).first
+        class_hash = {}#每个班级内的绑定情况
+        loc = Location.where(uid: k1).first#根据班级uid获取班级
         class_hash['name'] = loc.blank? ? k1 : Common::Locale::i18n("dict.#{loc.classroom}")
 
-        target_pupil_ids = Pupil.joins(:user).where(uid: v1).pluck(:id).uniq
-        target_teacher_ids = loc.blank? ? [] : loc.teachers.map{|item| item[:teacher].user_id.to_i}.uniq
+        target_pupil_ids = Pupil.joins(:user).where(uid: v1).pluck(:id).uniq#根据学生uid获取学生的user_id
+        target_teacher_ids = loc.blank? ? [] : loc.teachers.map{|item| item[:teacher].user_id.to_i}.uniq#班级内所有老师的user_id
         tenant_teacher_ids += target_teacher_ids
 
-        binded_pupil_number = get_binded_num(target_pupil_ids)
-        binded_teacher_number = get_binded_num(target_teacher_ids)
+        binded_pupil_number = get_binded_num(target_pupil_ids)#获取绑定的学生数量
+        binded_teacher_number = get_binded_num(target_teacher_ids)#获取绑定的老师数量
 
         class_hash["total_pupils"] = v1.length
         tenant_hash['total_pupils'] += v1.length
@@ -153,8 +158,11 @@ class Mongodb::BankTest
   end
 
   def get_binded_num(user_ids)
+    #两个join找到所有绑定微信的主账号，where是满足身份账号在user_ids内的主账号
     master_ids = User.joins(:wx_user_mappings, :groups_as_child).where("user_links.child_id in (:child_ids) ", child_ids: user_ids).pluck(:id)
+    #这批主账号绑定的子账号
     binded_wx_user = UserLink.where(parent_id: master_ids).pluck(:child_id)
+    #身份账号与绑定主账号的子账号的交集，就是这批所绑定的账号
     return (user_ids&binded_wx_user).size
   end
 
@@ -224,6 +232,7 @@ class Mongodb::BankTest
     union_test = Mongodb::UnionTest.where(_id: params[:id]).first
     params[:tenant_uids] = union_test.tenant_uids
     params[:paper_uid] = paper._id.to_s
+    params[:checkpoint_system_rid] = paper.checkpoint_system_rid
     params[:union_test_id] = union_test.id
 
     phase_arr = %w{ phase1 phase2 phase3 }
@@ -238,8 +247,7 @@ class Mongodb::BankTest
       phase_arr.each_with_index do |phase, index|
         send("save_bank_test_#{phase}_rollback")
       end
-      #以后修改成测试的异常
-      raise e#SwtkErrors::BankTestHasError.new(I18n.t("tests.messages.debug", :message => e.message))
+      raise e
     end
   end
 
@@ -263,8 +271,11 @@ class Mongodb::BankTest
       self.update_attributes({
         :name => params[:name]||params[:paper_uid] + "_" +Common::Locale::i18n("activerecord.models.bank_test"),
         :user_id => params[:user_id],
-        :quiz_date => Time.now,
+        :start_date => params[:start_date],
+        :quiz_date => params[:quiz_date]||Time.now,
         :union_test_id => params[:union_test_id],
+        :test_type => params[:test_type],
+        :checkpoint_system_rid => params[:checkpoint_system_rid],
         :bank_paper_pap_id => params[:paper_uid],
         :test_status => Common::Test::Status::New
       })
@@ -311,13 +322,17 @@ class Mongodb::BankTest
     self.bank_test_task_links.destroy_all
   end
 
+
+
+
+
   #测试状态回退
   def roll_back params
     case params[:back_to]
     when Common::Test::Status::New
       if [Common::Test::Status::New].include?(self.test_status)
         return false
-      else        
+      else
         #删除报告文件
         # del_report_file
         #去除资源锁
@@ -366,7 +381,6 @@ class Mongodb::BankTest
   #   score_path = ""
   #   if self.score_uploads.present?
   #     self.score_uploads.each {|su| 
-  #       # bank_link_user_rollback su
   #       if su.filled_file.current_path.present?
   #         score_path = su.filled_file.current_path.split("/")[0..-2].join("/")
   #       elsif su.empty_file.current_path.present?
@@ -375,21 +389,11 @@ class Mongodb::BankTest
   #       if score_path
   #         FileUtils.rm_rf(score_path)
   #       end
+  #       bank_link_user_rollback su
   #       su.delete
   #     }
   #   end
   # end
-
-  #删除学校上传的成绩文件以及相关信息
-  def single_tenant_rollback
-    #删除绑定信息
-    tenant = Mongodb::BankTestTenantLink.where(bank_test_id: self._id,tenant_uid: t_uid).first
-    #删除job_list
-    job = JobList.where(uid: tenant.job_uid).first
-    job.destroy
-    #修改学校状态
-    tenant.update(tenant_status: Common::Test::Status::New)
-  end
 
   #回滚状态
   def single_rollback
@@ -790,7 +794,7 @@ class Mongodb::BankTest
 
   #删除 关联的用户 及相关信息
   def bank_link_user_rollback su
-    if su.usr_pwd_file.current_path
+    if su.usr_pwd_file
       user_info_xlsx = Roo::Excelx.new(su.usr_pwd_file.current_path)
       if user_info_xlsx.sheet(3).last_row.present? 
         user_info_xlsx.sheet(3).each_with_index do |row,index|
@@ -816,6 +820,10 @@ class Mongodb::BankTest
       su.remove_usr_pwd_file!
       su.save!
     end   
+  end
+
+  def is_report_completed?
+    self.test_status == Common::Test::Status::ReportCompleted
   end
 
   ###私有方法###

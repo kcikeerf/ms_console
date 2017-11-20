@@ -21,6 +21,91 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
   scope :is_entity, -> { where(is_entity: true) }
 
   class << self
+    def get_related_quizs params
+      params["amount"] ||= 3
+      base_condition = {}
+      base_condition["cat"] = Regexp.new(params["cat_type"]) if params["cat_type"].present?
+      base_condition["grade"] = Regexp.new(params["grade"]) if params["grade"].present? 
+      base_condition["subject"] = Regexp.new(params["subject"]) if params["subject"].present?
+      base_condition["levelword2"] = Regexp.new(params["levelword"]) if params["levelword"].present?
+      qzp_list = []
+      quiz_uid_list = []
+      tag_quiz_uid_list = []
+      if params["quiz_tags"].present?
+        quiz_tag_str_arr = params["quiz_tags"]
+        tags = Mongodb::BankTag.where({content: {"$in" => quiz_tag_str_arr}})
+        if params["tag_method"].present? && params["tag_method"] == "and"
+          base_quiz = []
+          tags.each_with_index { |t,index|
+            tag_quiz_uid_list = t.bank_quiz_ids if index < 1
+            tag_quiz_uid_list = tag_quiz_uid_list & t.bank_quiz_ids
+          }        
+        else
+          tags.each { |t|
+            tag_quiz_uid_list << t.bank_quiz_ids
+          }
+        end
+        tag_quiz_uid_list = tag_quiz_uid_list.flatten.uniq.compact
+      end
+      case params["accuracy"]
+      when "exact"
+        base_ckp = where(uid: params["knowledge_uid"]).first
+        return "e45001",false if base_ckp.blank?
+        quiz_uid_list = get_bank_quiz_qiz_id base_ckp, base_ckp
+      else
+        base_k_ckp = where(uid: params["knowledge_uid"]).first
+        return "e45001",false if base_k_ckp.blank? 
+        base_ckp = base_k_ckp
+        base_ckp = where(uid: params["ability_uid"]).first if params["ability_uid"].present?
+        base_ckp = where(uid: params["skill_uid"]).first  if params["skill_uid"].present?
+        # return "e45001",false if base_ckp.blank? 
+        quiz_uid_list = get_bank_quiz_qiz_id base_ckp, base_k_ckp
+      end
+      if params["quiz_tags"].present? 
+        quiz_uid_list = tag_quiz_uid_list & quiz_uid_list
+      else
+        if tag_quiz_uid_list.present?
+          quiz_uid_list = tag_quiz_uid_list & quiz_uid_list
+        end
+      end
+      quiz_uid_list.delete(params["quiz_uid"]) if params["quiz_uid"] && quiz_uid_list.include?(params["quiz_uid"])
+      base_condition["id"] = {'$in' => quiz_uid_list}
+      quizs_info = Mongodb::BankQuizQiz.where(base_condition).sample(params["amount"].to_i).map {|quiz|
+        quiz.quiz_base_info
+      }
+      if quizs_info.present?
+        return quizs_info,true
+      else
+        return "e45001",false
+      end
+    end
+
+    def get_bank_quiz_qiz_id base_ckp, base_k_ckp
+      quiz_uid_list = []   
+      child_uids = [base_ckp.uid] if base_ckp.is_entity
+      child_uids = base_ckp.children.where(is_entity: true).pluck(:uid) unless base_ckp.is_entity
+      qzp_list = Mongodb::BankCkpQzp.where({ckp_uid: {'$in'=> child_uids}}).map(&:qzp_uid).uniq.compact
+      qzp_filter = {
+        id: {'$in'=> qzp_list} 
+      }
+      if base_k_ckp == base_ckp
+        quiz_uid_list = Mongodb::BankQizpointQzp.where(qzp_filter).map{|qiz| qiz.bank_quiz_qiz_id.to_s}.uniq.compact
+      else
+        p_base_k_ckp = base_k_ckp.parent
+        Mongodb::BankQizpointQzp.where(qzp_filter).each {|qiz|
+          if qiz.bank_quiz_qiz_id && qiz.ckps_json
+            base_regexp = Regexp.new(base_k_ckp.uid)
+            super_base_regexp = Regexp.new(p_base_k_ckp.uid)
+            if qiz.ckps_json =~ base_regexp || qiz.ckps_json =~ super_base_regexp
+              unless quiz_uid_list.include?(qiz.bank_quiz_qiz_id)                   
+                quiz_uid_list.push(qiz.bank_quiz_qiz_id)
+              end 
+            end
+          end
+        }
+      end
+      return quiz_uid_list
+    end
 
     #前端获取指标
     def get_web_ckps(params)
@@ -467,7 +552,7 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
       qzp_filter = {
         id: {'$in'=> qzp_list} 
       }
-      quiz_uid_list = Mongodb::BankQizpointQzp.where(qzp_filter).map(&:bank_quiz_qiz_id).compact
+      quiz_uid_list << Mongodb::BankQizpointQzp.where(qzp_filter).map(&:bank_quiz_qiz_id).compact
     } 
     quiz_uid_list.uniq!
     t3 = Time.new
@@ -491,6 +576,11 @@ class BankSubjectCheckpointCkp < ActiveRecord::Base
 
   def parent
     get_nodes(parent_node_rid.size, parent_node_rid, subject, dimesion, category, checkpoint_system_rid).find_by(rid: parent_node_rid)
+  end
+
+  def lv2_ckp
+    l2rid  = rid.slice(0, Common::SwtkConstants::CkpStep*2)
+    self.class.where('subject = ? and dimesion = ? and category = ? and checkpoint_system_rid = ? and rid = ?', subject, dimesion, category, checkpoint_system_rid, l2rid).first
   end
 
   def parent_node_rid

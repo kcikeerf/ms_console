@@ -11,6 +11,7 @@ class Mongodb::BankPaperPap
 
   before_create :set_create_time_stamp
   before_save :set_update_time_stamp
+    before_destroy :delete_paper_pap  
 
   # has_many :bank_paperlogs, class_name: "Mongodb::BankPaperlog"
   # has_many :bank_pap_ptgs, class_name: "Mongodb::BankPapPtg"
@@ -23,7 +24,7 @@ class Mongodb::BankPaperPap
   has_many :bank_tnt_paps, class_name: "Mongodb::BankTntPap",foreign_key: "pap_uid", dependent: :delete
   has_many :bank_tea_paps, class_name: "Mongodb::BankTeaPap",foreign_key: "pap_uid", dependent: :delete
   has_many :bank_pup_paps, class_name: "Mongodb::BankPupPap",foreign_key: "pap_uid", dependent: :delete
-
+  belongs_to :union_test, class_name: "Mongodb::UnionTest"
   scope :by_user, ->(user_id) { where(user_id: user_id) }
   scope :by_subject, ->(subject) { where(subject: subject) if subject.present? }
   scope :by_grade, ->(grade) { where(grade: grade) if grade.present? }
@@ -31,8 +32,12 @@ class Mongodb::BankPaperPap
   scope :by_keyword, ->(keyword) { any_of({heading: /#{keyword}/}, {subheading: /#{keyword}/}) if keyword.present? }
   scope :by_province, ->(province) { where(province: province) if province.present? }
   scope :by_city, ->(city) { where(city: city) if city.present? }
+  scope :is_available, -> (available) { where(paper_status: {'$in'=> [Common::Paper::Status::Analyzed, Common::Paper::Status::ScoreImporting,Common::Paper::Status::ScoreImported,Common::Paper::Status::ReportGenerating,Common::Paper::Status::ReportCompleted]}) if available.present? && available == true}
   scope :by_district, ->(district) { where(district: district) if district.present? }
   scope :by_tenant, ->(t_uid){ where(tenant_uid: t_uid) if t_uid.present? }
+  scope :available, -> { where(paper_status: {'$in'=> [Common::Paper::Status::Analyzed, Common::Paper::Status::ScoreImporting,Common::Paper::Status::ScoreImported,Common::Paper::Status::ReportGenerating,Common::Paper::Status::ReportCompleted]})}
+  scope :unavailable, -> { where(paper_status: {'$nin'=> [Common::Paper::Status::Analyzed, Common::Paper::Status::ScoreImporting,Common::Paper::Status::ScoreImported,Common::Paper::Status::ReportGenerating,Common::Paper::Status::ReportCompleted]})}
+
 
   #validates :caption, :region, :school,:chapter,length: {maximum: 200}
   #validates :subject, :type, :version,:grade, :purpose, :levelword, length: {maximum: 50}
@@ -154,18 +159,12 @@ class Mongodb::BankPaperPap
       return out_path
     end
 
-    #获取试卷信息
-    def get_list params
-      params[:page] = params[:page].blank?? Common::SwtkConstants::DefaultPage : params[:page]
-      params[:rows] = params[:rows].blank?? Common::SwtkConstants::DefaultRows : params[:rows]
-      conditions = {}
-      %w{paper_status grade subject term heading}.each{|attr|
-         conditions[attr] = Regexp.new(params[attr]) unless params[attr].blank? 
-       } 
+    #获取当前用户试卷API
+    def get_list_api user_id
       result =  self.only(:_id,:heading,:tenant_uid,:school,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
-                    .where(conditions)
+                    .available
+                    .where(user_id: user_id)
                     .order("dt_update desc")
-                    .page(params[:page]).per(params[:rows])
       paper_result = []
       result.each_with_index do |item|
         h = {
@@ -186,7 +185,84 @@ class Mongodb::BankPaperPap
         h["has_bank_test"] = item.bank_tests.present?
         paper_result << h
       end
-      return paper_result, self.count
+      return paper_result
+    end
+
+    #获取试卷信息
+    def get_list params
+      params[:page] = params[:page].blank?? Common::SwtkConstants::DefaultPage : params[:page]
+      params[:rows] = params[:rows].blank?? Common::SwtkConstants::DefaultRows : params[:rows]
+      conditions = {}
+      %w{paper_status grade subject term heading}.each{|attr|
+         conditions[attr] = Regexp.new(params[attr]) unless params[attr].blank? 
+       } 
+      result =  self.only(:_id,:heading,:tenant_uid,:school,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
+                    .where(conditions)
+                    .order("dt_update desc")
+                    .page(params[:page]).per(params[:rows])
+
+      total_count =  self.only(:_id,:heading,:tenant_uid,:school,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
+                    .where(conditions)
+                    .order("dt_update desc")
+                    .count
+
+      paper_result = []
+      result.each_with_index do |item|
+        h = {
+          "uid" => item._id.to_s,
+          # "heading" => item.heading.nil?? "" : item.heading,
+          # "paper_status" => item.paper_status,  
+          "school" => item.tenant.nil?? "": item.tenant.name_cn,
+          # "subject" => item.subject.nil?? "": item.subject,
+          # "grade" => item.grade.nil?? "": item.grade,
+          # "term" => item.term.nil?? "": item.term
+        }
+
+        h.merge!(item.attributes)
+        h["subject_label"] = Common::Locale::i18n("dict.#{h["subject"]}")
+        h["grade_label"] = Common::Locale::i18n("dict.#{h["grade"]}")
+        h["term_label"] = Common::Locale::i18n("dict.#{h["term"]}")
+        h["status_label"] = Common::Locale::i18n("papers.status.#{h["paper_status"]}")
+        h["has_bank_test"] = item.bank_tests.present?
+        paper_result << h
+      end
+      return paper_result, total_count
+    end
+
+    def get_list_plus params
+      params[:page] = params[:page].blank?? Common::SwtkConstants::DefaultPage : params[:page]
+      params[:rows] = params[:rows].blank?? Common::SwtkConstants::DefaultRows : params[:rows]
+      result =  self.only(:_id,:heading,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
+                    .available
+                    .by_keyword(params[:keyword])
+                    .by_grade(params[:grade])
+                    .by_subject(params[:category])
+                    .order("dt_update desc")
+                    .page(params[:page]).per(params[:rows])
+
+      paper_result = []
+      result.each_with_index {|item, index|
+        h = item.attributes
+        h["uid"] = item._id.to_s
+        h.delete(:_id)
+        h["subject_label"] = Common::Locale::i18n("dict.#{h["subject"]}")
+        h["grade_label"] = Common::Locale::i18n("dict.#{h["grade"]}")
+        h["term_label"] = Common::Locale::i18n("dict.#{h["term"]}")
+        h["status_label"] = Common::Locale::i18n("papers.status.#{h["paper_status"]}")
+        h["bank_test_count"] = item.bank_tests.count
+        paper_result << h
+      }
+      return paper_result
+    end
+
+    def get_count params
+      count = self.only(:_id,:heading,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
+        .available
+        .by_keyword(params[:keyword])
+        .by_grade(params[:grade])
+        .by_subject(params[:category])
+        .count
+      return count
     end
 
     def ckp_weights_modification args={}
@@ -314,6 +390,17 @@ class Mongodb::BankPaperPap
 
   end
   ########类方法定义：end#######
+  def paper_info
+    info = self.attributes
+    info[:uid] = self._id.to_s
+    info.delete(:_id)
+    info.delete(:bank_quiz_qiz_ids)
+    info[:bank_quiz_qizs] = bank_quiz_qizs.map { |quiz|
+      quiz.detail_info
+    }
+    return info
+  end
+
 
   def save_pap params
     result = false
@@ -733,6 +820,47 @@ class Mongodb::BankPaperPap
     return result
   end
 
+
+  def get_ckp_quiz params
+    result = {}
+    redis_key_prefix = "/papers/#{self._id.to_s}/ckps/#{params[:ckp_uid]}" 
+    if Common::SwtkRedis::has_key?(Common::SwtkRedis::Ns::Cache, redis_key_prefix)
+      result_date = Common::SwtkRedis::get_value(Common::SwtkRedis::Ns::Cache, redis_key_prefix)
+      result = JSON.parse(result_date)
+    else
+      ckp = BankSubjectCheckpointCkp.where(uid: params[:ckp_uid]).first
+      qzps = bank_quiz_qizs.map{|qiz| qiz.bank_qizpoint_qzps }.flatten
+      paper_qzp_uids = qzps.map{|qzp| qzp._id.to_s}
+      ckp_uid_arr = []
+      if ckp.present?
+        if ckp.children.size > 0
+          ckp_uid_arr = ckp.children.where(is_entity: true).select(:uid).map(&:uid)
+        else
+          ckp_uid_arr.push(ckp.uid)
+        end
+        ckp_qzp_uids =  Mongodb::BankCkpQzp.where({ckp_uid: {'$in'=> ckp_uid_arr}}).map(&:qzp_uid)
+        include_qzps_uid = ckp_qzp_uids&paper_qzp_uids
+        result = {
+          :uid => ckp.uid,
+          :order => ckp.sort,
+          :rid => ckp.rid,
+          :dimesion => ckp.dimesion,
+          :checkpoint => ckp.checkpoint,
+          :high_level => ckp.high_level,
+          :advice => ckp.advice,
+          :is_entity => ckp.is_entity,
+          # :qzps => include_qzps_uid,
+          # :qzp_count => include_qzps_uid.size
+        }
+        qizpoints = Mongodb::BankQizpointQzp.where({id: {'$in'=> include_qzps_uid}})
+        result[:qzps] = qizpoints.map {|point| point.point_info }
+        result[:qzps_count] = qizpoints.size
+        Common::SwtkRedis::set_key(Common::SwtkRedis::Ns::Cache, redis_key_prefix , result.to_json)
+      end
+    end
+
+    result
+  end
   # 获取试卷关联大纲的树形结构数据
   #
   def associated_outlines uniq_flag=false
@@ -1126,7 +1254,7 @@ class Mongodb::BankPaperPap
           :promptTitle => Common::Locale::i18n('dict.classroom'),
           :prompt => ""
         })
-        sheet.add_data_validation("G#{line+5}",{
+        sheet.add_data_validation("I#{line+5}",{
           :type => :list,
           :formula1 => "sex_list!A$1:A$3",
           :showDropDown => false,
@@ -1240,20 +1368,20 @@ class Mongodb::BankPaperPap
     paper_status == Common::Paper::Status::ReportCompleted
   end
 
-  def update_test_tenants_status params,status_str,tenant_uids=[]
-    #测试各Tenant的状态更新
-    self.bank_tests[0].bank_test_tenant_links.each{|t|
-      t.update(:tenant_status => status_str) if tenant_uids.include?(t[:tenant_uid])
-    }
-    return params if params.blank? || !params.keys.include?("information")
-    params["information"]["tenants"].each_with_index{|item, index|
-      if tenant_uids.include?(item["tenant_uid"])
-        params["information"]["tenants"][index]["tenant_status"] = status_str
-        params["information"]["tenants"][index]["tenant_status_label"] = Common::Locale::i18n("tests.status.#{status_str}")
-      end
-    } unless params["information"]["tenants"].blank?
-    return params
-  end
+  # def update_test_tenants_status params,status_str,tenant_uids=[]
+  #   #测试各Tenant的状态更新
+  #   self.bank_tests[0].bank_test_tenant_links.each{|t|
+  #     t.update(:tenant_status => status_str) if tenant_uids.include?(t[:tenant_uid])
+  #   }
+  #   return params if params.blank? || !params.keys.include?("information")
+  #   params["information"]["tenants"].each_with_index{|item, index|
+  #     if tenant_uids.include?(item["tenant_uid"])
+  #       params["information"]["tenants"][index]["tenant_status"] = status_str
+  #       params["information"]["tenants"][index]["tenant_status_label"] = Common::Locale::i18n("tests.status.#{status_str}")
+  #     end
+  #   } unless params["information"]["tenants"].blank?
+  #   return params
+  # end
 
   # 获取大纲列表
   #
@@ -1480,8 +1608,8 @@ class Mongodb::BankPaperPap
       target_tenant = Common::Uzer.get_tenant current_user_id
       self.update_attributes({
         :user_id => current_user_id || "",
-        :area_uid => target_area.nil?? "" : target_area.uid,
-        :tenant_uid => target_tenant.nil?? "" : target_tenant.uid,
+        :area_uid => self.target_area.nil? ? "" : self.target_area.uid,
+        :tenant_uid => target_tenant.nil? ? "" : target_tenant.uid,
         :heading => params[:information][:heading] || "",
         :subheading => params[:information][:subheading] || "",
         :orig_file_id => params[:orig_file_id] || "",
@@ -1649,20 +1777,26 @@ class Mongodb::BankPaperPap
         qizpoint_order_arr = params["bank_quiz_qizs"].map{|qiz| qiz["bank_qizpoint_qzps"] }.flatten.map{|qzp| qzp["order"]}
         params["bank_quiz_qizs"].each_with_index{|quiz,index|
           # store quiz
-          qzp_arr = []
+          qzp_arr, op_arr = [], []
           qiz = Mongodb::BankQuizQiz.new
           quiz["subject"] = subject
           # 单题的试卷中递增题顺
           quiz["asc_order"] = index + 1
           # 所有得分点的题顺数组
           quiz["qizpoint_order_arr"] = qizpoint_order_arr
-          qzp_arr = qiz.save_quiz quiz, self.paper_status
+          qzp_arr, op_arr = qiz.save_quiz quiz, self.paper_status
           if qiz.errors.messages.empty?
             params["bank_quiz_qizs"][index]["id"] = qiz._id.to_s
             unless qzp_arr.empty?
               qzp_arr.each_with_index{|qzp_uid,qzp_index|
                 params["bank_quiz_qizs"][index]["bank_qizpoint_qzps"][qzp_index]["id"] = qzp_uid
               }
+            end
+            unless  op_arr.empty?
+              op_arr.each_with_index {|op_uid, op_index|
+                params["bank_quiz_qizs"][index]["option_details"][op_index]["id"] = op_uid
+              }
+              
             end
           else
             raise qiz.errors.messges
@@ -1931,57 +2065,6 @@ class Mongodb::BankPaperPap
     end 
   end
 
-
-  #删除相关试卷的上传文件，删除试卷及依赖
-  def delete_paper_pap
-    begin
-      # if bank_tests[0].present? 
-      #   score_uploads = bank_tests[0].score_uploads
-      # else
-      #   score_upload =  ""
-      # end 
-
-      if self.orig_file_id
-        file_upload = FileUpload.where(id: self.orig_file_id).first 
-      else
-        file_upload = ""
-      end
-
-      # score_path = ""
-      file_path = ""
-      # if score_uploads.present?
-      #   score_uploads.each {|su| 
-      #     if su.filled_file.current_path.present?
-      #       score_path = su.filled_file.current_path.split("/")[0..-2].join("/")
-      #     elsif su.empty_file.current_path.present?
-      #       score_path = su.empty_file.current_path.split("/")[0..-2].join("/")
-      #     end
-      #     if score_path
-      #       FileUtils.rm_rf(score_path)
-      #     end
-      #     su.delete
-      #   }
-      # end
-
-      if file_upload.present?
-        if file_upload.paper.current_path.present?
-          file_path = file_upload.paper.current_path.split("/")[0..-2].join("/")
-        elsif file_upload.paper_structure.current_path.present?
-          file_path = file_upload.paper_structure.current_path.split("/")[0..-2].join("/")
-        end
-        if file_path
-          FileUtils.rm_rf(file_path)
-        end
-        file_upload.delete
-      end
-      self.delete
-    rescue Exception => e
-      p e.message
-      p e.backtrace
-      raise SwtkErrors::DeletePaperError.new(I18n.t("papers.messages.delete_paper.debug", :message => e.message))
-    end
-  end
-
   def checkpoint_system
     CheckpointSystem.where(rid: self.checkpoint_system_rid).first
   end
@@ -2181,7 +2264,7 @@ class Mongodb::BankPaperPap
       save!
       qizpoints = self.bank_quiz_qizs.map {|quiz| quiz.bank_qizpoint_qzps}.flatten
       qizpoints.each do |qiz|
-          Mongodb::BankCkpQzp.where(qzp_uid: qiz._id.to_s).destroy_all
+        Mongodb::BankCkpQzp.where(qzp_uid: qiz._id.to_s).destroy_all
       end
       raise e.message
     end
@@ -2229,6 +2312,65 @@ class Mongodb::BankPaperPap
       return file_path, file_name
     rescue Exception => ex
       raise ex.message
+    end
+  end
+
+  def is_report_completed?
+    self.paper_status == Common::Paper::Status::ReportCompleted
+  end
+
+  def is_avaliable?
+    [Common::Paper::Status::Analyzed, Common::Paper::Status::ScoreImporting,Common::Paper::Status::ScoreImported,Common::Paper::Status::ReportGenerating,Common::Paper::Status::ReportCompleted].include?(self.paper_status)
+  end
+
+  private
+  #删除相关试卷的上传文件，删除试卷及依赖
+  def delete_paper_pap
+    begin
+      # if bank_tests[0].present? 
+      #   score_uploads = bank_tests[0].score_uploads
+      # else
+      #   score_upload =  ""
+      # end 
+
+      if self.orig_file_id
+        file_upload = FileUpload.where(id: self.orig_file_id).first 
+      else
+        file_upload = ""
+      end
+
+      # score_path = ""
+      file_path = ""
+      # if score_uploads.present?
+      #   score_uploads.each {|su| 
+      #     if su.filled_file.current_path.present?
+      #       score_path = su.filled_file.current_path.split("/")[0..-2].join("/")
+      #     elsif su.empty_file.current_path.present?
+      #       score_path = su.empty_file.current_path.split("/")[0..-2].join("/")
+      #     end
+      #     if score_path
+      #       FileUtils.rm_rf(score_path)
+      #     end
+      #     su.delete
+      #   }
+      # end
+
+      if file_upload.present?
+        if file_upload.paper.current_path.present?
+          file_path = file_upload.paper.current_path.split("/")[0..-2].join("/")
+        elsif file_upload.paper_structure.current_path.present?
+          file_path = file_upload.paper_structure.current_path.split("/")[0..-2].join("/")
+        end
+        if file_path
+          FileUtils.rm_rf(file_path)
+        end
+        file_upload.delete
+      end
+      self.delete
+    rescue Exception => e
+      p e.message
+      p e.backtrace
+      raise SwtkErrors::DeletePaperError.new(I18n.t("papers.messages.delete_paper.debug", :message => e.message))
     end
   end
 
