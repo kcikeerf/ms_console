@@ -2107,26 +2107,31 @@ class Mongodb::BankPaperPap
       file_name = ""
       category = Common::Grade.judge_xue_duan self.grade
       bank_subject_checkpoint_ckps = BankSubjectCheckpointCkp.where(checkpoint_system_rid: self.checkpoint_system_rid,subject: self.subject,category: category).order("rid ASC")
-      ckp_hash = {}
+      # ckp_hash = {}
+      ckp_list_arr = []
       if export_type == "xlsx"
         bank_subject_checkpoint_ckps.each do |ckp|
-          checkpoint_arr = [ckp.checkpoint]
-          if ckp.parent
-            p_ckp = ckp.parent
+          current_ckp_label = (ckp.is_entity ? "[end]" : "" ) + ckp.checkpoint + "," + ckp.uid
+          checkpoint_arr = [current_ckp_label]
+          target_ckp = ckp.clone
+          while target_ckp.parent
             checkpoint_arr.unshift("++++")
-            if p_ckp.parent
-              checkpoint_arr.unshift("++++")
-            end
           end
-          ckp_hash[ckp.uid] = checkpoint_arr.join("")
+          checkpoint_arr.unshift(ckp.dimesion)
+          # ckp_hash[ckp.uid] = checkpoint_arr.join("")
+          ckp_list_arr.push(checkpoint_arr.join(""))
         end
         out_excel = Axlsx::Package.new
         wb = out_excel.workbook
         file_path = Rails.root.to_s + "/tmp/#{self._id.to_s}_ckp.xlsx"
         wb.add_worksheet name: "ckp_list", state: :hidden do |sheet|
-          ckp_hash.each do |key, value|
-            sheet.add_row([[value,key].join(",")], :types => [:string])
+          # ckp_hash.each do |key, value|
+          #   sheet.add_row([[value,key].join(",")], :types => [:string])
+          # end
+          ckp_list_arr.each{|item|
+            sheet.add_row([item], :types => [:string])
           end
+          }
         end
         wb.add_worksheet name: "题顺" do |sheet|
           qizpoints.each do |point|
@@ -2140,7 +2145,7 @@ class Mongodb::BankPaperPap
             area_arr.each do |area|
               sheet.add_data_validation("#{area}#{line+1}",{
                 :type => :list,
-                :formula1 => "ckp_list!A$1:A$#{ckp_hash.size}",
+                :formula1 => "ckp_list!A$1:A$#{ckp_list_arr.size}",
                 :showDropDown => false,
                 :showInputMessage => true,
                 :promptTitle => "指标",
