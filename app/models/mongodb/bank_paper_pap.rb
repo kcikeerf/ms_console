@@ -2130,7 +2130,6 @@ class Mongodb::BankPaperPap
           # end
           ckp_list_arr.each{|item|
             sheet.add_row([item], :types => [:string])
-          end
           }
         end
         wb.add_worksheet name: "题顺" do |sheet|
