@@ -2116,6 +2116,7 @@ class Mongodb::BankPaperPap
           target_ckp = ckp.clone
           while target_ckp.parent
             checkpoint_arr.unshift("++++")
+            target_ckp = target_ckp.parent
           end
           checkpoint_arr.unshift(ckp.dimesion)
           # ckp_hash[ckp.uid] = checkpoint_arr.join("")
