@@ -1,31 +1,6 @@
 #swtk user patch
 require 'openssl'
 
-class Hash
-  def insert_before(key, arr)
-    arr = to_a
-    pos = arr.index(arr.assoc(key))
-    if pos
-      arr.insert(pos, arr)
-    else
-      arr << arr
-    end
-    replace Hash[arr]
-  end
-end
-
-class Array
-  def insert_before(key, kvpair)
-    pos = index(assoc(key))
-    if pos
-      insert(pos, kvpair)
-    else
-      self << kvpair
-    end
-  end
-end
-
-
 class String
   $pass_phrase = "7cdcde8c-fe3b-11e6-afd0-00163e321126"
   $salt = "tksecret"
@@ -56,12 +31,10 @@ module TkEncryption
       encrypted_core_str = File.open(code_file, 'rb').read
       secrect_codes = nil
       case secret_code
-      when 0
-        secret_file = Rails.root + "tmp/tk_secret.txt"
-      when 1
-        secret_file = Rails.root + "tmp/tk1_secret.txt"
+      when 'x'
+        secret_file = Rails.root + "config/x_secret.txt"
       else
-        secret_file = Rails.root + "tmp/tk_secret.txt"
+        secret_file = Rails.root + "config/x_secret.txt"
       end
       if File.exists?(secret_file)
         secrect_codes = File.open(secret_file, 'rb').read
@@ -75,33 +48,6 @@ module TkEncryption
   end
 end
 
-# module ReportPlusModule
-#   module ReportPlus
-#     module_function
-
-#   end
-# end
-
-# target_klass_arr = %W{
-#   mongodb_report_constructor
-#   mongodb_report_pupil_generator
-#   mongodb_report_group_generator
-# }
-# target_klass_arr.each{|klass|
-#   code_file = Rails.root + "config/initializers/patches/#{klass}_patch.txt"
-#   secret_file = Rails.root + "tmp/tk_secret.txt"
-#   klass_arr = klass.split("mongodb_")
-#   klass_prefix = (klass_arr.size > 1 )? "Mongodb::" : ""
-#   klass_str = klass_prefix + klass_arr.map{|item| item.camelize}.join("")
-#   klass_str.constantize.class_eval do
-#     begin
-#       eval(TkEncryption::codes_str_decryption(code_file, secret_file))
-#     rescue Exception => ex
-#       #   
-#     end
-#   end
-# }
-
 module Doorkeeper
   class AccessGrant
     belongs_to :user, foreign_key: "resource_owner_id", class_name: "User"
@@ -114,4 +60,126 @@ module Doorkeeper
   class Application
     belongs_to :user, foreign_key: "resource_owner_id", class_name: "User"
   end
+end
+
+module Mongodb
+    klass_version_1_0_arr = [
+      "ReportEachLevelPupilNumberResult",
+      "ReportFourSectionPupilNumberResult",
+      "ReportStandDevDiffResult",
+      "ReportTotalAvgResult",
+      "ReportQuizCommentsResult",
+      "MobileReportTotalAvgResult",
+      "MobileReportBasedOnTotalAvgResult",
+    ]
+    
+    #version1.1
+    group_types = Common::Report::Group::ListArr
+    base_result_klass_arr = []
+    base_result_klass_arr += group_types.map{|t|
+      collect_type = t.capitalize 
+      [
+        "Report"+ collect_type + "BaseResult",
+        "Report"+ collect_type + "Lv1CkpResult",
+        "Report"+ collect_type + "Lv2CkpResult",
+        "Report"+ collect_type + "LvEndCkpResult",
+        "Report"+ collect_type + "OrderResult",
+        "Report"+ collect_type + "OrderLv1CkpResult",
+        "Report"+ collect_type + "OrderLv2CkpResult",
+        "Report"+ collect_type + "OrderLvEndCkpResult",
+        "Report"+ collect_type + "BaseOutlineResult",
+        "Report"+ collect_type + "Lv1OutlineResult",
+        "Report"+ collect_type + "Lv2OutlineResult",
+        "Report"+ collect_type + "LvEndOutlineResult"
+      ]
+    }
+
+    # 用于在线测试
+    pupil_stat_klass_arr = []
+    pupil_stat_klass_arr += group_types[1..-1].map{|t|
+      collect_type = t.capitalize 
+      [
+        "Report" + collect_type + "BeforeBasePupilStatResult",
+        "Report" + collect_type + "BeforeLv1CkpPupilStatResult",
+        "Report" + collect_type + "BeforeLv2CkpPupilStatResult",
+        "Report" + collect_type + "BeforeLvEndCkpPupilStatResult",
+        "Report" + collect_type + "MidmrBasePupilStatResult",
+        "Report" + collect_type + "MidmrLv1CkpPupilStatResult",
+        "Report" + collect_type + "MidmrLv2CkpPupilStatResult",
+        "Report" + collect_type + "MidmrLvEndCkpPupilStatResult",
+        "Report" + collect_type + "BasePupilStatResult",
+        "Report" + collect_type + "Lv1CkpPupilStatResult",
+        "Report" + collect_type + "Lv2CkpPupilStatResult",
+        "Report" + collect_type + "LvEndCkpPupilStatResult"
+      ]
+    }
+
+    online_test_types = Common::OnrineTest::Group::List
+
+    online_test_klass_arr = online_test_types.map{|t|
+      collect_type = t.capitalize 
+      [
+        "OnlineTestReport" + collect_type + "BaseResult",
+        "OnlineTestReport" + collect_type + "Lv1CkpResult",
+        "OnlineTestReport" + collect_type + "Lv2CkpResult",
+        "OnlineTestReport" + collect_type + "LvEndCkpResult",
+        "OnlineTestReport" + collect_type + "OrderResult",
+        "OnlineTestReport" + collect_type + "OrderLv1CkpResult",
+        "OnlineTestReport" + collect_type + "OrderLv2CkpResult",
+        "OnlineTestReport" + collect_type + "OrderLvEndCkpResult"
+      ]
+    }
+
+    online_test_pupil_stat_klass_arr = [
+      "OnlineTestReportTotalBeforeBasePupilStatResult",
+      "OnlineTestReportTotalBeforeLv1CkpPupilStatResult",
+      "OnlineTestReportTotalBeforeLv2CkpPupilStatResult",
+      "OnlineTestReportTotalBeforeLvEndCkpPupilStatResult"
+    ]
+
+    #综合在线测试
+    zh_online_test_klass_arr = (Common::Report2::Group::List1Arr + Common::Report2::Group::List2Arr).flatten.uniq.map{|t|
+      collect_type = t.capitalize 
+      [
+        "Report"+ collect_type + "Lv1CkpOverallResult",
+
+      ]
+    }
+
+    klass_arr = [
+      klass_version_1_0_arr,
+      base_result_klass_arr, 
+      pupil_stat_klass_arr,
+      online_test_klass_arr,
+      online_test_pupil_stat_klass_arr,
+      zh_online_test_klass_arr
+      ].flatten
+    
+    klass_arr.each{|klass|
+      self.const_set(klass, Class.new)
+      ("Mongodb::" + klass).constantize.class_eval do
+        include Mongoid::Document
+        include Mongoid::Attributes::Dynamic
+
+        index({_id: 1}, {background: true})
+      end
+    }
+
+
+    others = {
+      "TestReportUrl" => %Q{
+        include Mongoid::Document
+        include Mongoid::Attributes::Dynamic
+
+        index({_id: 1}, {background: true})
+        index({test_id: 1}, {background: true})
+        index({report_url: 1}, {background: true})
+      }
+    }
+    others.each{|klass, core_str|
+      self.const_set(klass, Class.new)
+      ("Mongodb::" + klass).constantize.class_eval do
+        eval(core_str)
+      end
+    }
 end
