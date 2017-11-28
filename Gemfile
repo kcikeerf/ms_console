@@ -1,4 +1,4 @@
-source 'https://ruby.taobao.org'
+source 'https://gems.ruby-china.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -95,6 +95,10 @@ gem 'rucaptcha'
 gem 'nestive'
 gem 'thin'
 gem 'unicorn'
+
+#假删除
+gem 'acts_as_paranoid', '~> 0.5.0'
+
 
 gem 'actionpack-action_caching'
 

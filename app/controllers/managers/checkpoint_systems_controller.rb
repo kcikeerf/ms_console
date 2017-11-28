@@ -76,7 +76,7 @@ class Managers::CheckpointSystemsController < ApplicationController
       checkpoint_systems = CheckpointSystem.where(:rid => params[:id])
       if params[:delete_ckp]
         checkpoint_systems.each{|sys|
-          sys.bank_subject_checkpoint_ckps.destroy_all 
+          sys.bank_subject_checkpoint_ckps.with_deleted.destroy_all 
           sys.destroy 
        }
       else
