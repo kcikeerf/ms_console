@@ -41,6 +41,7 @@
 		options = options + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/edit" data-remote="true" >编辑</a>';  
 		options = options+"&nbsp;" + "<a href='#' onclick='" + click_show + "'>报告详情</a>";
 		options = options+"&nbsp;" + '<a href="#" onclick="get_binded_stat(\'' + row["uid"] + '\')" >绑定详情</a>';
+    options = options+"&nbsp;" + '<a href="<%= page_info_item[:path] %>/'+row["uid"]+'/get_rqrcode")" >下载二维码</a>';
 	  return options;
 	}
   function get_binded_stat(uid){

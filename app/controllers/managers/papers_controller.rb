@@ -86,7 +86,7 @@ class Managers::PapersController < ApplicationController
   end
 
   def download
-    file_path, file_name = @paper.export_paper_associated_ckps_file    
+    file_path, file_name = @paper.export_paper_associated_ckps_file params    
     send_file file_path, filename: file_name
   end
 
@@ -94,15 +94,26 @@ class Managers::PapersController < ApplicationController
     status = 200
     score_uploads = []
     if ["analyzed", "score_importing", "score_imported", "report_generating", "report_completed"].include?(@paper.paper_status)
-      paper_hash = {}
-      paper_hash[:file_id] = params[:id]
-      paper_hash[:file_type] = "ckps_file" #三维解析下载
-      paper_hash[:upload_type] = ""
-      paper_hash[:down_file_name] = Common::Locale::i18n("activerecord.models.bank_paper_pap")+Common::Locale::i18n("page.quiz.three_dimensiona_digital_analysis")#"试卷三维解析下载"
-      score_uploads << paper_hash
+      # paper_hash = {}
+      # paper_hash[:file_id] = params[:id]
+      # paper_hash[:file_type] = "ckps_file" #三维解析下载
+      # paper_hash[:upload_type] = ""
+      # paper_hash[:down_file_name] = Common::Locale::i18n("activerecord.models.bank_paper_pap")+Common::Locale::i18n("page.quiz.three_dimensiona_digital_analysis")#"试卷三维解析下载"
+      score_uploads << paper_download_hash("pu_tong")
+      score_uploads << paper_download_hash("du_li")
+      score_uploads << paper_download_hash("zong_he")
     end
     data = {:down_list => score_uploads}
     render common_json_response(status, data) 
+  end
+
+  def paper_download_hash(type)
+    paper_hash = {}
+    paper_hash[:file_id] = params[:id]
+    paper_hash[:file_type] = "ckps_file_"+type #三维解析下载
+    paper_hash[:upload_type] = ""
+    paper_hash[:down_file_name] = I18n.t("activerecord.models.bank_paper_pap")+I18n.t("page.quiz.three_dimensiona_digital_analysis")+I18n.t("dict.#{type}")#"试卷三维解析下载"
+    return paper_hash
   end
 
   def export_ckpz_qzs

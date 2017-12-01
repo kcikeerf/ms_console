@@ -1,5 +1,5 @@
 class Managers::BankTestsController < ApplicationController
-	before_action :set_bank_test, only: [:edit, :update, :combine, :combine_obj, :download_page,:download,:get_binded_stat,:rollback]
+	before_action :set_bank_test, only: [:edit, :update, :combine, :combine_obj, :download_page,:download,:get_binded_stat,:rollback,:get_rqrcode]
 	layout 'manager_crud'
 
   respond_to :json, :html, :js
@@ -45,6 +45,12 @@ class Managers::BankTestsController < ApplicationController
   def get_binded_stat
     result_hash,result_arr = @bank_test.get_user_binded_stat
     render :json => {result_hash: result_hash,result_arr: result_arr}
+  end
+
+  #下载二维码
+  def get_rqrcode
+    file_path = @bank_test.create_rqrcode
+    send_file file_path, filename: @bank_test.id.to_s + '.png'
   end
 
   # def combine
