@@ -395,12 +395,11 @@ class Mongodb::BankTest
 
   #生成二维码
   def create_rqrcode
-    file_path = Dir::pwd + Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/" + self._id.to_s + '/'
+    file_path = Common::Report::WareHouse::ReportLocation + "reports_warehouse/tests/" + self._id.to_s + '/'
     FileUtils.mkdir_p(file_path) unless File.exists?(file_path)  
     file_name = self._id.to_s + '.png'
     code_hash = {
-      test_id: self.id.to_s,
-      time: (Time.now + 30.days).strftime("%Y-%m-%d")
+      test_id: self.id.to_s
     }
     qrcode = RQRCode::QRCode.new(code_hash.to_json.to_s)
     
