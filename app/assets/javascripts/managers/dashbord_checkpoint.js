@@ -42,52 +42,44 @@ $(function () {
     },
     success: function(rs){
       var sum_num = 0
+      var xiao = 0
+      var chu = 0
+      var gao = 0
       for(var i = 0; i<rs.length; i++){
         sum_num = sum_num + rs[i].dimesion_count
+        switch(rs[i].category){
+          case "小学":
+            xiao += 1
+            break;
+          case "初中":
+            chu += 1
+            break;
+          case "高中":
+            gao += 1
+            break;
+        }
+      }
+      var subject = []
+      for(var i = 0; i<rs.length/3; i++){
+        var hash = {
+          index: 3*i,
+          rowspan: 3
+        }
+        subject.push(hash)
       }
       $('#sum_num').html(sum_num)
       $('#total_table').datagrid({
         onLoadSuccess:function(){
           var category = [{
             index:0,
-            rowspan:9
+            rowspan: xiao
           },{
-            index:9,
-            rowspan:9
+            index: xiao,
+            rowspan: chu
           },{
-            index:18,
-            rowspan:9
+            index: xiao + chu,
+            rowspan: gao
           }];
-          var subject =[{
-            index:0,
-            rowspan:3
-          },{
-            index:3,
-            rowspan:3
-          },{
-            index:6,
-            rowspan:3
-          },{
-            index:9,
-            rowspan:3
-          },{
-            index:12,
-            rowspan:3
-          },{
-            index:15,
-            rowspan:3
-          },{
-            index:18,
-            rowspan:3
-          },
-          {
-            index:21,
-            rowspan:3
-          },{
-            index:24,
-            rowspan:3
-          },
-          ]
           for(var i=0; i<category.length; i++){
             $('#total_table').datagrid('mergeCells',{
               index:category[i].index,
