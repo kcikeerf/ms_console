@@ -11,7 +11,7 @@ class Mongodb::BankPaperPap
 
   before_create :set_create_time_stamp
   before_save :set_update_time_stamp
-    before_destroy :delete_paper_pap  
+  before_destroy :delete_paper_pap  
 
   # has_many :bank_paperlogs, class_name: "Mongodb::BankPaperlog"
   # has_many :bank_pap_ptgs, class_name: "Mongodb::BankPapPtg"
@@ -25,7 +25,7 @@ class Mongodb::BankPaperPap
   has_many :bank_tea_paps, class_name: "Mongodb::BankTeaPap",foreign_key: "pap_uid", dependent: :delete
   has_many :bank_pup_paps, class_name: "Mongodb::BankPupPap",foreign_key: "pap_uid", dependent: :delete
   belongs_to :union_test, class_name: "Mongodb::UnionTest"
-  scope :by_user, ->(user_id) { where(user_id: user_id) }
+  scope :by_user, ->(user_id) { where(user_id: user_id) if user_id.present? }
   scope :by_subject, ->(subject) { where(subject: subject) if subject.present? }
   scope :by_grade, ->(grade) { where(grade: grade) if grade.present? }
   scope :by_status, ->(status) { where(paper_status: status) if status.present? }
@@ -37,7 +37,6 @@ class Mongodb::BankPaperPap
   scope :by_tenant, ->(t_uid){ where(tenant_uid: t_uid) if t_uid.present? }
   scope :available, -> { where(paper_status: {'$in'=> [Common::Paper::Status::Analyzed, Common::Paper::Status::ScoreImporting,Common::Paper::Status::ScoreImported,Common::Paper::Status::ReportGenerating,Common::Paper::Status::ReportCompleted]})}
   scope :unavailable, -> { where(paper_status: {'$nin'=> [Common::Paper::Status::Analyzed, Common::Paper::Status::ScoreImporting,Common::Paper::Status::ScoreImported,Common::Paper::Status::ReportGenerating,Common::Paper::Status::ReportCompleted]})}
-
 
   #validates :caption, :region, :school,:chapter,length: {maximum: 200}
   #validates :subject, :type, :version,:grade, :purpose, :levelword, length: {maximum: 50}
@@ -232,14 +231,32 @@ class Mongodb::BankPaperPap
     def get_list_plus params
       params[:page] = params[:page].blank?? Common::SwtkConstants::DefaultPage : params[:page]
       params[:rows] = params[:rows].blank?? Common::SwtkConstants::DefaultRows : params[:rows]
-      result =  self.only(:_id,:heading,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
-                    .available
-                    .by_keyword(params[:keyword])
-                    .by_grade(params[:grade])
-                    .by_subject(params[:category])
-                    .order("dt_update desc")
-                    .page(params[:page]).per(params[:rows])
-
+      tag = nil
+      tag = Mongodb::BankTag.where(content: params[:category]).first if params[:category].present?
+      tag = Mongodb::BankTag.where(content: params[:tag]).first if params[:tag].present?
+      if tag
+        tag_paper_ids = tag.bank_paper_pap_ids
+        result =  self.only(:_id,:heading,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
+                      .where({id: {"$in" => tag_paper_ids}})
+                      .by_keyword(params[:keyword])
+                      .by_grade(params[:grade])
+                      .by_user(params[:user_id])
+                      .available
+                      .order("dt_update desc")
+                      .page(params[:page]).per(params[:rows])
+      else
+        if params[:category].present? || params[:tag].present?
+          result = []
+        else
+          result =  self.only(:_id,:heading,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
+                        .by_keyword(params[:keyword])
+                        .by_grade(params[:grade])
+                        .by_user(params[:user_id]) 
+                        .available
+                        .order("dt_update desc")
+                        .page(params[:page]).per(params[:rows])
+        end
+      end
       paper_result = []
       result.each_with_index {|item, index|
         h = item.attributes
@@ -256,12 +273,30 @@ class Mongodb::BankPaperPap
     end
 
     def get_count params
-      count = self.only(:_id,:heading,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
-        .available
-        .by_keyword(params[:keyword])
-        .by_grade(params[:grade])
-        .by_subject(params[:category])
-        .count
+      tag = nil
+      tag = Mongodb::BankTag.where(content: params[:category]).first if params[:category].present?
+      tag = Mongodb::BankTag.where(content: params[:tag]).first if params[:tag].present?
+      if tag
+        tag_paper_ids = tag.bank_paper_pap_ids
+        count =  self.only(:_id,:heading,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
+                      .where({id: {"$in" => tag_paper_ids}})
+                      .available
+                      .by_keyword(params[:keyword])
+                      .by_user(params[:user_id])
+                      .by_grade(params[:grade])
+                      .count
+      else
+        if params[:category].present? || params[:tag].present?
+          count = 0
+        else
+          count =  self.only(:_id,:heading,:subject,:grade,:term,:dt_update,:paper_status, :is_empty)
+                        .available
+                        .by_keyword(params[:keyword])
+                        .by_user(params[:user_id])
+                        .by_grade(params[:grade])
+                        .count
+        end
+      end
       return count
     end
 
@@ -1418,14 +1453,14 @@ class Mongodb::BankPaperPap
       #地理位置信息
       current_user = Common::Uzer.get_user current_user_id
       target_tenant = Common::Uzer.get_tenant current_user_id
-      test_associated_tenant_uids = []
+      # test_associated_tenant_uids = []
       if current_user.is_project_administrator?
         target_area = Area.where(rid: current_user.role_obj.area_rid).first
         params[:information][:province] = target_area.pcd_h[:province][:name_cn]
         params[:information][:city] = target_area.pcd_h[:city][:name_cn]
         params[:information][:district] = target_area.pcd_h[:district][:name_cn]
         params[:information][:school] = Common::Locale::i18n("tenants.types.xue_xiao_lian_he")
-        self.test_associated_tenant_uids = params[:information][:tenants].map{|item| item[:tenant_uid]} unless params[:information][:tenants].blank?
+        # self.test_associated_tenant_uids = params[:information][:tenants].map{|item| item[:tenant_uid]} unless params[:information][:tenants].blank?
       else
         target_area = Area.get_area params[:information]
         if target_tenant
@@ -1433,10 +1468,10 @@ class Mongodb::BankPaperPap
           params[:information][:city] = target_tenant.area_pcd[:city_name_cn]
           params[:information][:district] = target_tenant.area_pcd[:district_name_cn]
           params[:information][:school] = target_tenant.name_cn
-          self.test_associated_tenant_uids = [target_tenant.uid]
+          # self.test_associated_tenant_uids = [target_tenant.uid]
         end
       end
-      raise if self.test_associated_tenant_uids.blank?
+      # raise if self.test_associated_tenant_uids.blank?
       ##############################
       phase_arr.each_with_index do |value,index|
         error_index = index
@@ -1722,9 +1757,10 @@ class Mongodb::BankPaperPap
     begin 
        #########
        # part 1 根据params 修改paper信息
-       #########
+       #########x
       params = JSON.parse(self.paper_json)
-
+      tag_str = params["information"]["tags"]
+      save_quiz_tags tag_str
       self.update_attributes({
         :order => params["order"] || "",
         :heading => params["information"]["heading"] || "",
@@ -2379,6 +2415,37 @@ class Mongodb::BankPaperPap
   def is_avaliable?
     [Common::Paper::Status::Analyzed, Common::Paper::Status::ScoreImporting,Common::Paper::Status::ScoreImported,Common::Paper::Status::ReportGenerating,Common::Paper::Status::ReportCompleted].include?(self.paper_status)
   end
+
+  def paper_tag_links
+    PaperTagLink.where(paper_id: self._id.to_s)
+  end
+
+  def bank_tag_ids
+    paper_tag_links.map(&:tag_id)
+  end
+
+  def bank_tags
+    Mongodb::BankTag({id: {"$in" => bank_tag_ids}})
+  end
+
+  def save_quiz_tags tags_str
+    paper_tag_links.destroy_all
+    tag_arr = tags_str.split("|")
+    tag_arr.each { |str|
+      tag = Mongodb::BankTag.where(content: str).first
+      unless tag
+        tag = Mongodb::BankTag.new(content: str)
+        tag.save
+      end
+      link_file = {paper_id: self._id.to_s, tag_id: tag._id.to_s}
+      link = PaperTagLink.where(link_file).first
+      unless link.present?
+        link = PaperTagLink.new(link_file)
+      end
+      link.save
+    }
+  end
+
 
   private
   #删除相关试卷的上传文件，删除试卷及依赖
