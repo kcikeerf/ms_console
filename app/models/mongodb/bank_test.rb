@@ -334,6 +334,9 @@ class Mongodb::BankTest
       if [Common::Test::Status::New].include?(self.test_status)
         return false
       else
+        #清除redis
+        _redis_key_wildcard = Common::SwtkRedis::Prefix::Reports + "tests/" + self.id.to_s + "/*"
+        Common::SwtkRedis::del_keys(Common::SwtkRedis::Ns::Sidekiq,_redis_key_wildcard)
         #删除身份验证表
         IdentityMapping.where(test_id: self.id.to_s).destroy_all
         #删除报告文件
@@ -353,6 +356,9 @@ class Mongodb::BankTest
       end
     when Common::Test::Status::ScoreImported
       if [Common::Test::Status::ReportGenerating,Common::Test::Status::ReportCompleted].include?(self.test_status)
+        #清除redis
+        _redis_key_wildcard = Common::SwtkRedis::Prefix::Reports + "tests/" + self.id.to_s + "/*"
+        Common::SwtkRedis::del_keys(Common::SwtkRedis::Ns::Sidekiq,_redis_key_wildcard)
         #删除报告文件
         # del_report_file
         #去除资源锁
