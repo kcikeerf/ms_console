@@ -2366,7 +2366,7 @@ class Mongodb::BankPaperPap
                 skill << ckp_path 
               end
             }
-            sheet.add_row([qzp.order, qzp.score] + knowledge + skill +ability)
+            sheet.add_row([qzp.order, qzp.score] + knowledge + [skill.join(' // ')] +[ability.join(' // ')])
           }
         when 'ckps_file_du_li'
           sheet.add_row(["Quit Point", "Score", "knowledge",nil,nil,nil,nil,nil, "skill",nil,nil,nil,nil,nil,"ability"])
