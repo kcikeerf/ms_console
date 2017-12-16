@@ -55,15 +55,17 @@ var setting = {
 				$('#advice').val('');
 				$('#sort').val('');
 				//$('#select-box').val('');
-			    $('#dlg').dialog('open');
-			    //replace_advice_ckeditor();
+			    // $('#dlg').dialog('open');
+			    $('#dlg').window('open').window('resize',{width:'566px',height:'456px',top: '100px',left:'300px'});
+
+			    replace_advice_ckeditor();
 			    //clear_form_value();
 			    $('.dimesion').val(treeNode.dimesion);
 			    $('.str_pid').val(treeNode.rid);
 	    		$('.subject').val($(".subject_select").val());
 	    		$('.category').val($(".xue_duan_select").val());
 
-			    //CKEDITOR.instances.advice.setData('')
+			    // CKEDITOR.instances.advice.setData('')
 	    		if(treeNode.dimesion == "knowledge"){
 					$(".high_level_div").html("");
 				}else
@@ -93,6 +95,12 @@ var setting = {
 					//clear_form_value();
 					$('#dlg').dialog('close');
 			   	});
+			   	$(".panel-tool-close, #cancel").on('click', function(){
+						//clear_form_value();
+						$('#dlg').dialog('close');
+						$('#save').off('click');
+
+					});
 			    return false;
 		    });
 	    }
@@ -138,7 +146,9 @@ var setting = {
 	};
 	/*编辑事件*/
 	function zTreeBeforeEditName(treeId, treeNode){
-		$('#dlg').dialog('open');
+		// $('#dlg').dialog('open');
+		$('#dlg').window('open').window('resize',{width:'566px',height:'456px',top: '100px',left:'300px'});
+
 		replace_advice_ckeditor();
 		$('.checkpoint').val(treeNode.checkpoint);
 		treeNode.desc ? $('.desc').val(treeNode.desc):$('.desc').val('');
