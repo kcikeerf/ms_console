@@ -267,5 +267,41 @@ namespace :swtk do
       p 'done'
     end
 
+    desc '导出各个学科和学段的指标脑图'
+    task :naotu_ckp_subject_xue_duan, [:subject,:xue_duan] => :environment do |t, args|
+      result = BankSubjectCheckpointCkp.get_all_ckps(args[:subject],args[:xue_duan])
+      knowledge_file=File.new(Rails.root.to_s + '/tmp/knowledge.txt', "w")
+      knowledge_str = "" 
+      ability_file=File.new(Rails.root.to_s + '/tmp/ability.txt', "w")
+      ability_str = "" 
+      skill_file=File.new(Rails.root.to_s + '/tmp/skill.txt', "w")
+      skill_str = "" 
+      knowledge = result[:knowledge][:nodes]
+      ability = result[:ability][:nodes]
+      skill = result[:skill][:nodes]
+      knowledge_str = get_ckp_file_str(knowledge) #知识文件写入内容
+      ability_str = get_ckp_file_str(ability) #能力文件写入内容
+      skill_str = get_ckp_file_str(skill) #技能文件写入内容
+      
+      knowledge_file.puts(knowledge_str)
+      ability_file.puts(ability_str)
+      skill_file.puts(skill_str)
+      knowledge_file.close
+      ability_file.close
+      skill_file.close
+      p 'done'
+    end
+
+    def get_ckp_file_str(ckp_hash)
+      result_str = ""
+      p ckp_hash[0][:name]
+      result_str += ckp_hash[0][:name] + "\n"
+      for i in 1..ckp_hash.length-1
+        tab_time = ckp_hash[i][:id].length/3
+        tab_str = "\t"
+        result_str += tab_str*tab_time + ckp_hash[i][:name] + "\n"
+      end
+      return result_str
+    end
   end
 end
